@@ -1,0 +1,93 @@
+package com.yier.platform.service.medical;
+
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.MedicalDateRequest;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import com.yier.platform.common.requestParam.MedicalPrescriptionRequest;
+import com.yier.platform.common.util.RandomUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.MedicalOrderMapper;
+import com.yier.platform.dao.MedicalPrescriptionMapper;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * 上门问诊医生时间编排 service
+ */
+@Service
+public class MedicalPrescriptionService {
+    private final Logger logger = LoggerFactory.getLogger(MedicalPrescriptionService.class);
+    @Autowired
+    private MedicalPrescriptionMapper daoMedicalPrescriptionMapper;
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+    @Autowired
+    private OrderDrugsService orderDrugsService;
+
+
+
+
+    @ApiOperation(value = "创建处方")
+    @Transactional
+    public MedicalPrescription createPrescription(MedicalPrescription record){
+        MedicalOrderRequest medicalOrderRequest = new MedicalOrderRequest();
+        medicalOrderRequest.setOrderNo(record.getOrderNo());
+        MedicalOrder medicalOrder = medicalOrderService.selectMedicalOrderByIdKey(medicalOrderRequest);
+        String prescriptionId = "PP"+ RandomUtils.randomNumeric(4) + UUID.randomUUID().toString().replace("-","").toUpperCase();
+        record.setOrderNo(record.getOrderNo());
+        record.setPrescriptionTime(new Date());
+        record.setPrescriptionId(prescriptionId);
+        record.setHospitalId(medicalOrder.getHospitalId());
+        record.setOrganizationId(medicalOrder.getHospitalId().toString());
+        record.setOrganizationName(medicalOrder.getHospitalName());
+        record.setHospitalAddress(medicalOrder.getHospitalAddress());
+        record.setCatalogId(medicalOrder.getCatalogId());
+        record.setDepartmentId(medicalOrder.getDepartmentId());
+        record.setPatientId(medicalOrder.getPatientId());
+        record.setPatientIdCardNo(medicalOrder.getPatientIdCardNo());
+        record.setPatientName(medicalOrder.getPatientName());
+        record.setDoctorId(medicalOrder.getDoctorId());
+        record.setDoctorTitle(medicalOrder.getDoctorTitle());
+        record.setDoctorName(medicalOrder.getDoctorName());
+        record.setServiceFee(1000);
+        record.getDrugList().forEach(drug->{
+            drug.setOrderNo(medicalOrder.getOrderNo());
+            drug.setPrescriptionId(prescriptionId);
+            orderDrugsService.insertSelective(drug);
+        });
+        daoMedicalPrescriptionMapper.insertSelective(record);
+        medicalOrder.setStatus("4");
+        medicalOrder.setGmtModified(new Date());
+        medicalOrderService.updateByPrimaryKeySelective(medicalOrder);
+        return record;
+    }
+
+    // 根据条件查询列表
+    public List<MedicalPrescription> listMedicalPrescription(MedicalPrescriptionRequest params){
+        return daoMedicalPrescriptionMapper.listMedicalPrescription(params);
+    }
+    // 根据条件查询列表 总数
+    public int listMedicalPrescriptionCount(MedicalPrescriptionRequest params){
+        return daoMedicalPrescriptionMapper.listMedicalPrescriptionCount(params);
+    }
+    public int insertSelective(MedicalPrescription record){
+        return daoMedicalPrescriptionMapper.insertSelective(record);
+    }
+
+    public MedicalPrescription selectByPrimaryKey(Long id){
+        return daoMedicalPrescriptionMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(MedicalPrescription record){
+        return daoMedicalPrescriptionMapper.updateByPrimaryKeySelective(record);
+    }
+}

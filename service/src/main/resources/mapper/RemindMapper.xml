@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.RemindMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Remind">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="patient_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="drug_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="dosage" javaType="java.lang.Float" jdbcType="REAL" />
+      <arg column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, patient_id, drug_id, dosage, content, status, gmt_create, gmt_modified, remarks
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_remind
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_remind
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.Remind">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_remind (patient_id, drug_id, dosage, 
+      content, status, gmt_create, 
+      gmt_modified, remarks)
+    values (#{patientId,jdbcType=BIGINT}, #{drugId,jdbcType=BIGINT}, #{dosage,jdbcType=REAL}, 
+      #{content,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.Remind">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_remind
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="patientId != null">
+        patient_id,
+      </if>
+      <if test="drugId != null">
+        drug_id,
+      </if>
+      <if test="dosage != null">
+        dosage,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="patientId != null">
+        #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="drugId != null">
+        #{drugId,jdbcType=BIGINT},
+      </if>
+      <if test="dosage != null">
+        #{dosage,jdbcType=REAL},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Remind">
+    update t_remind
+    <set>
+      <if test="patientId != null">
+        patient_id = #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="drugId != null">
+        drug_id = #{drugId,jdbcType=BIGINT},
+      </if>
+      <if test="dosage != null">
+        dosage = #{dosage,jdbcType=REAL},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Remind">
+    update t_remind
+    set patient_id = #{patientId,jdbcType=BIGINT},
+      drug_id = #{drugId,jdbcType=BIGINT},
+      dosage = #{dosage,jdbcType=REAL},
+      content = #{content,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

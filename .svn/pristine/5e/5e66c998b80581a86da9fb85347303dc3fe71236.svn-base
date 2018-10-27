@@ -1,0 +1,32 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.Cities;
+import com.yier.platform.common.requestParam.BaseRequest;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * 地级市信息
+ */
+@Repository
+public interface CitiesMapper {
+    // 根据条件查询列表
+    List<Cities> listCities(BaseRequest params);
+    // 根据条件查询列表 总数
+    int listCitiesCount(BaseRequest params);
+    
+    
+    
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(Cities record);
+
+    int insertSelective(Cities record);
+
+    Cities selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(Cities record);
+
+    int updateByPrimaryKey(Cities record);
+}

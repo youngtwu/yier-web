@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.ApiAroundMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.ApiAround">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="user_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="token" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="os_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="app_key" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="nonce" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="time_stamp" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="signature" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="api_version" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="method_path" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="method_args" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="request_remote_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="request_path" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="request_params" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="request_method" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="request_user_agent" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="duration" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, user_id, token, os_type, app_key, nonce, time_stamp, signature, api_version, 
+    method_path, method_args, request_remote_address, request_path, request_params, request_method, 
+    request_user_agent, duration, status, gmt_create, gmt_modified, remarks
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_api_around
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_api_around
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.ApiAround">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_api_around (type_id, user_id, token, 
+      os_type, app_key, nonce, 
+      time_stamp, signature, api_version, 
+      method_path, method_args, request_remote_address, 
+      request_path, request_params, request_method, 
+      request_user_agent, duration, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{typeId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, 
+      #{osType,jdbcType=VARCHAR}, #{appKey,jdbcType=VARCHAR}, #{nonce,jdbcType=VARCHAR}, 
+      #{timeStamp,jdbcType=VARCHAR}, #{signature,jdbcType=VARCHAR}, #{apiVersion,jdbcType=VARCHAR}, 
+      #{methodPath,jdbcType=VARCHAR}, #{methodArgs,jdbcType=VARCHAR}, #{requestRemoteAddress,jdbcType=VARCHAR}, 
+      #{requestPath,jdbcType=VARCHAR}, #{requestParams,jdbcType=VARCHAR}, #{requestMethod,jdbcType=VARCHAR}, 
+      #{requestUserAgent,jdbcType=VARCHAR}, #{duration,jdbcType=BIGINT}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.ApiAround">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_api_around
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="token != null">
+        token,
+      </if>
+      <if test="osType != null">
+        os_type,
+      </if>
+      <if test="appKey != null">
+        app_key,
+      </if>
+      <if test="nonce != null">
+        nonce,
+      </if>
+      <if test="timeStamp != null">
+        time_stamp,
+      </if>
+      <if test="signature != null">
+        signature,
+      </if>
+      <if test="apiVersion != null">
+        api_version,
+      </if>
+      <if test="methodPath != null">
+        method_path,
+      </if>
+      <if test="methodArgs != null">
+        method_args,
+      </if>
+      <if test="requestRemoteAddress != null">
+        request_remote_address,
+      </if>
+      <if test="requestPath != null">
+        request_path,
+      </if>
+      <if test="requestParams != null">
+        request_params,
+      </if>
+      <if test="requestMethod != null">
+        request_method,
+      </if>
+      <if test="requestUserAgent != null">
+        request_user_agent,
+      </if>
+      <if test="duration != null">
+        duration,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="token != null">
+        #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="osType != null">
+        #{osType,jdbcType=VARCHAR},
+      </if>
+      <if test="appKey != null">
+        #{appKey,jdbcType=VARCHAR},
+      </if>
+      <if test="nonce != null">
+        #{nonce,jdbcType=VARCHAR},
+      </if>
+      <if test="timeStamp != null">
+        #{timeStamp,jdbcType=VARCHAR},
+      </if>
+      <if test="signature != null">
+        #{signature,jdbcType=VARCHAR},
+      </if>
+      <if test="apiVersion != null">
+        #{apiVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="methodPath != null">
+        #{methodPath,jdbcType=VARCHAR},
+      </if>
+      <if test="methodArgs != null">
+        #{methodArgs,jdbcType=VARCHAR},
+      </if>
+      <if test="requestRemoteAddress != null">
+        #{requestRemoteAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="requestPath != null">
+        #{requestPath,jdbcType=VARCHAR},
+      </if>
+      <if test="requestParams != null">
+        #{requestParams,jdbcType=VARCHAR},
+      </if>
+      <if test="requestMethod != null">
+        #{requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="requestUserAgent != null">
+        #{requestUserAgent,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null">
+        #{duration,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.ApiAround">
+    update t_api_around
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="token != null">
+        token = #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="osType != null">
+        os_type = #{osType,jdbcType=VARCHAR},
+      </if>
+      <if test="appKey != null">
+        app_key = #{appKey,jdbcType=VARCHAR},
+      </if>
+      <if test="nonce != null">
+        nonce = #{nonce,jdbcType=VARCHAR},
+      </if>
+      <if test="timeStamp != null">
+        time_stamp = #{timeStamp,jdbcType=VARCHAR},
+      </if>
+      <if test="signature != null">
+        signature = #{signature,jdbcType=VARCHAR},
+      </if>
+      <if test="apiVersion != null">
+        api_version = #{apiVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="methodPath != null">
+        method_path = #{methodPath,jdbcType=VARCHAR},
+      </if>
+      <if test="methodArgs != null">
+        method_args = #{methodArgs,jdbcType=VARCHAR},
+      </if>
+      <if test="requestRemoteAddress != null">
+        request_remote_address = #{requestRemoteAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="requestPath != null">
+        request_path = #{requestPath,jdbcType=VARCHAR},
+      </if>
+      <if test="requestParams != null">
+        request_params = #{requestParams,jdbcType=VARCHAR},
+      </if>
+      <if test="requestMethod != null">
+        request_method = #{requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="requestUserAgent != null">
+        request_user_agent = #{requestUserAgent,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null">
+        duration = #{duration,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.ApiAround">
+    update t_api_around
+    set type_id = #{typeId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      token = #{token,jdbcType=VARCHAR},
+      os_type = #{osType,jdbcType=VARCHAR},
+      app_key = #{appKey,jdbcType=VARCHAR},
+      nonce = #{nonce,jdbcType=VARCHAR},
+      time_stamp = #{timeStamp,jdbcType=VARCHAR},
+      signature = #{signature,jdbcType=VARCHAR},
+      api_version = #{apiVersion,jdbcType=VARCHAR},
+      method_path = #{methodPath,jdbcType=VARCHAR},
+      method_args = #{methodArgs,jdbcType=VARCHAR},
+      request_remote_address = #{requestRemoteAddress,jdbcType=VARCHAR},
+      request_path = #{requestPath,jdbcType=VARCHAR},
+      request_params = #{requestParams,jdbcType=VARCHAR},
+      request_method = #{requestMethod,jdbcType=VARCHAR},
+      request_user_agent = #{requestUserAgent,jdbcType=VARCHAR},
+      duration = #{duration,jdbcType=BIGINT},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

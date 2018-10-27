@@ -1,0 +1,35 @@
+package com.yier.platform.common.model;
+
+public class MedicalOrderPo extends MedicalOrder {
+//    private PatientPo patientPo;
+
+    private DoctorPo doctorPo;
+
+    private String appointmentInfo;
+
+    public String getAppointmentInfo() {
+        return appointmentInfo;
+    }
+
+    public void setAppointmentInfo(String appointmentInfo) {
+        this.appointmentInfo = appointmentInfo;
+    }
+
+/*
+    public PatientPo getPatientPo() {
+        return patientPo;
+    }
+
+    public void setPatientPo(PatientPo patientPo) {
+        this.patientPo = patientPo;
+    }
+*/
+
+    public DoctorPo getDoctorPo() {
+        return doctorPo;
+    }
+
+    public void setDoctorPo(DoctorPo doctorPo) {
+        this.doctorPo = doctorPo;
+    }
+}

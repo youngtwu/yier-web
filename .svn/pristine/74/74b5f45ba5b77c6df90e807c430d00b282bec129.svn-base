@@ -1,0 +1,146 @@
+package com.yier.platform.interceptor;
+
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureGenerationException;
+import com.github.yingzhuo.carnival.jwt.exception.InvalidClaimException;
+import com.github.yingzhuo.carnival.jwt.exception.SignatureVerificationException;
+import com.github.yingzhuo.carnival.jwt.exception.TokenExpiredException;
+import com.github.yingzhuo.carnival.restful.security.exception.*;
+import com.yier.platform.common.exception.Constants;
+import com.yier.platform.common.jsonResponse.JsonResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class JwtExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(JwtExceptionHandler.class);
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public JsonResponse handleException(JWTVerificationException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_TOKEN_ERROR);
+        res.setError("登录令牌验证无效");
+        return res;
+    }
+    @ExceptionHandler(TokenExpiredException.class)
+    public JsonResponse handleException(TokenExpiredException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_TOKEN_ERROR);
+        res.setError("登录令牌过期:"+e.getMessage());
+        return res;
+    }
+    @ExceptionHandler(SignatureVerificationException.class)
+    public JsonResponse handleException(SignatureVerificationException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_TOKEN_ERROR);
+        res.setError("登录令牌签名无效:"+e.getMessage());
+        return res;
+    }
+    @ExceptionHandler(SignatureGenerationException.class)
+    public JsonResponse handleException(SignatureGenerationException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_SERVICE_ERROR);
+        res.setError("令牌签名生成异常:"+e.getMessage());
+        return res;
+    }
+    @ExceptionHandler(JWTDecodeException.class)
+    public JsonResponse handleException(JWTDecodeException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_SERVICE_ERROR);
+        res.setError("令牌解析出现异常:"+e.getMessage());
+        return res;
+    }
+    @ExceptionHandler(JWTCreationException.class)
+    public JsonResponse handleException(JWTCreationException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_SERVICE_ERROR);
+        res.setError("登录令牌创建时异常:"+e.getMessage());
+        return res;
+    }
+    @ExceptionHandler(InvalidClaimException.class)
+    public JsonResponse handleException(InvalidClaimException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_SERVICE_ERROR);
+        res.setError("令牌解析无效的声明异常:"+e.getMessage());
+        return res;
+    }
+
+
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.NETWORK_AUTHENTICATION_REQUIRED)
+    public JsonResponse handleException(AuthenticationException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("认证异常");
+        return res;
+    }
+    @ExceptionHandler(AuthorizationException.class)
+    @ResponseStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
+    public JsonResponse handleException(AuthorizationException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("授权异常");
+        return res;
+    }
+    @ExceptionHandler(RestfulSecurityException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public JsonResponse handleException(RestfulSecurityException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("安全方面异常");
+        return res;
+    }
+    @ExceptionHandler(UnsupportedTokenTypeException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public JsonResponse handleException(UnsupportedTokenTypeException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("安全方面不支持令牌异常");
+        return res;
+    }
+    @ExceptionHandler(LimitedAdultContentException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public JsonResponse handleException(LimitedAdultContentException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("安全方面非成人异常");
+        return res;
+    }
+    @ExceptionHandler(UserDetailsExpiredException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public JsonResponse handleException(UserDetailsExpiredException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("安全方面账号过期异常");
+        return res;
+    }
+    @ExceptionHandler(UserDetailsLockedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public JsonResponse handleException(UserDetailsLockedException e) {
+        logger.debug("异常信息及具体描述: "+e.getMessage(),e);
+        JsonResponse res = new JsonResponse();
+        res.setStatus(Constants.RESPONSE_CODE_PRIVILEGE_ERROR);
+        res.setError("安全方面账号被锁定异常");
+        return res;
+    }
+}

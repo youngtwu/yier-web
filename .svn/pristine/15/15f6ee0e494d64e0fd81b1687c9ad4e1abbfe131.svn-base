@@ -1,0 +1,19 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.DiseaseCode;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface DiseaseCodeMapper {
+    int deleteByPrimaryKey(String code);
+
+    int insert(DiseaseCode record);
+
+    int insertSelective(DiseaseCode record);
+
+    DiseaseCode selectByPrimaryKey(String code);
+
+    int updateByPrimaryKeySelective(DiseaseCode record);
+
+    int updateByPrimaryKey(DiseaseCode record);
+}

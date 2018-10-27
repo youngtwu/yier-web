@@ -1,0 +1,124 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+import java.util.Date;
+
+public class PracticeWorkTime extends BaseJsonObject {
+    private Long id;
+
+    private Long practicePointId;
+
+    private Long typeId;
+
+    private Long doctorId;
+
+    private String workDay;
+
+    private String workTime;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public PracticeWorkTime(Long id, Long practicePointId, Long typeId, Long doctorId, String workDay, String workTime, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.practicePointId = practicePointId;
+        this.typeId = typeId;
+        this.doctorId = doctorId;
+        this.workDay = workDay;
+        this.workTime = workTime;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public PracticeWorkTime() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getPracticePointId() {
+        return practicePointId;
+    }
+
+    public void setPracticePointId(Long practicePointId) {
+        this.practicePointId = practicePointId;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public String getWorkDay() {
+        return workDay;
+    }
+
+    public void setWorkDay(String workDay) {
+        this.workDay = workDay;
+    }
+
+    public String getWorkTime() {
+        return workTime;
+    }
+
+    public void setWorkTime(String workTime) {
+        this.workTime = workTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

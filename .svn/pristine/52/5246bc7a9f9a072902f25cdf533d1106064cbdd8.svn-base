@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.MedicalOrderMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.MedicalOrder">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="order_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="hospital_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="catalog_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="patient_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_id_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_sex" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="patient_year_old" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="patient_lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="doctor_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="doctor_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_title" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_signature" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="doctor_lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="medical_case" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="medical_info" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="medical_pictures" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="medical_date_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="plan_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="work_time" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="payment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="remind" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status_detail" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, order_no, hospital_id, hospital_name, hospital_address, hospital_contact, catalog_id, 
+    department_id, department_name, patient_id, patient_name, patient_id_card_no, patient_address, 
+    patient_contact, patient_sex, patient_year_old, patient_lng, patient_lat, doctor_id, 
+    doctor_name, doctor_title, doctor_signature, doctor_lng, doctor_lat, medical_case, 
+    medical_info, medical_pictures, medical_date_id, plan_time, work_time, payment, remind, 
+    other, status, status_detail, gmt_create, gmt_modified, remarks
+  </sql>
+  
+  
+  <sql id="Base_Po_Column_List">
+    t.id, t.order_no orderNo, t.hospital_id hospitalId, t.hospital_name hospitalName, t.hospital_address hospitalAddress, t.hospital_contact hospitalContact, t.catalog_id catalogId,
+    t.department_id departmentId, t.department_name departmentName, t.patient_id patientId, t.patient_name patientName, t.patient_id_card_no patientIdCardNo, t.patient_address patientAddress,
+    t.patient_contact patientContact, t.patient_sex patientSex, t.patient_year_old patientYearOld, t.patient_lng patientLng, t.patient_lat patientLat,  t.doctor_id doctorId, 
+    t.doctor_name doctorName, t.doctor_title doctorTitle, t.doctor_signature doctorSignature, t.doctor_lng doctorLng, t.doctor_lat doctorLat, t.medical_case medicalCase,
+    t.medical_info medicalInfo, t.medical_pictures medicalPictures, t.medical_date_id medicalDateId, t.plan_time planTime, t.work_time workTime, t.payment, t.remind,
+    t.other, t.status, t.status_detail statusDetail, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+  </sql>
+
+  
+
+  
+  
+  
+
+  <!-- 定义上门就诊订单数据库字段与实体对象的映射关系  -->
+  <resultMap type="com.yier.platform.common.model.MedicalOrderPo" id="MedicalOrderPoMap">
+    <id column="id" property="id" />
+    <result column="order_no" property="orderNo" />
+    <result column="hospital_id" property="hospitalId" />
+    <result column="hospital_name" property="hospitalName" />
+    <result column="hospital_address" property="hospitalAddress" />
+    <result column="hospital_contact" property="hospitalContact" />
+    <result column="catalog_id" property="catalogId" />
+    <result column="department_id" property="departmentId" />
+    <result column="department_name" property="departmentName" />
+    <result column="patient_id" property="patientId" />
+    <result column="patient_name" property="patientName" />
+    <result column="patient_id_card_no" property="patientIdCardNo" />
+    <result column="patient_address" property="patientAddress" />
+    <result column="patient_contact" property="patientContact" />
+    <result column="patient_sex" property="patientSex" />
+    <result column="patient_year_old" property="patientYearOld" />
+    <result column="patient_lng" property="patientLng" />
+    <result column="patient_lat" property="patientLat" />
+    <result column="doctor_id" property="doctorId" />
+    <result column="doctor_name" property="doctorName" />
+    <result column="doctor_title" property="doctorTitle" />
+    <result column="doctor_signature" property="doctorSignature" />
+    <result column="doctor_lng" property="doctorLng" />
+    <result column="doctor_lat" property="doctorLat" />
+    <result column="medical_case" property="medicalCase" />
+    <result column="medical_info" property="medicalInfo" />
+    <result column="medical_pictures" property="medicalPictures" />
+    <result column="medical_date_id" property="medicalDateId" />
+    <result column="plan_time" property="planTime" />
+    <result column="work_time" property="workTime" />
+    <result column="payment" property="payment" />
+    <result column="remind" property="remind" />
+    <result column="other" property="other" />
+    <result column="status" property="status" />
+    <result column="status_detail" property="statusDetail" />
+    <result column="gmt_create" property="gmtCreate" />
+    <result column="gmt_modified" property="gmtModified" />
+    <result column="remarks" property="remarks" />
+    <!-- 一对一的关系 -->
+    <!-- property: 指的是属性的值, javaType：指的是元素的类型 -->
+    <!--<association property="hospitalDepartmentPo" column="departmentId" javaType="com.yier.platform.common.model.HospitalDepartmentPo"  select="getHospitalDepartmentPoForDoctorById"/>-->
+    <association property="patientPo" column="patient_id" javaType="com.yier.platform.common.model.PatientPo"  select="selectPatientPoById"/>
+  </resultMap>
+  <!-- 根据条件Id查询大科室关联的医院及主分类信息 -->
+  <select id="selectPatientPoById" parameterType="java.lang.Long" resultType="com.yier.platform.common.model.PatientPo">
+    select     id, true_name trueName, user_name userName, id_card_no idCardNo, avatar_url avatarUrl, birthday,
+    email, phone_number phoneNumber, sex, check_url checkUrl, imtoken, status, gmt_create gmtCreate, gmt_modified gmtModified, remarks
+    from t_patient
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listMedicalOrderPo" parameterType="com.yier.platform.common.requestParam.MedicalOrderRequest" resultMap="MedicalOrderPoMap">
+    select t.* from t_medical_order t
+    <where>
+      <if test="medicalOrderId != null">
+        and t.id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( statusDetail )">
+          and t.status_detail = #{statusDetail}
+        </when>
+        <when test="statusDetail != null">
+          and t.status_detail != #{statusDetail}
+        </when>
+        <otherwise>
+
+        </otherwise>
+      </choose>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( status )">
+          and t.status = #{status}
+        </when>
+        <when test="status != null">
+          and t.status != #{status}
+        </when>
+        <otherwise>
+        </otherwise>
+      </choose>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listMedicalOrderPoCount" parameterType="com.yier.platform.common.requestParam.MedicalOrderRequest" resultType="Integer">
+    select count(t.id) from t_medical_order t
+    <where>
+      <if test="medicalOrderId != null">
+        and t.id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( statusDetail )">
+          and t.status_detail = #{statusDetail}
+        </when>
+        <when test="statusDetail != null">
+          and t.status_detail != #{statusDetail}
+        </when>
+        <otherwise>
+
+        </otherwise>
+      </choose>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( status )">
+          and t.status = #{status}
+        </when>
+        <when test="status != null">
+          and t.status != #{status}
+        </when>
+        <otherwise>
+        </otherwise>
+      </choose>
+    </where>
+  </select>
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listMedicalOrder" parameterType="com.yier.platform.common.requestParam.MedicalOrderRequest" resultMap="BaseResultMap">
+    select t.* from t_medical_order t
+    <where>
+      <if test="medicalOrderId != null">
+        and t.id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( statusDetail )">
+          and t.status_detail = #{statusDetail}
+        </when>
+        <when test="statusDetail != null">
+          and t.status_detail != #{statusDetail}
+        </when>
+        <otherwise>
+
+        </otherwise>
+      </choose>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( status )">
+          and t.status = #{status}
+        </when>
+        <when test="status != null">
+          and t.status != #{status}
+        </when>
+        <otherwise>
+        </otherwise>
+      </choose>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listMedicalOrderCount" parameterType="com.yier.platform.common.requestParam.MedicalOrderRequest" resultType="Integer">
+    select count(t.id) from t_medical_order t
+    <where>
+      <if test="medicalOrderId != null">
+        and t.id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( statusDetail )">
+          and t.status_detail = #{statusDetail}
+        </when>
+        <when test="statusDetail != null">
+          and t.status_detail != #{statusDetail}
+        </when>
+        <otherwise>
+
+        </otherwise>
+      </choose>
+      <choose>
+        <when test="@org.apache.commons.lang3.StringUtils@isNotBlank( status )">
+          and t.status = #{status}
+        </when>
+        <when test="status != null">
+          and t.status != #{status}
+        </when>
+        <otherwise>
+        </otherwise>
+      </choose>
+    </where>
+  </select>
+  <select id="selectMedicalOrderByIdKey" parameterType="com.yier.platform.common.requestParam.MedicalOrderRequest" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_medical_order
+    <where>
+      <if test="medicalOrderId != null">
+        and id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and order_no = #{orderNo}
+      </if>
+    </where>
+    limit 1
+  </select>
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_medical_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_medical_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.MedicalOrder">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_medical_order (order_no, hospital_id, hospital_name, 
+      hospital_address, hospital_contact, catalog_id, 
+      department_id, department_name, patient_id, 
+      patient_name, patient_id_card_no, patient_address, 
+      patient_contact, patient_sex, patient_year_old, 
+      patient_lng, patient_lat, doctor_id, 
+      doctor_name, doctor_title, doctor_signature, 
+      doctor_lng, doctor_lat, medical_case, 
+      medical_info, medical_pictures, medical_date_id, 
+      plan_time, work_time, payment, 
+      remind, other, status, 
+      status_detail, gmt_create, gmt_modified, 
+      remarks)
+    values (#{orderNo,jdbcType=VARCHAR}, #{hospitalId,jdbcType=BIGINT}, #{hospitalName,jdbcType=VARCHAR}, 
+      #{hospitalAddress,jdbcType=VARCHAR}, #{hospitalContact,jdbcType=VARCHAR}, #{catalogId,jdbcType=BIGINT}, 
+      #{departmentId,jdbcType=BIGINT}, #{departmentName,jdbcType=VARCHAR}, #{patientId,jdbcType=BIGINT}, 
+      #{patientName,jdbcType=VARCHAR}, #{patientIdCardNo,jdbcType=VARCHAR}, #{patientAddress,jdbcType=VARCHAR}, 
+      #{patientContact,jdbcType=VARCHAR}, #{patientSex,jdbcType=CHAR}, #{patientYearOld,jdbcType=VARCHAR}, 
+      #{patientLng,jdbcType=DECIMAL}, #{patientLat,jdbcType=DECIMAL}, #{doctorId,jdbcType=BIGINT}, 
+      #{doctorName,jdbcType=VARCHAR}, #{doctorTitle,jdbcType=VARCHAR}, #{doctorSignature,jdbcType=VARCHAR}, 
+      #{doctorLng,jdbcType=DECIMAL}, #{doctorLat,jdbcType=DECIMAL}, #{medicalCase,jdbcType=VARCHAR}, 
+      #{medicalInfo,jdbcType=VARCHAR}, #{medicalPictures,jdbcType=VARCHAR}, #{medicalDateId,jdbcType=BIGINT}, 
+      #{planTime,jdbcType=TIMESTAMP}, #{workTime,jdbcType=VARCHAR}, #{payment,jdbcType=INTEGER}, 
+      #{remind,jdbcType=VARCHAR}, #{other,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, 
+      #{statusDetail,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.MedicalOrder">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_medical_order
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="hospitalName != null">
+        hospital_name,
+      </if>
+      <if test="hospitalAddress != null">
+        hospital_address,
+      </if>
+      <if test="hospitalContact != null">
+        hospital_contact,
+      </if>
+      <if test="catalogId != null">
+        catalog_id,
+      </if>
+      <if test="departmentId != null">
+        department_id,
+      </if>
+      <if test="departmentName != null">
+        department_name,
+      </if>
+      <if test="patientId != null">
+        patient_id,
+      </if>
+      <if test="patientName != null">
+        patient_name,
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no,
+      </if>
+      <if test="patientAddress != null">
+        patient_address,
+      </if>
+      <if test="patientContact != null">
+        patient_contact,
+      </if>
+      <if test="patientSex != null">
+        patient_sex,
+      </if>
+      <if test="patientYearOld != null">
+        patient_year_old,
+      </if>
+      <if test="patientLng != null">
+        patient_lng,
+      </if>
+      <if test="patientLat != null">
+        patient_lat,
+      </if>
+      <if test="doctorId != null">
+        doctor_id,
+      </if>
+      <if test="doctorName != null">
+        doctor_name,
+      </if>
+      <if test="doctorTitle != null">
+        doctor_title,
+      </if>
+      <if test="doctorSignature != null">
+        doctor_signature,
+      </if>
+      <if test="doctorLng != null">
+        doctor_lng,
+      </if>
+      <if test="doctorLat != null">
+        doctor_lat,
+      </if>
+      <if test="medicalCase != null">
+        medical_case,
+      </if>
+      <if test="medicalInfo != null">
+        medical_info,
+      </if>
+      <if test="medicalPictures != null">
+        medical_pictures,
+      </if>
+      <if test="medicalDateId != null">
+        medical_date_id,
+      </if>
+      <if test="planTime != null">
+        plan_time,
+      </if>
+      <if test="workTime != null">
+        work_time,
+      </if>
+      <if test="payment != null">
+        payment,
+      </if>
+      <if test="remind != null">
+        remind,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="statusDetail != null">
+        status_detail,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="hospitalName != null">
+        #{hospitalName,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalAddress != null">
+        #{hospitalAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalContact != null">
+        #{hospitalContact,jdbcType=VARCHAR},
+      </if>
+      <if test="catalogId != null">
+        #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentName != null">
+        #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientName != null">
+        #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientIdCardNo != null">
+        #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null">
+        #{patientSex,jdbcType=CHAR},
+      </if>
+      <if test="patientYearOld != null">
+        #{patientYearOld,jdbcType=VARCHAR},
+      </if>
+      <if test="patientLng != null">
+        #{patientLng,jdbcType=DECIMAL},
+      </if>
+      <if test="patientLat != null">
+        #{patientLat,jdbcType=DECIMAL},
+      </if>
+      <if test="doctorId != null">
+        #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorName != null">
+        #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorTitle != null">
+        #{doctorTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSignature != null">
+        #{doctorSignature,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorLng != null">
+        #{doctorLng,jdbcType=DECIMAL},
+      </if>
+      <if test="doctorLat != null">
+        #{doctorLat,jdbcType=DECIMAL},
+      </if>
+      <if test="medicalCase != null">
+        #{medicalCase,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalInfo != null">
+        #{medicalInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalPictures != null">
+        #{medicalPictures,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalDateId != null">
+        #{medicalDateId,jdbcType=BIGINT},
+      </if>
+      <if test="planTime != null">
+        #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="workTime != null">
+        #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null">
+        #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="remind != null">
+        #{remind,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="statusDetail != null">
+        #{statusDetail,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.MedicalOrder">
+    update t_medical_order
+    <set>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        hospital_id = #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="hospitalName != null">
+        hospital_name = #{hospitalName,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalAddress != null">
+        hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalContact != null">
+        hospital_contact = #{hospitalContact,jdbcType=VARCHAR},
+      </if>
+      <if test="catalogId != null">
+        catalog_id = #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentName != null">
+        department_name = #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        patient_id = #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientName != null">
+        patient_name = #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        patient_address = #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        patient_contact = #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null">
+        patient_sex = #{patientSex,jdbcType=CHAR},
+      </if>
+      <if test="patientYearOld != null">
+        patient_year_old = #{patientYearOld,jdbcType=VARCHAR},
+      </if>
+      <if test="patientLng != null">
+        patient_lng = #{patientLng,jdbcType=DECIMAL},
+      </if>
+      <if test="patientLat != null">
+        patient_lat = #{patientLat,jdbcType=DECIMAL},
+      </if>
+      <if test="doctorId != null">
+        doctor_id = #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorName != null">
+        doctor_name = #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorTitle != null">
+        doctor_title = #{doctorTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSignature != null">
+        doctor_signature = #{doctorSignature,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorLng != null">
+        doctor_lng = #{doctorLng,jdbcType=DECIMAL},
+      </if>
+      <if test="doctorLat != null">
+        doctor_lat = #{doctorLat,jdbcType=DECIMAL},
+      </if>
+      <if test="medicalCase != null">
+        medical_case = #{medicalCase,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalInfo != null">
+        medical_info = #{medicalInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalPictures != null">
+        medical_pictures = #{medicalPictures,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalDateId != null">
+        medical_date_id = #{medicalDateId,jdbcType=BIGINT},
+      </if>
+      <if test="planTime != null">
+        plan_time = #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="workTime != null">
+        work_time = #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null">
+        payment = #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="remind != null">
+        remind = #{remind,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="statusDetail != null">
+        status_detail = #{statusDetail,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.MedicalOrder">
+    update t_medical_order
+    set order_no = #{orderNo,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      hospital_name = #{hospitalName,jdbcType=VARCHAR},
+      hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      hospital_contact = #{hospitalContact,jdbcType=VARCHAR},
+      catalog_id = #{catalogId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      department_name = #{departmentName,jdbcType=VARCHAR},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      patient_name = #{patientName,jdbcType=VARCHAR},
+      patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      patient_address = #{patientAddress,jdbcType=VARCHAR},
+      patient_contact = #{patientContact,jdbcType=VARCHAR},
+      patient_sex = #{patientSex,jdbcType=CHAR},
+      patient_year_old = #{patientYearOld,jdbcType=VARCHAR},
+      patient_lng = #{patientLng,jdbcType=DECIMAL},
+      patient_lat = #{patientLat,jdbcType=DECIMAL},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      doctor_name = #{doctorName,jdbcType=VARCHAR},
+      doctor_title = #{doctorTitle,jdbcType=VARCHAR},
+      doctor_signature = #{doctorSignature,jdbcType=VARCHAR},
+      doctor_lng = #{doctorLng,jdbcType=DECIMAL},
+      doctor_lat = #{doctorLat,jdbcType=DECIMAL},
+      medical_case = #{medicalCase,jdbcType=VARCHAR},
+      medical_info = #{medicalInfo,jdbcType=VARCHAR},
+      medical_pictures = #{medicalPictures,jdbcType=VARCHAR},
+      medical_date_id = #{medicalDateId,jdbcType=BIGINT},
+      plan_time = #{planTime,jdbcType=TIMESTAMP},
+      work_time = #{workTime,jdbcType=VARCHAR},
+      payment = #{payment,jdbcType=INTEGER},
+      remind = #{remind,jdbcType=VARCHAR},
+      other = #{other,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      status_detail = #{statusDetail,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="test.css" type="text/css">
+</head>
+<body>
+666666666666666 welcome ${nameInfo} to freemarker!<br />
+<h1>Hello World 你好，世界,真的吗</h1>
+<#list newList as item>
+    标题：${item.title}   ,对应的URL : ${item.contentUrl}<br />
+</#list>
+</body>
+</html>

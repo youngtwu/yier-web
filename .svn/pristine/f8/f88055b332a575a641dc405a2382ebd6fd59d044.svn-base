@@ -1,0 +1,83 @@
+package com.yier.platform.common.costant;
+
+public final class ConstantAll {
+    private ConstantAll(){}
+    /** 图片缓存功能处理  */
+    public static final String REDIS_IMAGE_UPLOAD_KEY = "FUN_I_U_K_";//+图片Id
+    /** 医生预约锁定半小时功能处理  */
+    public static final String REDIS_DOCTOR_APPOINT_LOCK_ORDER = "FUN_D_A_";// +患者ID + 订单ID    //+出诊日期预约ID    //+医生ID+"_L_P_"+患者ID
+    public static final String REDIS_DOCTOR_APPOINT_LOCK_ORDER_PART_ORDER = "_L_O_";
+    /** 医生锁定24小时聊天设定  */
+    public static final String REDIS_DOCTOR_CHAT_SET = "FUN_D_C_S_";//+医生ID
+    /** 患者刚刚下定新预约订单  */
+//    public static final String REDIS_APPOINT_ORDER_PATIENT = "FUN_A_O_P_";//+患者ID  可以设定有效期为1个小时考虑期
+    /** 有处方新订单  */
+    public static final String REDIS_PRESCRIPTION_ORDER = "FUN_P_O_";//+处方ID  放置整个处方信息  可以设定有效期为2个小时
+    /** 药师 抢单3分钟锁定  */
+    public static final String REDIS_PHARMACIST_GRAB_ORDER = "FUN_P_G_O_";//+药师ID 药师关键信息（惩罚机制，抢单时间）
+    /** 平台药师 2分钟再转移问题  */
+    public static final String REDIS_PHARMACIST_PLAT = "FUN_P_P_";//+平台药师ID 药师关键信息（惩罚机制，抢单时间）
+
+    /** 缓存所有的用户角色  */
+    public static final String REDIS_ALL_USER_ROLE_PO = "FUN_A_U_R_P_";//+所有的用户角色表
+    /** 缓存所有的推送药师  */
+    public static final String REDIS_ALL_CHECK_PHARMACIST = "FUN_A_C_P_";//+所有的药师列表
+    /** 缓存所有的平台药师  */
+    public static final String REDIS_ALL_PLAT_PHARMACIST = "FUN_A_P_P_";//+所有的平台药师列表,要有目前分配索引index
+
+    /** 上门就诊订单状态 患者预约 待支付  */
+    public static final String ORDER_STATUS_APPPOINT = "1";//只有患者可见
+    /** 上门就诊订单状态 患者预约付款  预约成功*/
+    public static final String ORDER_STATUS_PAYMENT = "2";
+    /** 上门就诊订单状态 医生确认  确认预约*/
+    public static final String ORDER_STATUS_CONFIMR = "3";
+    /** 上门就诊订单状态 医生刚出处方 处方审核中  */
+    public static final String ORDER_STATUS_PRESCRIPTION_CHECK = "4";
+    /** 上门就诊订单状态 审核通过医生处方 或者没有处方 完结此上门就诊  完成 处方通过 */
+    public static final String ORDER_STATUS_OK = "5";
+    /** 上门就诊订单状态 审核不通过医生处方  预约过期 */
+    public static final String ORDER_STATUS_APPPOINT_PAST_DUE = "V";
+    /** 上门就诊订单状态 审核不通过医生处方  处方未通过 */
+    public static final String ORDER_STATUS_PRESCRIPTION_CHECK_FAIL = "W";//只有医生可见
+    /** 上门就诊订单状态 患者取消  */
+    public static final String ORDER_STATUS_PATIENT_CANCEL = "X";
+    /** 上门就诊订单状态 医生取消  */
+    public static final String ORDER_STATUS_DOCTOR_CANCEL = "Y";
+    /** 上门就诊订单状态 支付超期  */
+    public static final String ORDER_STATUS_PATIENT_PAST_DUE = "Z";//只有患者可见
+
+    /** 患者  */
+    public static final long TYPE_ID_PATIENT = 1L;
+    /** 医生  */
+    public static final long TYPE_ID_DOCTOR = 2L;
+    /** 药师  */
+    public static final long TYPE_ID_PHARMACIST = 3L;
+    /** 亿尔APP后台管理端  */
+    public static final long TYPE_ID_USER = 4L;
+    /** 护士  */
+    public static final long TYPE_ID_NURSE = 5L;
+    /** 医药信息后台管理端  */
+    public static final long TYPE_ID_DRUG = 6L;
+
+
+    /** 流水账类型  */
+    public static final String USER_TYPE_PATIENT = "patient";//患者
+    public static final String USER_TYPE_DOCTOR = "doctor";//医生
+    public static final String USER_TYPE_PHARMACIST = "pharmacist";//药师
+    public static final String USER_TYPE_USER = "user";//亿尔APP后台管理端
+    public static final String USER_TYPE_NURSE = "nurse";//护士
+    public static final String USER_TYPE_DRUG = "drug";//医药信息后台管理端
+
+    /** 流水账类型  */
+    public static final String SERIAL_TYPE_OUTFLOW = "OUTFLOW";//流出
+    public static final String SERIAL_TYPE_INFLOW = "INFLOW";//流入
+    public static final String SERIAL_TYPE_FROZEN = "FROZEN";//冻结
+    public static final String SERIAL_TYPE_THAWY = "THAWY";//解冻
+
+    /** 状态类型  */
+    public static final String STATUS_0 = "0";
+    public static final String STATUS_1 = "1";
+
+    public static final String STATUS_OPEN = "0";
+    public static final String STATUS_CLOSE = "1";
+}

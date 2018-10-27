@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.TaskScheduleMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.TaskSchedule">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="task_type" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="sub_task_type" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="task_description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="task_params" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="task_result" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="schedule" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="attach" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, user_id, task_type, sub_task_type, task_description, task_params, task_result, 
+    schedule, attach, other, status, gmt_create, gmt_modified, remarks
+  </sql>
+  
+
+
+
+
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listTaskSchedule" parameterType="com.yier.platform.common.requestParam.TaskScheduleRequest" resultMap="BaseResultMap">
+    select t.* from t_task_schedule t
+    <where>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="taskType != null">
+        and t.task_type = #{taskType}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="subTaskType != null">
+        and t.sub_task_type = #{subTaskType}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`task_description` like concat('%',#{searchKey},'%')
+        or t.`task_result` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="scheduleBegin!=null">
+        <![CDATA[	 and t.schedule >= #{scheduleBegin} ]]>
+      </if>
+      <if test="scheduleEnd!=null">
+        <![CDATA[	 and t.schedule <= #{scheduleEnd} ]]>
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( considerAttach ) and schedule!=null">
+        <![CDATA[	 and timestampdiff(SECOND,t.gmt_create,#{schedule}) > t.attach ]]>
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+    FOR UPDATE
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listTaskScheduleCount" parameterType="com.yier.platform.common.requestParam.TaskScheduleRequest" resultType="Integer">
+    select count(t.id) from t_task_schedule t
+    <where>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="taskType != null">
+        and t.task_type = #{taskType}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="subTaskType != null">
+        and t.sub_task_type = #{subTaskType}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`task_description` like concat('%',#{searchKey},'%')
+        or t.`task_result` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="scheduleBegin!=null">
+        <![CDATA[	 and t.schedule >= #{scheduleBegin} ]]>
+      </if>
+      <if test="scheduleEnd!=null">
+        <![CDATA[	 and t.schedule <= #{scheduleEnd} ]]>
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( considerAttach ) and schedule!=null">
+        <![CDATA[	 and timestampdiff(SECOND,t.gmt_create,#{schedule}) > t.attach ]]>
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_task_schedule
+    where id = #{id,jdbcType=BIGINT} FOR UPDATE
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_task_schedule
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.TaskSchedule">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_task_schedule (type_id, user_id, task_type, 
+      sub_task_type, task_description, task_params, 
+      task_result, schedule, attach, 
+      other, status, gmt_create, 
+      gmt_modified, remarks)
+    values (#{typeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{taskType,jdbcType=BIGINT}, 
+      #{subTaskType,jdbcType=BIGINT}, #{taskDescription,jdbcType=VARCHAR}, #{taskParams,jdbcType=VARCHAR}, 
+      #{taskResult,jdbcType=VARCHAR}, #{schedule,jdbcType=TIMESTAMP}, #{attach,jdbcType=BIGINT}, 
+      #{other,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.TaskSchedule">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_task_schedule
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="taskType != null">
+        task_type,
+      </if>
+      <if test="subTaskType != null">
+        sub_task_type,
+      </if>
+      <if test="taskDescription != null">
+        task_description,
+      </if>
+      <if test="taskParams != null">
+        task_params,
+      </if>
+      <if test="taskResult != null">
+        task_result,
+      </if>
+      <if test="schedule != null">
+        schedule,
+      </if>
+      <if test="attach != null">
+        attach,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="taskType != null">
+        #{taskType,jdbcType=BIGINT},
+      </if>
+      <if test="subTaskType != null">
+        #{subTaskType,jdbcType=BIGINT},
+      </if>
+      <if test="taskDescription != null">
+        #{taskDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="taskParams != null">
+        #{taskParams,jdbcType=VARCHAR},
+      </if>
+      <if test="taskResult != null">
+        #{taskResult,jdbcType=VARCHAR},
+      </if>
+      <if test="schedule != null">
+        #{schedule,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attach != null">
+        #{attach,jdbcType=BIGINT},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.TaskSchedule">
+    update t_task_schedule
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="taskType != null">
+        task_type = #{taskType,jdbcType=BIGINT},
+      </if>
+      <if test="subTaskType != null">
+        sub_task_type = #{subTaskType,jdbcType=BIGINT},
+      </if>
+      <if test="taskDescription != null">
+        task_description = #{taskDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="taskParams != null">
+        task_params = #{taskParams,jdbcType=VARCHAR},
+      </if>
+      <if test="taskResult != null">
+        task_result = #{taskResult,jdbcType=VARCHAR},
+      </if>
+      <if test="schedule != null">
+        schedule = #{schedule,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attach != null">
+        attach = #{attach,jdbcType=BIGINT},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.TaskSchedule">
+    update t_task_schedule
+    set type_id = #{typeId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      task_type = #{taskType,jdbcType=BIGINT},
+      sub_task_type = #{subTaskType,jdbcType=BIGINT},
+      task_description = #{taskDescription,jdbcType=VARCHAR},
+      task_params = #{taskParams,jdbcType=VARCHAR},
+      task_result = #{taskResult,jdbcType=VARCHAR},
+      schedule = #{schedule,jdbcType=TIMESTAMP},
+      attach = #{attach,jdbcType=BIGINT},
+      other = #{other,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

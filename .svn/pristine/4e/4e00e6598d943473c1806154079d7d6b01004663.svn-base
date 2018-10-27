@@ -1,0 +1,39 @@
+package com.yier.platform.service.feign;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.cloud.openfeign.FeignFormatterRegistrar;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.format.Formatter;
+import org.springframework.format.FormatterRegistry;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
+
+@Slf4j
+@Configuration
+public class FeignDateUrlStringConfigurtion implements FeignFormatterRegistrar{
+
+    @Override
+    public void registerFormatters(FormatterRegistry registry) {
+        registry.addFormatter(new FeignDateUrlStringConfigurtion.DateFormatter());
+    }
+
+    public static class DateFormatter implements Formatter<Date> {
+
+        @Override
+        public Date parse(String text, Locale locale) throws ParseException {
+            Date date =  DateUtils.parseDate(text, "yyyy-MM-dd HH:mm:ss.SSS");
+            return date;
+        }
+
+        @Override
+        public String print(Date date, Locale locale) {
+            String dateString =  DateFormatUtils.format(date, "yyyy-MM-dd HH:mm:ss.SSS");
+            log.info("Date:{}-------------->dateString:{}",date,dateString);
+            return dateString;
+        }
+    }
+}

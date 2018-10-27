@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.AttentionUserMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.AttentionUser">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="attention_type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="attention_user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="attention" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, user_id, attention_type_id, attention_user_id, attention, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+
+
+
+  <delete id="deleteAttentionUserByUnique" parameterType="com.yier.platform.common.requestParam.AttentionUserRequest">
+    delete from t_attention_user
+    <where>
+      <if test="typeId != null">
+        and type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and user_id = #{userId}
+      </if>
+      <if test="attentionTypeId != null">
+        and attention_type_id = #{attentionTypeId}
+      </if>
+      <if test="attentionUserId != null">
+        and attention_user_id = #{attentionUserId}
+      </if>
+    </where>
+  </delete>
+
+
+
+
+
+  <!-- 根据条件查询用户消息列表 -->
+  <select id="listAttentionUser" parameterType="com.yier.platform.common.requestParam.AttentionUserRequest"  resultMap="BaseResultMap">
+    select   t.*
+    from t_attention_user t
+    <where>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="attentionTypeId != null">
+        and t.attention_type_id = #{attentionTypeId}
+      </if>
+      <if test="attentionUserId != null">
+        and t.attention_user_id = #{attentionUserId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询用户消息列表 总和 -->
+  <select id="listAttentionUserCount" parameterType="com.yier.platform.common.requestParam.AttentionUserRequest" resultType="Integer">
+    select count(t.id) from t_attention_user t
+    <where>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="attentionTypeId != null">
+        and t.attention_type_id = #{attentionTypeId}
+      </if>
+      <if test="attentionUserId != null">
+        and t.attention_user_id = #{attentionUserId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+  <!-- 根据条件查询用户消息列表 -->
+  <select id="listAttentionUserPo" parameterType="com.yier.platform.common.requestParam.AttentionUserRequest" resultType="com.yier.platform.common.model.AttentionUserPo">
+    SELECT if(t.attention_type_id = 2 , td.true_name , tp.true_name) trueName,if(t.attention_type_id = 2 , td.field , tp.field) field,if(t.attention_type_id = 2 , td.visit , tp.visit) visit,if(t.attention_type_id = 2 , tdt.`name` , tpt.`name`) doctorTitle,if(t.attention_type_id = 2 , td.avatar_url , tp.avatar_url) avatarUrl,
+    t.id, t.type_id typeId, t.user_id userId, t.attention_type_id attentionTypeId, t.attention_user_id attentionUserId, t.attention, t.status, t.gmt_create gmtCreate,t.gmt_modified gmtModified, t.remarks
+    FROM t_attention_user t LEFT JOIN t_doctor td on t.attention_user_id = td.id LEFT JOIN t_doctor_title tdt ON td.title_id = tdt.id
+    LEFT JOIN t_pharmacist tp ON t.attention_user_id = tp.id LEFT JOIN t_pharmacist_title tpt ON tp.title_id = tpt.id
+    <where>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="attentionTypeId != null">
+        and t.attention_type_id = #{attentionTypeId}
+      </if>
+      <if test="attentionUserId != null">
+        and t.attention_user_id = #{attentionUserId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询用户消息列表 总和 -->
+  <select id="listAttentionUserPoCount" parameterType="com.yier.platform.common.requestParam.AttentionUserRequest" resultType="Integer">
+    select count(t.id) from t_attention_user t
+    <where>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="attentionTypeId != null">
+        and t.attention_type_id = #{attentionTypeId}
+      </if>
+      <if test="attentionUserId != null">
+        and t.attention_user_id = #{attentionUserId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_attention_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_attention_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.AttentionUser">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_attention_user (type_id, user_id, attention_type_id, 
+      attention_user_id, attention, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{typeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{attentionTypeId,jdbcType=BIGINT}, 
+      #{attentionUserId,jdbcType=BIGINT}, #{attention,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.AttentionUser">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_attention_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="attentionTypeId != null">
+        attention_type_id,
+      </if>
+      <if test="attentionUserId != null">
+        attention_user_id,
+      </if>
+      <if test="attention != null">
+        attention,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="attentionTypeId != null">
+        #{attentionTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="attentionUserId != null">
+        #{attentionUserId,jdbcType=BIGINT},
+      </if>
+      <if test="attention != null">
+        #{attention,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.AttentionUser">
+    update t_attention_user
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="attentionTypeId != null">
+        attention_type_id = #{attentionTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="attentionUserId != null">
+        attention_user_id = #{attentionUserId,jdbcType=BIGINT},
+      </if>
+      <if test="attention != null">
+        attention = #{attention,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.AttentionUser">
+    update t_attention_user
+    set type_id = #{typeId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      attention_type_id = #{attentionTypeId,jdbcType=BIGINT},
+      attention_user_id = #{attentionUserId,jdbcType=BIGINT},
+      attention = #{attention,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

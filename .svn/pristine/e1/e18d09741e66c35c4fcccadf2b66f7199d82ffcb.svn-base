@@ -1,0 +1,134 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class AppConfig extends BaseJsonObject {
+    private Long id;
+
+    private Long typeId;
+
+    private String key;
+
+    private String description;
+
+    private String pvalue;
+
+    private String prefix;
+
+    private Integer displayOrder;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public AppConfig(Long id, Long typeId, String key, String description, String pvalue, String prefix, Integer displayOrder, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.key = key;
+        this.description = description;
+        this.pvalue = pvalue;
+        this.prefix = prefix;
+        this.displayOrder = displayOrder;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public AppConfig() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPvalue() {
+        return pvalue;
+    }
+
+    public void setPvalue(String pvalue) {
+        this.pvalue = pvalue;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

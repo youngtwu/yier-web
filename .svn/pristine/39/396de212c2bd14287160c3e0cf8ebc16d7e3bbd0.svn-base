@@ -1,0 +1,115 @@
+package com.yier.platform.service.medical;
+
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.MedicalDateRequest;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import com.yier.platform.common.requestParam.MedicalPrescriptionRequest;
+import com.yier.platform.common.util.OrderIdUtils;
+import com.yier.platform.common.util.RandomUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.MedicalOrderMapper;
+import com.yier.platform.dao.MedicalPrescriptionMapper;
+import com.yier.platform.service.AppPushService;
+import com.yier.platform.service.PharmacistService;
+import com.yier.platform.service.ToolShareService;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * 上门问诊医生时间编排 service
+ */
+@Service
+public class MedicalPrescriptionService {
+    private final Logger logger = LoggerFactory.getLogger(MedicalPrescriptionService.class);
+    @Autowired
+    private MedicalPrescriptionMapper daoMedicalPrescriptionMapper;
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+    @Autowired
+    private OrderDrugsService orderDrugsService;
+    @Autowired
+    private PharmacistService pharmacistService;
+    @Autowired
+    private AppPushService appPushService;
+    @Autowired
+    private ToolShareService toolShareService;
+
+
+
+    @ApiOperation(value = "创建处方")
+    @Transactional
+    public MedicalPrescription createPrescription(MedicalPrescription record){
+        MedicalOrderRequest medicalOrderRequest = new MedicalOrderRequest();
+        medicalOrderRequest.setOrderNo(record.getOrderNo());
+        MedicalOrder medicalOrder = medicalOrderService.selectMedicalOrderByIdKey(medicalOrderRequest);
+//        String prescriptionId = "PP"+ RandomUtils.randomNumeric(4) + UUID.randomUUID().toString().replace("-","").toUpperCase();
+        String prescriptionId = OrderIdUtils.genOrderIdWithDateUserId(StringUtils.leftPad(medicalOrder.getDoctorId().toString(),5,"A"));
+        record.setOrderNo(record.getOrderNo());
+        record.setPrescriptionTime(new Date());
+        record.setPrescriptionId(prescriptionId);
+        record.setOrganizationId(medicalOrder.getHospitalId().toString());
+        record.setOrganizationName(medicalOrder.getHospitalName());
+        record.setHospitalAddress(medicalOrder.getHospitalAddress());
+        record.setHospitalContact(medicalOrder.getHospitalContact());
+        record.setCatalogId(medicalOrder.getCatalogId());
+        record.setDepartmentId(medicalOrder.getDepartmentId());
+        record.setPatientId(medicalOrder.getPatientId());
+        record.setPatientIdCardNo(medicalOrder.getPatientIdCardNo());
+        record.setPatientName(medicalOrder.getPatientName());
+        record.setPatientAddress(medicalOrder.getPatientAddress());
+        record.setPatientContact(medicalOrder.getPatientContact());
+        record.setDoctorId(medicalOrder.getDoctorId());
+        record.setDoctorTitle(medicalOrder.getDoctorTitle());
+        record.setDoctorName(medicalOrder.getDoctorName());
+        record.setServiceFee(1000);
+        record.getDrugList().forEach(drug->{
+            drug.setOrderNo(medicalOrder.getOrderNo());
+            drug.setPrescriptionId(prescriptionId);
+            orderDrugsService.insertSelective(drug);
+        });
+        daoMedicalPrescriptionMapper.insertSelective(record);
+        medicalOrder.setStatus(ConstantAll.ORDER_STATUS_PRESCRIPTION);
+        medicalOrder.setGmtModified(new Date());
+        medicalOrderService.updateByPrimaryKeySelective(medicalOrder);
+        List<Pharmacist> pharmacistList = pharmacistService.getListAllCheck();
+        List<String> listPushUserId = Lists.newArrayList();
+        pharmacistList.forEach(t->{
+            listPushUserId.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_PHARMACIST)+t.getId());
+        });
+        appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_PHARMACIST,"医生处方已经产生","请抢单进行审核",listPushUserId);
+
+        return record;
+    }
+
+    // 根据条件查询列表
+    public List<MedicalPrescription> listMedicalPrescription(MedicalPrescriptionRequest params){
+        return daoMedicalPrescriptionMapper.listMedicalPrescription(params);
+    }
+    // 根据条件查询列表 总数
+    public int listMedicalPrescriptionCount(MedicalPrescriptionRequest params){
+        return daoMedicalPrescriptionMapper.listMedicalPrescriptionCount(params);
+    }
+    public int insertSelective(MedicalPrescription record){
+        return daoMedicalPrescriptionMapper.insertSelective(record);
+    }
+
+    public MedicalPrescription selectByPrimaryKey(Long id){
+        return daoMedicalPrescriptionMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(MedicalPrescription record){
+        return daoMedicalPrescriptionMapper.updateByPrimaryKeySelective(record);
+    }
+}

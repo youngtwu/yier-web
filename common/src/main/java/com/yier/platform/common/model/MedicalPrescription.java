@@ -1,0 +1,577 @@
+package com.yier.platform.common.model;
+
+import com.google.common.collect.Lists;
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+import java.util.List;
+
+@ApiModel(value = "处方表")
+public class MedicalPrescription extends BaseJsonObject {
+    @ApiModelProperty(value = "主键")
+    private Long id;
+    @ApiModelProperty(value = "订单号ID")
+    private Long medicalOrderId;
+    @ApiModelProperty(value = "订单号")
+    private String orderNo;
+    @ApiModelProperty(value = "预约上门就诊时间")
+    private Date prescriptionTime;
+    @ApiModelProperty(value = "处方编号")
+    private String prescriptionId;
+    @ApiModelProperty(value = "机构代码 ===  医院ID,关联t_hospital.id")
+    private String organizationId;
+    @ApiModelProperty(value = "机构名称")
+    private String organizationName;
+    @ApiModelProperty(value = "医院地址")
+    private String hospitalAddress;
+    @ApiModelProperty(value = "联系电话")
+    private String hospitalContact;
+    @ApiModelProperty(value = "所属科室类别ID。关联到t_department_catalog")
+    private Long catalogId;
+    @ApiModelProperty(value = "所属科室ID。关联到t_hospital_department")
+    private Long departmentId;
+    @ApiModelProperty(value = "科室名称")
+    private String departmentName;
+    @ApiModelProperty(value = "患者ID,关联t_patient.id")
+    private Long patientId;
+    @ApiModelProperty(value = "患者身份证号码")
+    private String patientIdCardNo;
+    @ApiModelProperty(value = "患者姓名")
+    private String patientName;
+    @ApiModelProperty(value = "联系电话")
+    private String patientContact;
+    @ApiModelProperty(value = "患者地址摘要")
+    private String patientAddressSummary;;
+    @ApiModelProperty(value = "地址")
+    private String patientAddress;
+    @ApiModelProperty(value = "患者用户性别")
+    private String patientSex;
+    @ApiModelProperty(value = "患者年龄")
+    private String patientYearOld;
+    @ApiModelProperty(value = "医生ID,关联t_doctor.id")
+    private Long doctorId;
+    @ApiModelProperty(value = "开方医生职称")
+    private String doctorTitle;
+    @ApiModelProperty(value = "开方医生姓名")
+    private String doctorName;
+    @ApiModelProperty(value = "医生电子签名 担责")
+    private String doctorSignature;
+    @ApiModelProperty(value = "药师ID,关联t_pharmacist.id")
+    private Long pharmacistId;
+    @ApiModelProperty(value = "审方药师姓名")
+    private String pharmacistName;
+    @ApiModelProperty(value = "药师审核时间")
+    private Date viewTime;
+    @ApiModelProperty(value = "药师审核意见")
+    private String viewInfo;
+    @ApiModelProperty(value = "审核状态:通过,不通过,超时通过")
+    private String viewStatus;
+    @ApiModelProperty(value = "药房 药库ID,关联t_pharmacy.id可能是第三方")
+    private String pharmacyId;
+    @ApiModelProperty(value = "药房名字 t_patient.true_name")
+    private String pharmacyName;
+    @ApiModelProperty(value = "药房名字 地址")
+    private String pharmacyAddress;
+    @ApiModelProperty(value = "联系电话")
+    private String pharmacyContact;
+    @ApiModelProperty(value = "默认平台类型默认是0,如果是系统平台类型是1")
+    private Integer pharmacyPlatType;
+    @ApiModelProperty(value = "疾病代码 List<String>")
+    private String icdCodes;
+    @ApiModelProperty(value = "医疗疾病信息")
+    private String icdDiseases;
+    @ApiModelProperty(value = "医嘱说明")
+    private String advice;
+    @ApiModelProperty(value = "处方金额，单位：分")
+    private Integer cost;
+    @ApiModelProperty(value = "审方 服务费 单位是分")
+    private Integer serviceFee;
+    @ApiModelProperty(value = "有效天数")
+    private Integer effectiveDays;
+    @ApiModelProperty(value = "原始处方")
+    private String original;
+    @ApiModelProperty(value = "开方时间")
+    private Date createTime;
+    @ApiModelProperty(value = "状态:A 审核 B 复审 C 已审核 0 完成 ")
+    private String prescriptionStatus;
+    @ApiModelProperty(value = "患者层面对处方的处理状态")
+    private String statusDetail;;
+
+    @ApiModelProperty(value = "状态:正常 1-已删除 2 无药品无审核处方")
+    private String status;
+    @ApiModelProperty(value = "创建时间 下单时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+    @ApiModelProperty(value = "药品列表")
+    private List<OrderDrugs> drugList = Lists.newArrayList();
+    public List<OrderDrugs> getDrugList() {
+        return drugList;
+    }
+    public void setDrugList(List<OrderDrugs> drugList) {
+        this.drugList = drugList;
+    }
+    @ApiModelProperty(value = "处方编号列表")
+    private List<String> prescriptionIdList;
+    @ApiModelProperty(value = "处方编号ID列表")
+    private List<Long> medicalPrescriptionIdList;
+
+    public List<Long> getMedicalPrescriptionIdList() {
+        return medicalPrescriptionIdList;
+    }
+
+    public void setMedicalPrescriptionIdList(List<Long> medicalPrescriptionIdList) {
+        this.medicalPrescriptionIdList = medicalPrescriptionIdList;
+    }
+
+    public List<String> getPrescriptionIdList() {
+        return prescriptionIdList;
+    }
+
+    public void setPrescriptionIdList(List<String> prescriptionIdList) {
+        this.prescriptionIdList = prescriptionIdList;
+    }
+
+    public MedicalPrescription(Long id, Long medicalOrderId, String orderNo, Date prescriptionTime, String prescriptionId, String organizationId, String organizationName, String hospitalAddress, String hospitalContact, Long catalogId, Long departmentId, String departmentName, Long patientId, String patientIdCardNo, String patientName, String patientContact, String patientAddressSummary, String patientAddress, String patientSex, String patientYearOld, Long doctorId, String doctorTitle, String doctorName, String doctorSignature, Long pharmacistId, String pharmacistName, Date viewTime, String viewInfo, String viewStatus, String pharmacyId, String pharmacyName, String pharmacyAddress, String pharmacyContact, Integer pharmacyPlatType, String icdCodes, String icdDiseases, String advice, Integer cost, Integer serviceFee, Integer effectiveDays, String original, Date createTime, String prescriptionStatus, String statusDetail, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.medicalOrderId = medicalOrderId;
+        this.orderNo = orderNo;
+        this.prescriptionTime = prescriptionTime;
+        this.prescriptionId = prescriptionId;
+        this.organizationId = organizationId;
+        this.organizationName = organizationName;
+        this.hospitalAddress = hospitalAddress;
+        this.hospitalContact = hospitalContact;
+        this.catalogId = catalogId;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
+        this.patientId = patientId;
+        this.patientIdCardNo = patientIdCardNo;
+        this.patientName = patientName;
+        this.patientContact = patientContact;
+        this.patientAddressSummary = patientAddressSummary;
+        this.patientAddress = patientAddress;
+        this.patientSex = patientSex;
+        this.patientYearOld = patientYearOld;
+        this.doctorId = doctorId;
+        this.doctorTitle = doctorTitle;
+        this.doctorName = doctorName;
+        this.doctorSignature = doctorSignature;
+        this.pharmacistId = pharmacistId;
+        this.pharmacistName = pharmacistName;
+        this.viewTime = viewTime;
+        this.viewInfo = viewInfo;
+        this.viewStatus = viewStatus;
+        this.pharmacyId = pharmacyId;
+        this.pharmacyName = pharmacyName;
+        this.pharmacyAddress = pharmacyAddress;
+        this.pharmacyContact = pharmacyContact;
+        this.pharmacyPlatType = pharmacyPlatType;
+        this.icdCodes = icdCodes;
+        this.icdDiseases = icdDiseases;
+        this.advice = advice;
+        this.cost = cost;
+        this.serviceFee = serviceFee;
+        this.effectiveDays = effectiveDays;
+        this.original = original;
+        this.createTime = createTime;
+        this.prescriptionStatus = prescriptionStatus;
+        this.statusDetail = statusDetail;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public MedicalPrescription() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getMedicalOrderId() {
+        return medicalOrderId;
+    }
+
+    public void setMedicalOrderId(Long medicalOrderId) {
+        this.medicalOrderId = medicalOrderId;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public Date getPrescriptionTime() {
+        return prescriptionTime;
+    }
+
+    public void setPrescriptionTime(Date prescriptionTime) {
+        this.prescriptionTime = prescriptionTime;
+    }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public String getHospitalAddress() {
+        return hospitalAddress;
+    }
+
+    public void setHospitalAddress(String hospitalAddress) {
+        this.hospitalAddress = hospitalAddress;
+    }
+
+    public String getHospitalContact() {
+        return hospitalContact;
+    }
+
+    public void setHospitalContact(String hospitalContact) {
+        this.hospitalContact = hospitalContact;
+    }
+
+    public Long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(Long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientIdCardNo() {
+        return patientIdCardNo;
+    }
+
+    public void setPatientIdCardNo(String patientIdCardNo) {
+        this.patientIdCardNo = patientIdCardNo;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getPatientContact() {
+        return patientContact;
+    }
+
+    public void setPatientContact(String patientContact) {
+        this.patientContact = patientContact;
+    }
+
+    public String getPatientAddressSummary() {
+        return patientAddressSummary;
+    }
+
+    public void setPatientAddressSummary(String patientAddressSummary) {
+        this.patientAddressSummary = patientAddressSummary;
+    }
+
+    public String getPatientAddress() {
+        return patientAddress;
+    }
+
+    public void setPatientAddress(String patientAddress) {
+        this.patientAddress = patientAddress;
+    }
+
+    public String getPatientSex() {
+        return patientSex;
+    }
+
+    public void setPatientSex(String patientSex) {
+        this.patientSex = patientSex;
+    }
+
+    public String getPatientYearOld() {
+        return patientYearOld;
+    }
+
+    public void setPatientYearOld(String patientYearOld) {
+        this.patientYearOld = patientYearOld;
+    }
+
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public String getDoctorTitle() {
+        return doctorTitle;
+    }
+
+    public void setDoctorTitle(String doctorTitle) {
+        this.doctorTitle = doctorTitle;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public String getDoctorSignature() {
+        return doctorSignature;
+    }
+
+    public void setDoctorSignature(String doctorSignature) {
+        this.doctorSignature = doctorSignature;
+    }
+
+    public Long getPharmacistId() {
+        return pharmacistId;
+    }
+
+    public void setPharmacistId(Long pharmacistId) {
+        this.pharmacistId = pharmacistId;
+    }
+
+    public String getPharmacistName() {
+        return pharmacistName;
+    }
+
+    public void setPharmacistName(String pharmacistName) {
+        this.pharmacistName = pharmacistName;
+    }
+
+    public Date getViewTime() {
+        return viewTime;
+    }
+
+    public void setViewTime(Date viewTime) {
+        this.viewTime = viewTime;
+    }
+
+    public String getViewInfo() {
+        return viewInfo;
+    }
+
+    public void setViewInfo(String viewInfo) {
+        this.viewInfo = viewInfo;
+    }
+
+    public String getViewStatus() {
+        return viewStatus;
+    }
+
+    public void setViewStatus(String viewStatus) {
+        this.viewStatus = viewStatus;
+    }
+
+    public String getPharmacyId() {
+        return pharmacyId;
+    }
+
+    public void setPharmacyId(String pharmacyId) {
+        this.pharmacyId = pharmacyId;
+    }
+
+    public String getPharmacyName() {
+        return pharmacyName;
+    }
+
+    public void setPharmacyName(String pharmacyName) {
+        this.pharmacyName = pharmacyName;
+    }
+
+    public String getPharmacyAddress() {
+        return pharmacyAddress;
+    }
+
+    public void setPharmacyAddress(String pharmacyAddress) {
+        this.pharmacyAddress = pharmacyAddress;
+    }
+
+    public String getPharmacyContact() {
+        return pharmacyContact;
+    }
+
+    public void setPharmacyContact(String pharmacyContact) {
+        this.pharmacyContact = pharmacyContact;
+    }
+
+    public Integer getPharmacyPlatType() {
+        return pharmacyPlatType;
+    }
+
+    public void setPharmacyPlatType(Integer pharmacyPlatType) {
+        this.pharmacyPlatType = pharmacyPlatType;
+    }
+
+    public String getIcdCodes() {
+        return icdCodes;
+    }
+
+    public void setIcdCodes(String icdCodes) {
+        this.icdCodes = icdCodes;
+    }
+
+    public String getIcdDiseases() {
+        return icdDiseases;
+    }
+
+    public void setIcdDiseases(String icdDiseases) {
+        this.icdDiseases = icdDiseases;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
+    }
+
+    public Integer getCost() {
+        return cost;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
+    }
+
+    public Integer getServiceFee() {
+        return serviceFee;
+    }
+
+    public void setServiceFee(Integer serviceFee) {
+        this.serviceFee = serviceFee;
+    }
+
+    public Integer getEffectiveDays() {
+        return effectiveDays;
+    }
+
+    public void setEffectiveDays(Integer effectiveDays) {
+        this.effectiveDays = effectiveDays;
+    }
+
+    public String getOriginal() {
+        return original;
+    }
+
+    public void setOriginal(String original) {
+        this.original = original;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getPrescriptionStatus() {
+        return prescriptionStatus;
+    }
+
+    public void setPrescriptionStatus(String prescriptionStatus) {
+        this.prescriptionStatus = prescriptionStatus;
+    }
+
+    public String getStatusDetail() {
+        return statusDetail;
+    }
+
+    public void setStatusDetail(String statusDetail) {
+        this.statusDetail = statusDetail;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

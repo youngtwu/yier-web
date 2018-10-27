@@ -1,0 +1,122 @@
+package com.yier.platform.web;
+
+import com.github.yingzhuo.carnival.restful.security.Logical;
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.github.yingzhuo.carnival.restful.security.RequiresRoles;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Role;
+import com.yier.platform.common.model.UserRole;
+import com.yier.platform.common.requestParam.RoleRequest;
+import com.yier.platform.service.RoleService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "用户角色请求接口")
+@RestController
+@RequestMapping("/userRoleManager")
+@Slf4j
+public class UserRoleManagerController {
+    @Autowired
+    private RoleService roleService;
+
+    @ApiOperation(value = "获取用户角色列表")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin"}, logical = Logical.AND)
+    @RequestMapping(value = "/selectRolesList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Role> selectRolesList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户角色请求接口类") @RequestBody RoleRequest params) {
+        params.doWithSortOrStart();
+        log.info("获取用户角色列表, 请求参数：{}", params.toJsonString());
+        ListResponse<Role> res = new ListResponse<Role>();
+        List<Role> list = this.roleService.selectRoles(params);
+        int count = this.roleService.selectRolesCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        log.debug("获取用户角色列表, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据id获取用户角色信息{\"roleId\":1}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin"}, logical = Logical.AND)
+    @RequestMapping(value = "/getUserRoleById.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Role> getUserRoleById(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户角色请求接口类") @RequestBody RoleRequest params) {
+        log.info("根据id获取用户角色信息, 请求参数：{}", params);
+        CommonResponse<Role> res = new CommonResponse<Role>();
+        Role role = this.roleService.getRoleById(params);
+        res.setData(role);
+        log.debug("根据id获取用户角色信息, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增用户角色信息{\"type\":4,\"name\":\"审核员\",\"enname\":\"Audit Manager\",\"createBy\":4,\"status\":\"0\",\"remarks\":\"测试新增角色\"}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin"}, logical = Logical.AND)
+    @RequestMapping(value = "/insertUserRole.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Role> insertUserRole(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户角色请求接口类") @RequestBody Role record) {
+        log.info("新增用户角色信息, 请求参数：{}", record.toJsonString());
+        CommonResponse<Role> res = new CommonResponse<Role>();
+        this.roleService.insertRole(record);
+        res.setData(record);
+        log.debug("新增用户角色信息, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "更新用户角色信息{\"id\":2,\"type\":4,\"name\":\"admin\",\"enname\":\"Admin Manager\",\"createBy\":4,\"status\":\"0\",\"remarks\":\"测试新增角色\"}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin"}, logical = Logical.AND)
+    @RequestMapping(value = "/updateUserRole.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Role> updateUserRole(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户角色请求接口类") @RequestBody Role record) {
+        log.info("更新用户信息, 请求参数：{}", record.toJsonString());
+        CommonResponse<Role> res = new CommonResponse<Role>();
+        this.roleService.updateRole(record);
+        res.setData(record);
+        log.debug("更新用户角色信息, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "停用/启用用户角色{\"id\":1,\"status\":\"0\"}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin"}, logical = Logical.AND)
+    @RequestMapping(value = "/enableOrDisableUserRole.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Role> enableOrDisableUserRole(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户角色请求接口类") @RequestBody Role record) {
+        log.info("停用/启用用户角色, 请求参数：{}", record.toJsonString());
+        CommonResponse<Role> res = new CommonResponse<Role>();
+        Role role = this.roleService.updateRole(record);
+        res.setData(role);
+        log.debug("停用/启用用户角色, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据用户id分配用户角色")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin"}, logical = Logical.AND)
+    @RequestMapping(value = "/assignmentRoleByUserId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<UserRole> assignmentRoleByUserId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户角色请求接口类") @RequestBody List<UserRole> record) {
+        log.info("根据用户id分配用户角色, 请求参数：{}", record);
+        ListResponse<UserRole> res = new ListResponse<UserRole>();
+        List<UserRole> userRoles = this.roleService.assignmentRoleByUserId(record);
+        res.setData(userRoles);
+        log.debug("根据用户id分配用户角色, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+}

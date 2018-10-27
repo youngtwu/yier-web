@@ -1,0 +1,950 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.HospitalMapper">
+    <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Hospital">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="level_id" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="business_type" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="web_site" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="visit" javaType="java.lang.Double" jdbcType="DECIMAL"/>
+            <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL"/>
+            <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL"/>
+            <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="com.yier.platform.common.model.Hospital">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="level_id" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="business_type" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="web_site" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="visit" javaType="java.lang.Double" jdbcType="DECIMAL"/>
+            <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL"/>
+            <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL"/>
+            <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="profile" javaType="java.lang.String" jdbcType="LONGVARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, name, level_id, business_type, web_site, province_id, city_id, area_id, address, 
+    contact, visit, lng, lat, other, status, gmt_create, gmt_modified, remarks
+  </sql>
+    <sql id="Blob_Column_List">
+    profile
+  </sql>
+
+
+    <resultMap id="HospitalPoWithImageResultMap" type="com.yier.platform.common.model.HospitalPo">
+        <id column="id" property="id"/>
+        <result column="levelInfo" property="levelInfo"/>
+        <result column="distance" property="distance"/>
+        <result column="name" property="name"/>
+        <result column="level_id" property="levelId"/>
+        <result column="levelInfo" property="levelInfo"/>
+        <result column="business_type" property="businessType"/>
+        <result column="web_site" property="webSite"/>
+        <result column="other" property="other"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="city_id" property="cityId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="address" property="address"/>
+        <result column="contact" property="contact"/>
+        <result column="visit" property="visit"/>
+        <result column="lng" property="lng"/>
+        <result column="lat" property="lat"/>
+        <result column="status" property="status"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="remarks" property="remarks"/>
+        <result column="profile" property="profile"/>
+        <collection property="imagesList" column="id" javaType="ArrayList"
+                    ofType="com.yier.platform.common.model.HospitalImages" select="getHospitalImagesByid"/>
+    </resultMap>
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="listHospital" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultMap="HospitalPoWithImageResultMap">
+        select t.*
+        from (
+
+        select l.`name` levelInfo,it.*
+        <choose>
+            <when test="lng != null and lat!=null">
+                ,round(6378.138*2*asin(sqrt(pow(sin(
+                (it.lat*pi()/180-#{lat}*pi()/180)/2),2)+cos(it.lat*pi()/180)*cos(#{lat}*pi()/180)* pow(sin(
+                (it.lng*pi()/180-#{lng}*pi()/180)/2),2)))*1000) distance
+            </when>
+            <otherwise>
+                ,0 distance
+            </otherwise>
+        </choose>
+        from t_hospital it LEFT JOIN t_hospital_level l ON it.level_id = l.id
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and it.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and it.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and it.area_id = #{areaId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( status )">
+                and it.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( businessType )">
+                and it.business_type = #{businessType}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (it.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(levelIdList)">
+                AND it.level_id IN
+                <foreach collection="levelIdList" close=")" open="(" separator="," item="levelId">
+                    #{levelId}
+                </foreach>
+            </if>
+        </where>
+        ) t
+
+
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listHospitalCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="Integer">
+        select count(t.id) from t_hospital t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and t.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and t.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and t.area_id = #{areaId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( status )">
+                and it.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( businessType )">
+                and it.business_type = #{businessType}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(levelIdList)">
+                AND t.level_id IN
+                <foreach collection="levelIdList" close=")" open="(" separator="," item="levelId">
+                    #{levelId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="listHospitalForDoctor" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultMap="HospitalPoWithImageResultMap">
+        select t.*
+        from (
+
+        select DISTINCT l.`name` levelInfo,it.*
+        <choose>
+            <when test="lng != null and lat!=null">
+                ,round(6378.138*2*asin(sqrt(pow(sin(
+                (it.lat*pi()/180-#{lat}*pi()/180)/2),2)+cos(it.lat*pi()/180)*cos(#{lat}*pi()/180)* pow(sin(
+                (it.lng*pi()/180-#{lng}*pi()/180)/2),2)))*1000) distance
+            </when>
+            <otherwise>
+                ,0 distance
+            </otherwise>
+        </choose>
+        from t_hospital it LEFT JOIN t_hospital_level l ON it.level_id = l.id LEFT JOIN t_doctor dt ON it.id =
+        dt.hospital_id and dt.`status` = '0'
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',dt.id)
+        <where>
+            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and it.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and it.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and it.area_id = #{areaId}
+            </if>
+            <if test="status != null">
+                and it.status = #{status}
+            </if>
+            <if test="businessType != null">
+                and it.business_type = #{businessType}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (it.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(levelIdList)">
+                AND it.level_id IN
+                <foreach collection="levelIdList" close=")" open="(" separator="," item="levelId">
+                    #{levelId}
+                </foreach>
+            </if>
+        </where>
+        ) t
+
+
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listHospitalForDoctorCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="Integer">
+        select count(DISTINCT t.id) from t_hospital t LEFT JOIN t_doctor dt ON t.id = dt.hospital_id and dt.`status` =
+        '0'
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',dt.id)
+        <where>
+            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and t.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and t.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and t.area_id = #{areaId}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="businessType != null">
+                and t.business_type = #{businessType}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(levelIdList)">
+                AND t.level_id IN
+                <foreach collection="levelIdList" close=")" open="(" separator="," item="levelId">
+                    #{levelId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据条件查询列表 -->
+    <select id="listHospitalForPharmacist" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultMap="HospitalPoWithImageResultMap">
+        select t.*
+        from (
+
+        select DISTINCT l.`name` levelInfo,it.*
+        <choose>
+            <when test="lng != null and lat!=null">
+                ,round(6378.138*2*asin(sqrt(pow(sin(
+                (it.lat*pi()/180-#{lat}*pi()/180)/2),2)+cos(it.lat*pi()/180)*cos(#{lat}*pi()/180)* pow(sin(
+                (it.lng*pi()/180-#{lng}*pi()/180)/2),2)))*1000) distance
+            </when>
+            <otherwise>
+                ,0 distance
+            </otherwise>
+        </choose>
+        from t_hospital it LEFT JOIN t_hospital_level l ON it.level_id = l.id LEFT JOIN t_pharmacist dt ON it.id =
+        dt.hospital_id and dt.`status` = '0'
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',dt.id)
+        <where>
+            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and it.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and it.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and it.area_id = #{areaId}
+            </if>
+            <if test="status != null">
+                and it.status = #{status}
+            </if>
+            <if test="businessType != null">
+                and it.business_type = #{businessType}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (it.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(levelIdList)">
+                AND it.level_id IN
+                <foreach collection="levelIdList" close=")" open="(" separator="," item="levelId">
+                    #{levelId}
+                </foreach>
+            </if>
+        </where>
+        ) t
+
+
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listHospitalForPharmacistCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="Integer">
+        select count(DISTINCT t.id) from t_hospital t LEFT JOIN t_pharmacist dt ON t.id = dt.hospital_id and dt.`status`
+        = '0'
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',dt.id)
+        <where>
+            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and t.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and t.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and t.area_id = #{areaId}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="businessType != null">
+                and t.business_type = #{businessType}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(levelIdList)">
+                AND t.level_id IN
+                <foreach collection="levelIdList" close=")" open="(" separator="," item="levelId">
+                    #{levelId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 根据医院省份区域条件查询医生信息列表 -->
+    <select id="listDoctorPoByArea" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="com.yier.platform.common.model.DoctorPo">
+        select dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id
+        catalogId ,t.birthday,
+        t.sex, t.chat, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl,
+        t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id
+        departmentId,
+        t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate,
+        t.gmt_modified gmtModified, t.remarks,t.`profile`
+        from t_doctor t LEFT JOIN t_doctor_title dt ON t.title_id = dt.id INNER JOIN t_hospital ht ON ht.id =
+        t.hospital_id
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',t.id)
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chat )">
+                and (
+                t.chat=#{chat} or cs.chat=#{chat}
+                )
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and ht.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and ht.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and ht.area_id = #{areaId}
+            </if>
+            <if test="hospitalId != null">
+                and t.hospital_id = #{hospitalId}
+            </if>
+            <if test="catalogId != null">
+                and t.catalog_id = #{catalogId}
+            </if>
+            <if test="departmentId != null">
+                and t.department_id = #{departmentId}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据医院省份条件查询列表 总和 -->
+    <select id="listDoctorPoByAreaCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="Integer">
+        select count(t.id) from t_doctor t INNER JOIN t_hospital ht ON ht.id = t.hospital_id
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',t.id)
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chat )">
+                and (
+                t.chat=#{chat} or cs.chat=#{chat}
+                )
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and ht.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and ht.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and ht.area_id = #{areaId}
+            </if>
+            <if test="hospitalId != null">
+                and t.hospital_id = #{hospitalId}
+            </if>
+            <if test="catalogId != null">
+                and t.catalog_id = #{catalogId}
+            </if>
+            <if test="departmentId != null">
+                and t.department_id = #{departmentId}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 根据地域条件查询药师信息PO列表 -->
+    <select id="listPharmacistPoByArea" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="com.yier.platform.common.model.PharmacistPo">
+        select dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id
+        catalogId ,t.birthday,t.profile,
+        t.sex, t.chat, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl,
+        t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id
+        departmentId,
+        t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate,
+        t.gmt_modified gmtModified, t.remarks
+        from t_pharmacist t LEFT JOIN t_pharmacist_title dt ON t.title_id = dt.id INNER JOIN t_hospital ht ON ht.id =
+        t.hospital_id
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',t.id)
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chat )">
+                and (
+                t.chat=#{chat} or cs.chat=#{chat}
+                )
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and ht.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and ht.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and ht.area_id = #{areaId}
+            </if>
+            <if test="hospitalId != null">
+                and t.hospital_id = #{hospitalId}
+            </if>
+            <if test="catalogId != null">
+                and t.catalog_id = #{catalogId}
+            </if>
+            <if test="departmentId != null">
+                and t.department_id = #{departmentId}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listPharmacistPoByAreaCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
+            resultType="Integer">
+        select count(t.id) from t_pharmacist t INNER JOIN t_hospital ht ON ht.id = t.hospital_id
+        LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',t.id)
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chat )">
+                and (
+                t.chat=#{chat} or cs.chat=#{chat}
+                )
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( provinceId )">
+                and ht.province_id = #{provinceId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( cityId )">
+                and ht.city_id = #{cityId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( areaId )">
+                and ht.area_id = #{areaId}
+            </if>
+            <if test="hospitalId != null">
+                and t.hospital_id = #{hospitalId}
+            </if>
+            <if test="catalogId != null">
+                and t.catalog_id = #{catalogId}
+            </if>
+            <if test="departmentId != null">
+                and t.department_id = #{departmentId}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+        </where>
+    </select>
+    <!-- 根据医院Id查询医院对应的热点科室，图片列表等信息 映射-->
+    <resultMap id="HospitalPoResultMap" type="com.yier.platform.common.model.HospitalPo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="level_id" property="levelId"/>
+        <result column="levelInfo" property="levelInfo"/>
+        <result column="business_type" property="businessType"/>
+        <result column="web_site" property="webSite"/>
+        <result column="other" property="other"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="city_id" property="cityId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="address" property="address"/>
+        <result column="contact" property="contact"/>
+        <result column="visit" property="visit"/>
+        <result column="lng" property="lng"/>
+        <result column="lat" property="lat"/>
+        <result column="status" property="status"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="remarks" property="remarks"/>
+        <result column="profile" property="profile"/>
+        <collection property="hotList" column="id" javaType="ArrayList"
+                    ofType="com.yier.platform.common.model.DepartmentCatalog" select="getDepartmentCatalogByid"/>
+        <collection property="imagesList" column="id" javaType="ArrayList"
+                    ofType="com.yier.platform.common.model.HospitalImages" select="getHospitalImagesByid"/>
+    </resultMap>
+    <!-- 根据医院Id查询医院对应的热点科室，图片列表等信息 -->
+    <select id="getHospitalWithHotById" parameterType="java.lang.Long" resultMap="HospitalPoResultMap">
+    select l.`name` levelInfo, t.*
+    from t_hospital t LEFT JOIN t_hospital_level l ON t.level_id = l.id
+    where t.id = #{id,jdbcType=BIGINT}
+  </select>
+
+    <select id="getDepartmentCatalogByid" resultType="com.yier.platform.common.model.DepartmentCatalog"
+            parameterType="java.lang.Integer">
+    select t.id, t.name, t.hospital_id hospitalId, t.`display_order` displayOrder, t.flag, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_department_catalog t
+    where t.hospital_id = #{id}  and t.flag = 1
+    ORDER BY t.`display_order` ASC,t.id ASC
+</select>
+
+    <select id="getHospitalImagesByid" resultType="com.yier.platform.common.model.HospitalImages"
+            parameterType="java.lang.Integer">
+    select t.id, t.image_url imageUrl, t.hospital_id hospitalId, t.`display_order` displayOrder, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_hospital_images t
+    where t.hospital_id = #{id}
+    ORDER BY t.`display_order` ASC,t.id ASC
+</select>
+
+    <!-- 根据医院Id查询医院对应的城市科室信息，好拼接执业点信息，注意可能科室ID信息不存在，对应得查询值可为空 -->
+    <select id="getHospitalPoWithNameByIds" parameterType="com.yier.platform.common.requestParam.PracticeRequest"
+            resultType="com.yier.platform.common.model.HospitalPo">
+        SELECT p.province provinceName,c.city cityName,a.area ,t.`name` hospitalName,dc.`name` catalogName,hd.`name`
+        hospitalDepartmentName,
+        t.id, t.`name`, t.level_id levelId, t.province_id provinceId, t.city_id cityId, t.area_id areaId, t.address,
+        t.contact, t.visit, t.lng,
+        t.lat, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks,t.business_type
+        businessType,t.web_site webSite,t.other
+        from t_hospital t
+        LEFT JOIN t_provinces p ON p.province_id = t.province_id
+        LEFT JOIN t_cities c ON c.city_id = t.city_id
+        LEFT JOIN t_areas a ON a.area_id = t.area_id
+        LEFT JOIN t_department_catalog dc ON dc.hospital_id = t.id
+        <choose>
+            <when test="catalogId !=null">
+                and dc.id= #{catalogId}
+            </when>
+            <otherwise>
+                and dc.id=0
+            </otherwise>
+        </choose>
+        LEFT JOIN t_hospital_department hd ON hd.catalog_id = dc.id
+        <choose>
+            <when test="hospitalDepartmentId !=null">
+                and hd.id= #{hospitalDepartmentId}
+            </when>
+            <otherwise>
+                and hd.id = 0
+            </otherwise>
+        </choose>
+        <where>
+            <if test="hospitalId != null">
+                and t.id = #{hospitalId}
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from t_hospital
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_hospital
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yier.platform.common.model.Hospital">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_hospital (name, level_id, business_type,
+        web_site, province_id, city_id,
+        area_id, address, contact,
+        visit, lng, lat, other,
+        status, gmt_create, gmt_modified,
+        remarks, profile)
+        values (#{name,jdbcType=VARCHAR}, #{levelId,jdbcType=INTEGER}, #{businessType,jdbcType=VARCHAR},
+        #{webSite,jdbcType=VARCHAR}, #{provinceId,jdbcType=VARCHAR}, #{cityId,jdbcType=VARCHAR},
+        #{areaId,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{contact,jdbcType=VARCHAR},
+        #{visit,jdbcType=DECIMAL}, #{lng,jdbcType=DECIMAL}, #{lat,jdbcType=DECIMAL}, #{other,jdbcType=VARCHAR},
+        #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},
+        #{remarks,jdbcType=VARCHAR}, #{profile,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yier.platform.common.model.Hospital">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_hospital
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                name,
+            </if>
+            <if test="levelId != null">
+                level_id,
+            </if>
+            <if test="businessType != null">
+                business_type,
+            </if>
+            <if test="webSite != null">
+                web_site,
+            </if>
+            <if test="provinceId != null">
+                province_id,
+            </if>
+            <if test="cityId != null">
+                city_id,
+            </if>
+            <if test="areaId != null">
+                area_id,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="contact != null">
+                contact,
+            </if>
+            <if test="visit != null">
+                visit,
+            </if>
+            <if test="lng != null">
+                lng,
+            </if>
+            <if test="lat != null">
+                lat,
+            </if>
+            <if test="other != null">
+                other,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+            <if test="profile != null">
+                profile,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="levelId != null">
+                #{levelId,jdbcType=INTEGER},
+            </if>
+            <if test="businessType != null">
+                #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="webSite != null">
+                #{webSite,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceId != null">
+                #{provinceId,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="areaId != null">
+                #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="contact != null">
+                #{contact,jdbcType=VARCHAR},
+            </if>
+            <if test="visit != null">
+                #{visit,jdbcType=DECIMAL},
+            </if>
+            <if test="lng != null">
+                #{lng,jdbcType=DECIMAL},
+            </if>
+            <if test="lat != null">
+                #{lat,jdbcType=DECIMAL},
+            </if>
+            <if test="other != null">
+                #{other,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="profile != null">
+                #{profile,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Hospital">
+        update t_hospital
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="levelId != null">
+                level_id = #{levelId,jdbcType=INTEGER},
+            </if>
+            <if test="businessType != null">
+                business_type = #{businessType,jdbcType=VARCHAR},
+            </if>
+            <if test="webSite != null">
+                web_site = #{webSite,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceId != null">
+                province_id = #{provinceId,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="areaId != null">
+                area_id = #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="contact != null">
+                contact = #{contact,jdbcType=VARCHAR},
+            </if>
+            <if test="visit != null">
+                visit = #{visit,jdbcType=DECIMAL},
+            </if>
+            <if test="lng != null">
+                lng = #{lng,jdbcType=DECIMAL},
+            </if>
+            <if test="lat != null">
+                lat = #{lat,jdbcType=DECIMAL},
+            </if>
+            <if test="other != null">
+                other = #{other,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="profile != null">
+                profile = #{profile,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yier.platform.common.model.Hospital">
+    update t_hospital
+    set name = #{name,jdbcType=VARCHAR},
+      level_id = #{levelId,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=VARCHAR},
+      web_site = #{webSite,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=DECIMAL},
+      lng = #{lng,jdbcType=DECIMAL},
+      lat = #{lat,jdbcType=DECIMAL},
+      other = #{other,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      profile = #{profile,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Hospital">
+    update t_hospital
+    set name = #{name,jdbcType=VARCHAR},
+      level_id = #{levelId,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=VARCHAR},
+      web_site = #{webSite,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=DECIMAL},
+      lng = #{lng,jdbcType=DECIMAL},
+      lat = #{lat,jdbcType=DECIMAL},
+      other = #{other,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

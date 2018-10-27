@@ -1,0 +1,44 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.model.MedicalOrder;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import com.yier.platform.dao.MedicalOrderMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * 上门问诊订单 service
+ */
+@Service
+public class MedicalOrderService {
+    private final Logger logger = LoggerFactory.getLogger(MedicalOrderService.class);
+    @Autowired
+    private MedicalOrderMapper daoMedicalOrderMapper;
+    @Autowired
+    private OrderDrugsService orderDrugsService;
+
+    public List<MedicalOrder> listMedicalOrder(MedicalOrderRequest params){
+        return daoMedicalOrderMapper.listMedicalOrder(params);
+    }
+
+    public int listMedicalOrderCount(MedicalOrderRequest params){
+        return daoMedicalOrderMapper.listMedicalOrderCount(params);
+    }
+
+    public int insertSelective(MedicalOrder record){
+        return daoMedicalOrderMapper.insertSelective(record);
+    }
+
+    public MedicalOrder selectByPrimaryKey(Long id){
+        return daoMedicalOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(MedicalOrder record){
+        return daoMedicalOrderMapper.updateByPrimaryKey(record);
+    }
+
+}

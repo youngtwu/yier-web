@@ -1,0 +1,96 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "系统参数表")
+public class SystemParameters extends BaseJsonObject {
+    @ApiModelProperty(value = "主键ID")
+    private Long id;
+    @ApiModelProperty(value = "系统参数key")
+    private String parkey;
+    @ApiModelProperty(value = "系统参数值")
+    private String pvalue;
+    @ApiModelProperty(value = "状态（0正常 1删除 2停用 3冻结）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息参数描述")
+    private String remarks;
+
+
+    public SystemParameters(Long id, String parkey, String status, Date gmtCreate, Date gmtModified, String remarks, String pvalue) {
+        this.id = id;
+        this.parkey = parkey;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+        this.pvalue = pvalue;
+    }
+
+    public SystemParameters() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getParkey() {
+        return parkey;
+    }
+
+    public void setParkey(String parkey) {
+        this.parkey = parkey;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public String getPvalue() {
+        return pvalue;
+    }
+
+    public void setPvalue(String pvalue) {
+        this.pvalue = pvalue;
+    }
+}

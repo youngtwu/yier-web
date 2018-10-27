@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.RedisLogMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.RedisLog">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="redis_type" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="redis_key" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="redis_value" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, redis_type, redis_key, redis_value, status, gmt_create, gmt_modified, remarks
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_redis_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_redis_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.RedisLog">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_redis_log (redis_type, redis_key, redis_value, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{redisType,jdbcType=BIGINT}, #{redisKey,jdbcType=VARCHAR}, #{redisValue,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.RedisLog">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_redis_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="redisType != null">
+        redis_type,
+      </if>
+      <if test="redisKey != null">
+        redis_key,
+      </if>
+      <if test="redisValue != null">
+        redis_value,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="redisType != null">
+        #{redisType,jdbcType=BIGINT},
+      </if>
+      <if test="redisKey != null">
+        #{redisKey,jdbcType=VARCHAR},
+      </if>
+      <if test="redisValue != null">
+        #{redisValue,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.RedisLog">
+    update t_redis_log
+    <set>
+      <if test="redisType != null">
+        redis_type = #{redisType,jdbcType=BIGINT},
+      </if>
+      <if test="redisKey != null">
+        redis_key = #{redisKey,jdbcType=VARCHAR},
+      </if>
+      <if test="redisValue != null">
+        redis_value = #{redisValue,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.RedisLog">
+    update t_redis_log
+    set redis_type = #{redisType,jdbcType=BIGINT},
+      redis_key = #{redisKey,jdbcType=VARCHAR},
+      redis_value = #{redisValue,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

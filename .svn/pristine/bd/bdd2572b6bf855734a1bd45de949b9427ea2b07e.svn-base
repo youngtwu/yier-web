@@ -1,0 +1,125 @@
+package com.yier.platform.service;
+
+
+import com.alibaba.fastjson.JSONObject;
+import com.yier.platform.TestBase;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.User;
+import com.yier.platform.common.model.UserPo;
+import com.yier.platform.common.requestParam.UserRequest;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+
+import java.util.List;
+
+@ApiModel(value = "用户请求接口")
+public class UserManagerTest extends TestBase {
+    private Logger logger = LoggerFactory.getLogger(UserManagerTest.class);
+
+    @Autowired
+    private UserService serviceUserService;
+
+    @ApiOperation(value = "根据端口号查询出医生或者药师或者患者所有手机号列表")
+    @Test
+    public void selectMobilePhoneNumberList() {
+        String json = "{\"clientType\":\"1\"}";
+        UserRequest params = JSONObject.parseObject(json, UserRequest.class);
+        params.doWithSortOrStart();
+        logger.info("根据端口号查询出医生或者药师或者患者所有手机号列表, 请求参数：{}", params);
+        ListResponse<UserPo> res = new ListResponse<UserPo>();
+        Assert.isTrue(params.getClientType() != null, "clientType端口类型不能为空！");
+        List<UserPo> userPos = this.serviceUserService.selectMobilePhoneNumberList(params);
+        int count = this.serviceUserService.selectMobilePhoneNumberListCount(params);
+        res.setData(userPos);
+        res.setTotal(count);
+        logger.info("根据端口号查询出医生或者药师或者患者所有手机号列表, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "获取用户信息列表")
+    @Test
+    public void getUserList() {
+        UserRequest params = new UserRequest();
+        params.doWithSortOrStart();
+        logger.info("获取用户信息列表, 请求参数：{}", params.toJsonString());
+        ListResponse<User> res = new ListResponse<User>();
+        List<User> list = this.serviceUserService.listUser(params);
+        int count = this.serviceUserService.listUserCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        logger.info("获取用户信息列表, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据id获取用户信息")
+    @Test
+    public void getUserById() {
+        CommonResponse<User> res = new CommonResponse<User>();
+        User user = this.serviceUserService.selectByPrimaryKey(8L);
+        res.setData(user);
+        logger.info("根据id获取用户信息, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "新增用户信息")
+    @Test
+    public void insertUser() {
+        String json = "{\"type\":4,\"trueName\":\"测试\",\"userName\":\"test\",\"idCardNo\":\"110101199003073271\",\"avatarUrl\":\"\",\"passSalt\":\"UmTtPhr5\",\"password\":\"A922F49DCAE32CC9FEE0244AE62CAF8B\",\"birthday\":636739200000,\"wxid\":\"test123\",\"email\":\"test123@163.com\",\"phoneNumber\":\"13401000003\",\"sex\":\"男\",\"field\":\"\",\"profile\":\"\",\"checkUrl\":\"\",\"imtoken\":\"\",\"chat\":\"0\",\"remarks\":\"单元测试\"}";
+        User record = JSONObject.parseObject(json, User.class);
+        logger.info("新增用户信息, 请求参数：{}", record.toJsonString());
+        CommonResponse<User> res = new CommonResponse<User>();
+        this.serviceUserService.insertUser(record);
+        res.setData(record);
+        logger.info("新增用户信息, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "更新用户信息")
+    @Test
+    public void updateUser() {
+        String json = "{\"id\":8,\"type\":4,\"trueName\":\"测试\",\"userName\":\"test\",\"idCardNo\":\"110101199003073271\",\"avatarUrl\":\"\",\"passSalt\":\"UmTtPhr5\",\"password\":\"A922F49DCAE32CC9FEE0244AE62CAF8B\",\"birthday\":636739200000,\"wxid\":\"test123\",\"email\":\"test123@163.com\",\"phoneNumber\":\"13401000003\",\"sex\":\"男\",\"field\":\"\",\"profile\":\"\",\"checkUrl\":\"\",\"imtoken\":\"\",\"chat\":\"0\",\"remarks\":\"单元测试\"}";
+        User record = JSONObject.parseObject(json, User.class);
+        logger.info("更新用户信息, 请求参数：{}", record.toJsonString());
+        CommonResponse<User> res = new CommonResponse<User>();
+        this.serviceUserService.updateUser(record);
+        res.setData(record);
+        logger.info("更新用户信息, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "停用/启用用户信息")
+    @Test
+    public void enableOrDisableUser() {
+        String json = "{\"id\":8,\"status\":\"0\"}";
+        User record = JSONObject.parseObject(json, User.class);
+        logger.info("停用/启用用户信息, 请求参数：{}", record.toJsonString());
+        CommonResponse<User> res = new CommonResponse<User>();
+        User user = this.serviceUserService.enableOrDisableUser(record);
+        res.setData(user);
+        logger.info("停用/启用用户信息, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "通过手机号及密码登录返回用户信息")
+    @Test
+    public void userLoginByPassword() {
+        CommonResponse<UserPo> res = new CommonResponse<UserPo>();
+        UserRequest params = new UserRequest();
+        params.setPhoneNumber("13401000002");
+        res.setData(this.serviceUserService.userLoginByPassword(params, "ccae123456", "web"));
+        logger.info("通过手机号及密码登录返回用户信息, 返回结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "更新密码")
+    @Test
+    public void updateUserPassword() {
+        String json = "{\"userId\":8,\"oldPassWord\":\"ccae123456\",\"password\":\"ccae123456\"}";
+        UserRequest record = JSONObject.parseObject(json, UserRequest.class);
+        CommonResponse<User> res = new CommonResponse<User>();
+        User user = this.serviceUserService.updateUserPassword(record);
+        res.setData(user);
+        logger.info("通过手机号及密码登录返回用户信息, 返回结果：{}", res.toJsonString());
+    }
+}

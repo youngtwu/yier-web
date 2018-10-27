@@ -1,0 +1,266 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class DrugCall extends BaseJsonObject {
+    private Long id;
+
+    private Long typeId;
+
+    private Long userId;
+
+    private Long drugId;
+
+    private String drugInfo;
+
+    private Integer countPreDay;
+
+    private Integer eachHave;
+
+    private String eachHaveUnit;
+
+    private Date captionTime;
+
+    private String caption;
+
+    private Date startDate;
+
+    private Date endDate;
+
+    private Long callType;
+
+    private String callTypeValues;
+
+    private String remindMinutes;
+
+    private String remindMinutesDisplay;
+
+    private String description;
+
+    private Integer displayOrder;
+
+    private String currentStatus;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public DrugCall(Long id, Long typeId, Long userId, Long drugId, String drugInfo, Integer countPreDay, Integer eachHave, String eachHaveUnit, Date captionTime, String caption, Date startDate, Date endDate, Long callType, String callTypeValues, String remindMinutes, String remindMinutesDisplay, String description, Integer displayOrder, String currentStatus, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.drugId = drugId;
+        this.drugInfo = drugInfo;
+        this.countPreDay = countPreDay;
+        this.eachHave = eachHave;
+        this.eachHaveUnit = eachHaveUnit;
+        this.captionTime = captionTime;
+        this.caption = caption;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.callType = callType;
+        this.callTypeValues = callTypeValues;
+        this.remindMinutes = remindMinutes;
+        this.remindMinutesDisplay = remindMinutesDisplay;
+        this.description = description;
+        this.displayOrder = displayOrder;
+        this.currentStatus = currentStatus;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public DrugCall() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getDrugId() {
+        return drugId;
+    }
+
+    public void setDrugId(Long drugId) {
+        this.drugId = drugId;
+    }
+
+    public String getDrugInfo() {
+        return drugInfo;
+    }
+
+    public void setDrugInfo(String drugInfo) {
+        this.drugInfo = drugInfo;
+    }
+
+    public Integer getCountPreDay() {
+        return countPreDay;
+    }
+
+    public void setCountPreDay(Integer countPreDay) {
+        this.countPreDay = countPreDay;
+    }
+
+    public Integer getEachHave() {
+        return eachHave;
+    }
+
+    public void setEachHave(Integer eachHave) {
+        this.eachHave = eachHave;
+    }
+
+    public String getEachHaveUnit() {
+        return eachHaveUnit;
+    }
+
+    public void setEachHaveUnit(String eachHaveUnit) {
+        this.eachHaveUnit = eachHaveUnit;
+    }
+
+    public Date getCaptionTime() {
+        return captionTime;
+    }
+
+    public void setCaptionTime(Date captionTime) {
+        this.captionTime = captionTime;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Long getCallType() {
+        return callType;
+    }
+
+    public void setCallType(Long callType) {
+        this.callType = callType;
+    }
+
+    public String getCallTypeValues() {
+        return callTypeValues;
+    }
+
+    public void setCallTypeValues(String callTypeValues) {
+        this.callTypeValues = callTypeValues;
+    }
+
+    public String getRemindMinutes() {
+        return remindMinutes;
+    }
+
+    public void setRemindMinutes(String remindMinutes) {
+        this.remindMinutes = remindMinutes;
+    }
+
+    public String getRemindMinutesDisplay() {
+        return remindMinutesDisplay;
+    }
+
+    public void setRemindMinutesDisplay(String remindMinutesDisplay) {
+        this.remindMinutesDisplay = remindMinutesDisplay;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public String getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(String currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

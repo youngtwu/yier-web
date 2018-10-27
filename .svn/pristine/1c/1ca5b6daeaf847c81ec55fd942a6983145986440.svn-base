@@ -1,0 +1,189 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class DrugCallTask extends BaseJsonObject {
+    private Long id;
+
+    private Long typeId;
+
+    private Long userId;
+
+    private Long taskType;
+
+    private Long drugCallId;
+
+    private Long drugId;
+
+    private String drugInfo;
+
+    private String caption;
+
+    private Date captionTime;
+
+    private Date schedule;
+
+    private String currentStatus;
+
+    private String taskResult;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public DrugCallTask(Long id, Long typeId, Long userId, Long taskType, Long drugCallId, Long drugId, String drugInfo, String caption, Date captionTime, Date schedule, String currentStatus, String taskResult, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.taskType = taskType;
+        this.drugCallId = drugCallId;
+        this.drugId = drugId;
+        this.drugInfo = drugInfo;
+        this.caption = caption;
+        this.captionTime = captionTime;
+        this.schedule = schedule;
+        this.currentStatus = currentStatus;
+        this.taskResult = taskResult;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public DrugCallTask() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Long taskType) {
+        this.taskType = taskType;
+    }
+
+    public Long getDrugCallId() {
+        return drugCallId;
+    }
+
+    public void setDrugCallId(Long drugCallId) {
+        this.drugCallId = drugCallId;
+    }
+
+    public Long getDrugId() {
+        return drugId;
+    }
+
+    public void setDrugId(Long drugId) {
+        this.drugId = drugId;
+    }
+
+    public String getDrugInfo() {
+        return drugInfo;
+    }
+
+    public void setDrugInfo(String drugInfo) {
+        this.drugInfo = drugInfo;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public Date getCaptionTime() {
+        return captionTime;
+    }
+
+    public void setCaptionTime(Date captionTime) {
+        this.captionTime = captionTime;
+    }
+
+    public Date getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Date schedule) {
+        this.schedule = schedule;
+    }
+
+    public String getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(String currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    public String getTaskResult() {
+        return taskResult;
+    }
+
+    public void setTaskResult(String taskResult) {
+        this.taskResult = taskResult;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

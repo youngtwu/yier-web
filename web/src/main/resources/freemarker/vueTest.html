@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    {{ 5>6 ? 'YES' : 'NO' }}----> {{ message }}
+</div>
+<div id="app-2">
+  <span v-bind:title="message">
+    鼠标悬停几秒钟查看此处动态绑定的提示信息！
+  </span>
+</div>
+<div id="app-3">
+    <p v-if="seen">现在你看到我了</p>
+</div>
+
+<div id="app-4">
+    <ol>
+        <li v-for="todo in todos">
+            {{ todo.text }}
+        </li>
+    </ol>
+</div>
+
+<div id="app-5">
+    <p>{{ message }}</p>
+    <button v-on:click="reverseMessage">逆转消息</button>
+</div>
+<span id="span-1" v-once>这个将不会改变: {{ msg }}</span>
+<div id="app-6">
+    <p>{{ message }}</p>
+    <input v-model="message">
+</div>
+
+
+<div id="example">
+    <p>Original message: "{{ message }}"</p>
+    <p>Computed reversed message: "{{ reversedMessage }}"</p>
+</div>
+
+
+<div id="app-60">
+    {{ a }}
+</div>
+
+<div id="appInput">
+    <p>input 元素：</p>
+    <input v-model="message" placeholder="编辑我……">
+    <p>消息是: {{ message }}</p>
+
+    <p>textarea 元素：</p>
+    <p style="white-space: pre">{{ message2 }}</p>
+    <textarea v-model="message2" placeholder="多行文本输入……"></textarea>
+</div>
+<div id="appFor">
+    <ul>
+        <li v-for="item in todos">
+            名称：{{ item.name }}  -->关于图片URL描述：<a :href="item.url" taget="_blank">{{ item.description }}</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script>
+
+
+
+
+
+    new Vue({
+        el: '#appInput',
+        data: {
+            message: 'Runoob',
+            message2: '菜鸟教程\r\nhttp://www.runoob.com'
+        }
+    })
+
+    var app1 = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue! 000000000000000000000'
+        }
+    })
+    var app2 = new Vue({
+        el: '#app-2',
+        data: {
+            message: '页面加载于 ' + new Date().toLocaleString()
+        }
+    })
+
+    var app3 = new Vue({
+        el: '#app-3',
+        data: {
+            seen: true
+        }
+    })
+
+    var app4 = new Vue({
+        el: '#app-4',
+        data: {
+            todos: [
+                {text: '学习 JavaScript'},
+                {text: '学习 Vue'},
+                {text: '整个牛项目'}
+            ]
+        }
+    })
+    var app5 = new Vue({
+        el: '#app-5',
+        data: {
+            message: 'Hello Vue.js!'
+        },
+        methods: {
+            reverseMessage: function () {
+                this.message = this.message.split('').reverse().join('')
+            }
+        }
+    })
+
+    var span1 = new Vue({
+        el: '#span-1',
+        data: {
+            msg: 'Hello Vue!5555'
+        },
+        created: function () {
+            // `this` 指向 vm 实例
+            console.log('span-1 is: ' + this.msg)
+        }
+    })
+
+    var app6 = new Vue({
+        el: '#app-6',
+        data: {
+            message: 'Hello Vue!5555'
+        },
+        created: function () {
+            // `this` 指向 vm 实例
+            console.log('app6 meesage is: ' + this.message)
+        }
+    })
+
+    var vmEx = new Vue({
+        el: '#example',
+        data: {
+            message: 'Hello'
+        },
+        computed: {
+            // 计算属性的 getter
+            reversedMessage: function () {
+                // `this` 指向 vm 实例
+                return this.message.split('').reverse().join('')
+            }
+        }
+    })
+
+    // 我们的数据对象
+    var data = {a: 1}
+    // Object.freeze(data)
+    // 该对象被加入到一个 Vue 实例中
+    var vm = new Vue({
+        e1: '#app-60',
+        data: data
+    })
+
+
+    function getTest1Data() {
+        return axios.get('http://localhost:8801/common/getImageList.json');
+    }
+
+    function getTest2Data() {
+        return axios.get('http://127.0.0.1:8801/patient/loginByPassword.json?phoneNumber=12345678901&password=123456');
+    }
+    //
+    // axios.all([getTest1Data(), getTest2Data()])
+    //     .then(axios.spread(function (testData1, testData2) {
+    //         // Both requests are now complete
+    //         console.log("发送多个并发请求显示对应的处理结果：")
+    //         console.log(testData1);
+    //         console.log(testData2);
+    //     }))
+    //     .catch(function (reason) {
+    //         console.log(reason);
+    //     });
+
+
+
+    //通过给定的ID来发送请求
+    // axios.get('http://localhost:8801/common/getImageList.json')
+    //     .then(function(response){
+    //         console.log("显示对应的处理结果：")
+    //         console.log(response);
+    //     })
+    //     .catch(function(err){
+    //         console.log(err);
+    //     });
+    // axios.get('http://127.0.0.1:8801/patient/loginByPassword.json?phoneNumber=12345678901&password=123456')
+    //     .then(function (response) {
+    //         console.log("Get请求显示对应的处理结果：")
+    //         console.log(response);
+    //     })
+    //     .catch(function (err) {
+    //         console.log(err);
+    //     });
+    //
+
+    //
+    //     axios.post('http://localhost:8801/patient/register.json', {
+    //         phoneNumber: '13661756563',
+    //         trueName: '真实名字'
+    //     })
+    //     .then(function (response) {
+    //         console.log("Post请求显示对应的处理结果：")
+    //         console.log(response);
+    //     })
+    //     .catch(function (response) {
+    //         console.log(response);
+    //     });
+
+    var instance = axios.create({
+        baseURL:"http://localhost:8801",
+        timeout:1000,
+        headers: {'X-Custom-Header':'foobar',tyidInfo:'ios and but h5'}
+    });
+
+    // axios.defaults.baseURL = 'http://localhost:8801';
+    // axios.defaults.headers.common['tyidInfo'] = 'ios not but h5';
+    //axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded' //'application/json;charset=utf-8'
+    // 添加一个请求拦截器
+    axios.interceptors.request.use(function (config) {
+        // Do something before request is sent
+        console.log('添加一个请求拦截器，情况：');
+        if(config.method === 'post'){
+            console.log('config.method === post，情况：');
+            //Error:config.data = qs.stringify(config.data,{arrayFormat:'bobArrayFormat'});
+        }
+        console.log(config);
+        return config;
+    }, function (error) {
+        // Do something with request error
+        return Promise.reject(error);
+    });
+
+    // 添加一个响应拦截器
+    axios.interceptors.response.use(function (response) {
+        // Do something with response data
+        console.log('添加一个响应拦截器--》结果');
+        console.log(response);
+        if(response.status === 200){
+            //console.log('response.status='+response.status);
+            console.log('response.data.status='+response.data.status);
+            if (response.data.status === 0) {
+                console.log(response);
+                return response.data.data
+            }
+            else{
+                console.log("response.data.status !== 0");
+                console.log("*****************error:"+response.data.error);
+                return response.data.error;
+            }
+        }
+        console.log('======================================');
+        return response;
+    }, function (error) {
+        // Do something with response error
+        console.log(error);
+        return Promise.reject(error);
+        // if (error.response) {
+        //     switch (error.response.status) {
+        //         case 401:
+        //             // 返回 401 跳转到登录页面
+        //             router.push({
+        //                 path: '/login'
+        //             })
+        //             break
+        //         case 500:
+        //             router.push({
+        //                 path: '/error/500'
+        //             })
+        //             break
+        //         case 404:
+        //             router.push({
+        //                 path: '/error/404'
+        //             })
+        //             break
+        //         case 504:
+        //             router.push({
+        //                 path: '/error/504'
+        //             })
+        //             break
+        //     }
+        // }
+        // return Promise.reject(error.response.data)
+    });
+
+
+
+/*        axios.post('/patient/register.json?id=1111', {
+            phoneNumber: '13661756563',
+            trueName: '真实名字'
+        })
+        .then(function (response) {
+            console.log("Post请求显示对应的处理结果：")
+            console.log(response);
+        })
+        .catch(function (response) {
+            console.log("Post请求显示对应的错误结果：")
+            console.log(response);
+        });*/
+
+/*    axios.get('/patient/loginByPassword.json?phoneNumber=12345678901&password=123456'
+        ,{phoneNumber: '13661756563',password: '123456'})
+        .then(function (response) {
+            console.log("Get请求显示对应的处理结果：")
+            console.log(response);
+        })
+        .catch(function (err) {
+            console.log(err);
+        });*/
+
+/*    axios.post('/patient/loginByPassword.json?phoneNumber=12345678901&password=123456', {
+        phoneNumber: '13661756563',
+        password: '123456'
+    })
+        .then(function (response) {
+            console.log("--------------------Post请求显示对应的处理结果：-------------------------------------")
+            console.log(response);
+        })
+        .catch(function (response) {
+            console.log("进入异常处理情况");
+            if (response instanceof Error) {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', response.message);
+            } else {
+                // The request was made, but the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(response.data);
+                console.log(response.status);
+                console.log(response.headers);
+                console.log(response.config);
+            }
+
+        });*/
+
+
+        // axios.post('http://localhost:8801/patient/loginByPassword.json?phoneNumber=12345678901&password=123456', {
+        //     phoneNumber: '13661756563',
+        //     password: '123456'
+        // })
+        // .then(function (response) {
+        //     console.log("Post请求显示对应的处理结果：")
+        //     console.log(response);
+        // })
+        // .catch(function (response) {
+        //     console.log(response);
+        // });
+
+
+/*        axios( {mothod:'post',url:'http://localhost:8801/patient/loginByPassword.json?phoneNumber=12345678901&password=123456', data:{
+            phoneNumber1: '13661756563',
+            password: '123456'
+        }})
+        .then(function (response) {
+            console.log("Post请求显示对应的处理结果：")
+            console.log(response);
+        })
+        .catch(function (response) {
+            console.log(response);
+        });*/
+
+
+
+
+/*
+        axios.post('http://localhost:8801/patient/register.json?phoneNumber111=12345678901&password111=123456', {
+            phoneNumber: '13661756563',
+            trueName: '真实名字'
+        })
+        .then(function (response) {
+            console.log("Post请求显示对应的处理结果：")
+            console.log(response);
+        })
+        .catch(function (response) {
+            console.log(response);
+        });
+*/
+
+
+    axios.get('http://192.168.0.215:8801/common/getImageList.json')
+        .then(function(response){
+            console.log("显示215对应的处理结果：")
+            console.log(response);
+            new Vue({
+                el: '#appFor',
+                data: {todos: response.imagesList }
+            })
+        })
+        .catch(function(err){
+            console.log(err);
+        });
+</script>
+</html>

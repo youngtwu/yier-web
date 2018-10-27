@@ -1,0 +1,347 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+import java.util.List;
+
+public class Pharmacist extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Long id;
+    @ApiModelProperty(value = "药师姓名")
+    private String trueName;
+    @ApiModelProperty(value = "药师头像")
+    private String avatarUrl;
+    @ApiModelProperty(value = "药师身份证")
+    private String idCardNo;
+    @ApiModelProperty(value = "药师药师证号")
+    private String doctorCardNo;
+    @ApiModelProperty(value = "药师手机号")
+    private String phoneNumber;
+    @ApiModelProperty(value = "药师登陆密码")
+    private String passHash;
+
+    private String passSalt;
+    @ApiModelProperty(value = "药师所属医院")
+    private Long hospitalId;
+    @ApiModelProperty(value = "药师所属科类")
+    private Long catalogId;
+    @ApiModelProperty(value = "药师所属科室")
+    private Long departmentId;
+    @ApiModelProperty(value = "药师职务")
+    private Long titleId;
+    @ApiModelProperty(value = "药师领域")
+    private String field;
+    @ApiModelProperty(value = "药师急诊人次")
+    private Double visit;
+    @ApiModelProperty(value = "药师职业点")
+    private String practicePoint;
+    @ApiModelProperty(value = "药师出生日期")
+    private Date birthday;
+    @ApiModelProperty(value = "性别")
+    private String sex;
+    @ApiModelProperty(value = "是否开通聊天：0表示开通，1表示没有开通")
+    private String chat;
+    @ApiModelProperty(value = "审核图片")
+    private String checkUrl;
+    @ApiModelProperty(value = "近照")
+    private String photoUrl;
+    @ApiModelProperty(value = "融云即时通讯token")
+    private String imtoken;
+    @ApiModelProperty(value = "状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+    @ApiModelProperty(value = "个人介绍")
+    private String profile;
+    @ApiModelProperty(value = "选中的工作时间列表")
+    private List<String> selectWorkTimeList;
+
+    public Pharmacist(Long id, String trueName, String avatarUrl, String idCardNo, String doctorCardNo, String phoneNumber, String passHash, String passSalt, Long hospitalId, Long catalogId, Long departmentId, Long titleId, String field, Double visit, String profile, String practicePoint, Date birthday, String sex, String chat, String checkUrl, String photoUrl, String imtoken, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.trueName = trueName;
+        this.avatarUrl = avatarUrl;
+        this.idCardNo = idCardNo;
+        this.doctorCardNo = doctorCardNo;
+        this.phoneNumber = phoneNumber;
+        this.passHash = passHash;
+        this.passSalt = passSalt;
+        this.hospitalId = hospitalId;
+        this.catalogId = catalogId;
+        this.departmentId = departmentId;
+        this.titleId = titleId;
+        this.field = field;
+        this.visit = visit;
+        this.profile = profile;
+        this.practicePoint = practicePoint;
+        this.birthday = birthday;
+        this.sex = sex;
+        this.chat = chat;
+        this.checkUrl = checkUrl;
+        this.photoUrl = photoUrl;
+        this.imtoken = imtoken;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public Pharmacist(Pharmacist info){
+        this.id = info.id;
+        this.trueName = info.trueName;
+        this.avatarUrl = info.avatarUrl;
+        this.idCardNo = info.idCardNo;
+        this.doctorCardNo = info.doctorCardNo;
+        this.phoneNumber = info.phoneNumber;
+        this.passHash = info.passHash;
+        this.passSalt = info.passSalt;
+        this.hospitalId = info.hospitalId;
+        this.catalogId = info.catalogId;
+        this.departmentId = info.departmentId;
+        this.titleId = info.titleId;
+        this.field = info.field;
+        this.visit = info.visit;
+        this.practicePoint = info.practicePoint;
+        this.birthday = info.birthday;
+        this.sex = info.sex;
+        this.chat = info.chat;
+        this.checkUrl = info.checkUrl;
+        this.photoUrl = info.photoUrl;
+        this.imtoken = info.imtoken;
+        this.status = info.status;
+        this.gmtCreate = info.gmtCreate;
+        this.gmtModified = info.gmtModified;
+        this.remarks = info.remarks;
+        this.profile = info.profile;
+    }
+
+    public Pharmacist() {
+        super();
+    }
+    /**
+     * 思考特殊域操作功能
+     */
+    public void thinkField(){
+        this.passHash = "密码被覆盖";
+    }
+    public List<String> getSelectWorkTimeList() {
+        return selectWorkTimeList;
+    }
+
+    public void setSelectWorkTimeList(List<String> selectWorkTimeList) {
+        this.selectWorkTimeList = selectWorkTimeList;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTrueName() {
+        return trueName;
+    }
+
+    public void setTrueName(String trueName) {
+        this.trueName = trueName;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getIdCardNo() {
+        return idCardNo;
+    }
+
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
+    }
+
+    public String getDoctorCardNo() {
+        return doctorCardNo;
+    }
+
+    public void setDoctorCardNo(String doctorCardNo) {
+        this.doctorCardNo = doctorCardNo;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassHash() {
+        return passHash;
+    }
+
+    public void setPassHash(String passHash) {
+        this.passHash = passHash;
+    }
+
+    public String getPassSalt() {
+        return passSalt;
+    }
+
+    public void setPassSalt(String passSalt) {
+        this.passSalt = passSalt;
+    }
+
+    public Long getHospitalId() {
+        return hospitalId;
+    }
+
+    public void setHospitalId(Long hospitalId) {
+        this.hospitalId = hospitalId;
+    }
+
+    public Long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(Long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public Long getTitleId() {
+        return titleId;
+    }
+
+    public void setTitleId(Long titleId) {
+        this.titleId = titleId;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public Double getVisit() {
+        return visit;
+    }
+
+    public void setVisit(Double visit) {
+        this.visit = visit;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public String getPracticePoint() {
+        return practicePoint;
+    }
+
+    public void setPracticePoint(String practicePoint) {
+        this.practicePoint = practicePoint;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getChat() {
+        return chat;
+    }
+
+    public void setChat(String chat) {
+        this.chat = chat;
+    }
+
+    public String getCheckUrl() {
+        return checkUrl;
+    }
+
+    public void setCheckUrl(String checkUrl) {
+        this.checkUrl = checkUrl;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getImtoken() {
+        return imtoken;
+    }
+
+    public void setImtoken(String imtoken) {
+        this.imtoken = imtoken;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

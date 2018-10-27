@@ -1,0 +1,212 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+import java.util.Date;
+
+public class DeviceInfoException extends BaseJsonObject {
+    private Long id;
+
+    private Long userId;
+
+    private Long typeId;
+
+    private String osType;
+
+    private Integer versionCode;
+
+    private Integer sdkInt;
+
+    private String brand;
+
+    private String model;
+
+    private String versionRelease;
+
+    private String hardware;
+
+    private String cpuAbi;
+
+    private String cpuAbi2;
+
+    private String exceptionPathUrl;
+
+    private String serial;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public DeviceInfoException(Long id, Long userId, Long typeId, String osType, Integer versionCode, Integer sdkInt, String brand, String model, String versionRelease, String hardware, String cpuAbi, String cpuAbi2, String exceptionPathUrl, String serial, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.userId = userId;
+        this.typeId = typeId;
+        this.osType = osType;
+        this.versionCode = versionCode;
+        this.sdkInt = sdkInt;
+        this.brand = brand;
+        this.model = model;
+        this.versionRelease = versionRelease;
+        this.hardware = hardware;
+        this.cpuAbi = cpuAbi;
+        this.cpuAbi2 = cpuAbi2;
+        this.exceptionPathUrl = exceptionPathUrl;
+        this.serial = serial;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public DeviceInfoException() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getOsType() {
+        return osType;
+    }
+
+    public void setOsType(String osType) {
+        this.osType = osType;
+    }
+
+    public Integer getVersionCode() {
+        return versionCode;
+    }
+
+    public void setVersionCode(Integer versionCode) {
+        this.versionCode = versionCode;
+    }
+
+    public Integer getSdkInt() {
+        return sdkInt;
+    }
+
+    public void setSdkInt(Integer sdkInt) {
+        this.sdkInt = sdkInt;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getVersionRelease() {
+        return versionRelease;
+    }
+
+    public void setVersionRelease(String versionRelease) {
+        this.versionRelease = versionRelease;
+    }
+
+    public String getHardware() {
+        return hardware;
+    }
+
+    public void setHardware(String hardware) {
+        this.hardware = hardware;
+    }
+
+    public String getCpuAbi() {
+        return cpuAbi;
+    }
+
+    public void setCpuAbi(String cpuAbi) {
+        this.cpuAbi = cpuAbi;
+    }
+
+    public String getCpuAbi2() {
+        return cpuAbi2;
+    }
+
+    public void setCpuAbi2(String cpuAbi2) {
+        this.cpuAbi2 = cpuAbi2;
+    }
+
+    public String getExceptionPathUrl() {
+        return exceptionPathUrl;
+    }
+
+    public void setExceptionPathUrl(String exceptionPathUrl) {
+        this.exceptionPathUrl = exceptionPathUrl;
+    }
+
+    public String getSerial() {
+        return serial;
+    }
+
+    public void setSerial(String serial) {
+        this.serial = serial;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

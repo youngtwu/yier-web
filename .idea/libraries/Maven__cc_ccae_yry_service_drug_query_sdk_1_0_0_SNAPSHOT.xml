@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: cc.ccae:yry-service-drug-query-sdk:1.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/cc/ccae/yry-service-drug-query-sdk/1.0.0-SNAPSHOT/yry-service-drug-query-sdk-1.0.0-20181013.031318-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/cc/ccae/yry-service-drug-query-sdk/1.0.0-SNAPSHOT/yry-service-drug-query-sdk-1.0.0-20181013.031318-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/cc/ccae/yry-service-drug-query-sdk/1.0.0-SNAPSHOT/yry-service-drug-query-sdk-1.0.0-20181013.031318-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

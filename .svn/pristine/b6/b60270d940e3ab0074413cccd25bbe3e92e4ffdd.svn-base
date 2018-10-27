@@ -1,0 +1,36 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModelProperty;
+
+public class DiseaseCode extends BaseJsonObject {
+    @ApiModelProperty(value = "亚目编码")
+    private String code;
+    @ApiModelProperty(value = "亚目名称")
+    private String name;
+
+    public DiseaseCode(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public DiseaseCode() {
+        super();
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}

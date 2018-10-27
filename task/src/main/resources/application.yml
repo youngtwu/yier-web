@@ -1,0 +1,108 @@
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:9001/eureka/
+
+# http协议端口 server是https协议端口
+http:
+  port: 8804
+server:
+  port: 6604
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: 654321
+    key-store-type: PKCS12
+    key-alias: tomcat
+    enabled: true #开启https协议端口
+debug: false #开启调试模式与否
+
+spring:
+  application:
+      name: springCloudMedicalTaskService
+  profiles:
+    active: dev
+  main:
+    banner-mode: "OFF"
+  resources:
+    static-locations: classpath:/resources/,classpath:/static/ # 默认静态资源的路径可以直接通过 “http://xxx.com/静态资源” 的方式访问到
+  jackson: # json输入输出格式化方面的界定
+#    locale: "zh_CN"
+    time-zone: GMT+8
+    date-format: "yyyy-MM-dd HH:mm:ss" #格式化"yyyy-MM-dd HH:mm:ss"
+    joda-date-time-format: ${spring.jackson.date-format}
+    default-property-inclusion: always
+#    serialization:
+#      indent-output: true
+#      fail-on-self-references: true
+#      fail-on-empty-beans: false
+#      write-dates-as-timestamps: false
+#      write-null-map-values: true
+#      write-empty-json-arrays: true
+#      write-single-elem-arrays-unwrapped: false
+#      write-enums-using-to-string: true
+#    deserialization:
+#      fail-on-unknown-properties: false
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 10MB
+
+  jmx:
+    enabled: false # default:true Registering beans for JMX exposure on startup
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.yier.platform.common.model
+
+
+
+
+logging:
+#  pattern:
+#    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n'
+  level:
+    root: info
+    # logging.level.mapper类所在包位置=debug mybatis打印sql语句
+    com.yier.platform.dao: info
+    org:
+      springframework:
+        security: info
+        web: info
+#  file: log/project.log # 把日志输入到指定的文件中
+#    path: log/logs # 将日志输出到文件夹中
+
+#范围路径 比如：/admin
+adminPath:
+interceptor:
+  # 后台管理记录拦截器
+  enabled: true
+  addPathPatterns: >
+    ${adminPath}/**
+  excludePathPatterns: >
+    ${adminPath}/patient,
+    ${adminPath}/rongCloud/**,
+    ${adminPath}/desktop,
+    ${adminPath}/sys/online/count,
+    ${adminPath}/**/treeData,
+    ${adminPath}/file/**,
+    ${adminPath}/tags/*,
+    ${adminPath}/msg/**
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+#  server:
+#    port: 8804
+info:
+  app:
+      encoding:UTF-8
+      java.source:1.8
+      java.traget:1.8
+

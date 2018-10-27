@@ -1,0 +1,138 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "送药查询请求类")
+public class DrugSendOrderRequest extends BaseRequest {
+    @ApiModelProperty(value = "患者送药订单主键标识Id")
+    private Long drugSendOrderId;
+    @ApiModelProperty(value = "药师接受送药订单主键标识Id")
+    private Long drugAcceptOrderId;
+    @ApiModelProperty(value = "送药订单号")
+    private String sendOrderNo;
+    @ApiModelProperty(value = "送药接受订单号")
+    private String acceptOrderNo;
+    @ApiModelProperty(value = "对应的诊疗订单号")
+    private String orderNo;
+    @ApiModelProperty(value = "处方编号")
+    private String prescriptionId;
+    @ApiModelProperty(value = "处方ID")
+    private Long medicalPrescriptionId;
+    @ApiModelProperty(value = "订单号ID")
+    private Long medicalOrderId;
+    @ApiModelProperty(value = "药房 药库ID,关联t_pharmacy.id可能是第三方")
+    private String pharmacyId;
+    @ApiModelProperty(value = "患者ID,关联t_patient.id")
+    private Long patientId;
+    @ApiModelProperty(value = "药师ID,关联t_pharmacist.id")
+    private Long pharmacistId;
+    @ApiModelProperty(value = "患者查看送药状态")
+    private String sendStatus;
+    @ApiModelProperty(value = "药师查看状态")
+    private String acceptStatus;
+
+    public Long getDrugSendOrderId() {
+        return drugSendOrderId;
+    }
+
+    public void setDrugSendOrderId(Long drugSendOrderId) {
+        this.drugSendOrderId = drugSendOrderId;
+    }
+
+    public Long getDrugAcceptOrderId() {
+        return drugAcceptOrderId;
+    }
+
+    public void setDrugAcceptOrderId(Long drugAcceptOrderId) {
+        this.drugAcceptOrderId = drugAcceptOrderId;
+    }
+
+    public String getSendOrderNo() {
+        return sendOrderNo;
+    }
+
+    public void setSendOrderNo(String sendOrderNo) {
+        this.sendOrderNo = sendOrderNo;
+    }
+
+    public String getAcceptOrderNo() {
+        return acceptOrderNo;
+    }
+
+    public void setAcceptOrderNo(String acceptOrderNo) {
+        this.acceptOrderNo = acceptOrderNo;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public Long getMedicalPrescriptionId() {
+        return medicalPrescriptionId;
+    }
+
+    public void setMedicalPrescriptionId(Long medicalPrescriptionId) {
+        this.medicalPrescriptionId = medicalPrescriptionId;
+    }
+
+    public Long getMedicalOrderId() {
+        return medicalOrderId;
+    }
+
+    public void setMedicalOrderId(Long medicalOrderId) {
+        this.medicalOrderId = medicalOrderId;
+    }
+
+    public String getPharmacyId() {
+        return pharmacyId;
+    }
+
+    public void setPharmacyId(String pharmacyId) {
+        this.pharmacyId = pharmacyId;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public Long getPharmacistId() {
+        return pharmacistId;
+    }
+
+    public void setPharmacistId(Long pharmacistId) {
+        this.pharmacistId = pharmacistId;
+    }
+
+    public String getSendStatus() {
+        return sendStatus;
+    }
+
+    public void setSendStatus(String sendStatus) {
+        this.sendStatus = sendStatus;
+    }
+
+    public String getAcceptStatus() {
+        return acceptStatus;
+    }
+
+    public void setAcceptStatus(String acceptStatus) {
+        this.acceptStatus = acceptStatus;
+    }
+}

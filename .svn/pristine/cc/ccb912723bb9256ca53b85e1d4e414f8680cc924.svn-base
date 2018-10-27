@@ -1,0 +1,177 @@
+package com.yier.platform.service.medical;
+
+import com.github.yingzhuo.carnival.id.IdGenerator;
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.DrugTakeOrderRequest;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import com.yier.platform.common.requestParam.MedicalPrescriptionRequest;
+import com.yier.platform.dao.DrugSendOrderMapper;
+import com.yier.platform.dao.DrugTakeOrderMapper;
+import com.yier.platform.service.PharmacyService;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class DrugTakeOrderService {
+    private final Logger logger = LoggerFactory.getLogger(DrugSendOrderService.class);
+    @Autowired
+    private DrugTakeOrderMapper daoDrugTakeOrderMapper;
+    @Autowired
+    private IdGenerator<Long> idGenerator;
+    @Autowired
+    private MedicalPrescriptionService medicalPrescriptionService;
+    @Autowired
+    private DrugTakePrescriptionService drugTakePrescriptionService;
+    @Autowired
+    private PharmacyService pharmacyService;
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+
+    @ApiOperation(value = "创建患者取药订单")
+    @Transactional
+    public void drugTakeOrderCancel(DrugTakeOrder record){
+        Assert.isTrue(record.getId() != null , "请传递参数取药订单 id");
+        Assert.isTrue(record.getTakeOrderNo() != null , "请传递参数取药订单编号 takeOrderNo");
+        Assert.isTrue(record.getOrderNo() != null , "请传递参数对应的上门就诊订单编号 orderNo");
+//        Assert.isTrue(record.getPrescriptionId() != null , "请传递参数处方 prescriptionId");
+//        List<String> prescriptionIdList =Arrays.asList(record.getPrescriptionId().split(","));
+        DrugTakePrescription drugTakePrescription = new DrugTakePrescription();
+        drugTakePrescription.setTakeOrderNo(record.getTakeOrderNo());
+        drugTakePrescription.setGmtModified(new Date());
+        drugTakePrescription.setRemarks("取消次取药订单");
+        drugTakePrescription.setStatus(ConstantAll.STATUS_1);//1表示删除，取消对应的操作
+        this.drugTakePrescriptionService.updateBatchByCondition(drugTakePrescription);
+
+        MedicalOrder medicalOrder = new MedicalOrder();
+        medicalOrder.setOther("未支付");
+        medicalOrder.setRemarks("患者取消取药订单");
+        medicalOrder.setGmtModified(new Date());
+        medicalOrder.setOrderNoList(Arrays.asList(record.getOrderNo().split(",")));
+        medicalOrderService.updateBatchByCondition(medicalOrder);//可能更新对应的订单到“未付款”
+
+        record.setGmtModified(new Date());
+        record.setRemarks("取药取消");
+        record.setTakeStatus(ConstantAll.TAKE_ORDER_STATUS_PATIENT_CANCEL);
+        this.updateByPrimaryKeySelective(record);
+    }
+    @ApiOperation(value = "创建患者取药订单")
+    @Transactional
+    public void drugTakeOrderPaymentOk(DrugTakeOrder record){
+        Assert.isTrue(record.getId() != null , "请传递参数取药订单 id");
+        record.setGmtModified(new Date());
+        record.setRemarks("取药付款成功");
+        record.setTakeStatus(ConstantAll.TAKE_ORDER_STATUS_PAYMENT);
+        this.updateByPrimaryKeySelective(record);
+    }
+    @ApiOperation(value = "创建患者取药订单")
+    @Transactional
+    public DrugTakeOrder drugTakeOrderCreate(DrugTakeOrder record){
+        Assert.isTrue(record.getPrescriptionIdList()!=null,"请传递药品列表");
+        Assert.isTrue(record.getPharmacyId()!=null,"请传递pharmacyId药库Id");
+        Assert.isTrue(record.getPlanTime()!=null,"请传递planTime取药日期");
+        MedicalPrescriptionRequest params = new MedicalPrescriptionRequest();
+        params.setPrescriptionIdList(record.getPrescriptionIdList());
+        List<MedicalPrescriptionPo> medicalPrescriptionPoList =  medicalPrescriptionService.listMedicalPrescriptionPo(params);
+        List<Pharmacy> listAllPharmacy  = pharmacyService.getListAllPharmacy();
+        Pharmacy pharmacy = listAllPharmacy.stream().filter(t->t.getId().toString().equalsIgnoreCase(record.getPharmacyId())).findFirst().orElse(null);
+        Assert.isTrue(pharmacy!=null,"您选择的药房目前并不存在!");
+
+
+        String orderNo = idGenerator.nextId().toString();
+        record.setTakeOrderNo(orderNo);
+
+        List<String> orderNoList = Lists.newArrayList();
+        List<String> prescriptionIdList = Lists.newArrayList();
+        final OrderDrugs orderDrugs =new OrderDrugs();
+        orderDrugs.setCostPrice(0);
+        medicalPrescriptionPoList.forEach(p->{
+            p.getDrugList().forEach(d->{
+                orderDrugs.setCostPrice(d.getCostPrice().intValue()+orderDrugs.getCostPrice());
+            });
+            orderNoList.add(p.getOrderNo());
+            prescriptionIdList.add(p.getPrescriptionId());
+            DrugTakePrescription drugTakePrescription = new DrugTakePrescription();
+            drugTakePrescription.setPrescriptionId(p.getPrescriptionId());
+            drugTakePrescription.setTakeOrderNo(orderNo);
+            drugTakePrescription.setMedicalOrderId(p.getMedicalOrderId());
+            drugTakePrescription.setMedicalPrescriptionId(p.getId());
+            drugTakePrescription.setPharmacyId(pharmacy.getId().toString());
+            drugTakePrescription.setPharmacyName(pharmacy.getName());
+            drugTakePrescription.setPharmacyAddress(pharmacy.getAddress());
+            drugTakePrescription.setPharmacyContact(pharmacy.getContact());
+            drugTakePrescriptionService.insertSelective(drugTakePrescription);
+
+            record.setPatientId(p.getPatientId());
+            record.setPatientAddress(p.getPatientAddress());
+            record.setPatientContact(p.getPatientContact());
+            record.setPatientIdCardNo(p.getPatientIdCardNo());
+            record.setPatientName(p.getPatientName());
+            record.setPatientSex(p.getPatientSex());
+            record.setPatientYearOld(p.getPatientYearOld());
+        });
+        record.setOrderNo(StringUtils.join(orderNoList.toArray(),","));
+        record.setPrescriptionId(StringUtils.join(prescriptionIdList.toArray(),","));
+        record.setPharmacyId(pharmacy.getId().toString());
+        record.setPharmacyName(pharmacy.getName());
+        record.setPharmacyAddress(pharmacy.getAddress());
+        record.setPharmacyContact(pharmacy.getContact());
+        record.setPayment(orderDrugs.getCostPrice());
+        record.setRemind(""+ConstantAll.VALUE_PAYMENT_LOCK);
+        record.setTakeStatus(ConstantAll.TAKE_ORDER_STATUS_APPPOINT);
+        record.setRemarks("取药订单成功");
+        this.insertSelective(record);
+        return record;
+    }
+
+
+    // 根据条件查询处方带有药品的列表
+    public List<DrugTakeOrderPo> listDrugTakeOrderPo(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrderPo(params);
+    }
+    // 根据条件查询处方带有药品的列表 总数
+    public int listDrugTakeOrderPoCount(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrderPoCount(params);
+    }
+
+    public DrugTakeOrderPo getDrugTakeOrderPoById(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.getDrugTakeOrderPoById(params);
+    }
+    // 根据条件查询列表
+    public List<DrugTakeOrder> listDrugTakeOrder(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrder(params);
+    }
+    // 根据条件查询列表 总数
+    public int listDrugTakeOrderCount(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrderCount(params);
+    }
+
+
+    public int deleteByPrimaryKey(Long id){
+        return daoDrugTakeOrderMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insertSelective(DrugTakeOrder record){
+        return daoDrugTakeOrderMapper.insertSelective(record);
+    }
+
+    public DrugTakeOrder selectByPrimaryKey(Long id){
+        return daoDrugTakeOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(DrugTakeOrder record){
+        return daoDrugTakeOrderMapper.updateByPrimaryKeySelective(record);
+    }
+
+}

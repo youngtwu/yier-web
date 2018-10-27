@@ -1,0 +1,57 @@
+package com.yier.platform.web;
+
+import com.github.yingzhuo.carnival.restful.security.Logical;
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.github.yingzhuo.carnival.restful.security.RequiresRoles;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.UserPo;
+import com.yier.platform.common.requestParam.UserRequest;
+import com.yier.platform.service.UserService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "审核手机号停用相关的请求接口")
+@RestController
+@RequestMapping("/phoneNumber")
+@Slf4j
+public class MobilePhoneNumberController {
+
+    private Logger logger = LoggerFactory.getLogger(MobilePhoneNumberController.class);
+
+    @Autowired
+    private UserService serviceUserService;
+
+    @ApiOperation(value = "根据端口号查询出医生或者药师或者患者所有手机号列表，(clientType:1医生，2药师，3患者)")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Admin", "Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/selectMobilePhoneNumberList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<UserPo> selectMobilePhoneNumberList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户请求接口类") @RequestBody UserRequest params) {
+        params.doWithSortOrStart();
+        log.info("根据端口号查询出医生或者药师或者患者所有手机号列表, 请求参数：{}", params.toJsonString());
+        ListResponse<UserPo> res = new ListResponse<UserPo>();
+        Assert.isTrue(params.getClientType() != null, "clientType端口类型不能为空！");
+        List<UserPo> userPos = this.serviceUserService.selectMobilePhoneNumberList(params);
+        int count = this.serviceUserService.selectMobilePhoneNumberListCount(params);
+        res.setData(userPos);
+        res.setTotal(count);
+        log.debug("获取用户信息列表, 返回结果：{}", res.toJsonString());
+        return res;
+    }
+}

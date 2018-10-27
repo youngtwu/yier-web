@@ -1,0 +1,23 @@
+package com.yier.platform.common.requestParam;
+
+public class NewsRequest extends BaseRequest {
+    private Long typeId;
+    private Long newId;
+
+    public Long getNewId() {
+        return newId;
+    }
+
+    public void setNewId(Long newId) {
+        this.newId = newId;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+}

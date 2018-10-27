@@ -1,0 +1,22 @@
+package com.yier.platform.service.feign;
+
+public class LockDrug {
+    private String drugCode;
+    private int count;
+
+    public String getDrugCode() {
+        return drugCode;
+    }
+
+    public void setDrugCode(String drugCode) {
+        this.drugCode = drugCode;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+}

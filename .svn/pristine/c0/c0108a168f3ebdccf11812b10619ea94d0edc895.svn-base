@@ -1,0 +1,28 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+
+@ApiModel(value = "送药查询请求类")
+public class DrugSendOrderRequest extends BaseRequest {
+    private Long drugSendOrderId;
+
+    private String sendOrderNo;
+
+    private String orderNo;
+
+    private String prescriptionId;
+
+    private Long medicalPrescriptionId;
+
+    private Long medicalOrderId;
+
+    private String pharmacyId;
+
+    private Long patientId;
+
+    private Long pharmacistId;
+
+    private String sendStatus;
+
+    private String viewStatus;
+}

@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.FeedbackMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Feedback">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="client_type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="way_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="title" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="parent_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="parent_ids" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="visit" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, client_type_id, way_id, title, content, parent_id, parent_ids, visit, 
+    status, gmt_create, gmt_modified, remarks
+  </sql>
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listAskAnswerFeedback" parameterType="com.yier.platform.common.requestParam.FeedbackRequest" resultMap="BaseResultMap">
+    select t.*  from t_feedback t
+    <where>
+      <if test="feedbackId != null">
+        and (
+        t.id = #{feedbackId}
+        or t.parent_id = #{feedbackId}
+        or t.parent_ids like concat(#{feedbackId},',','%')
+        )
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listAskAnswerFeedbackCount" parameterType="com.yier.platform.common.requestParam.FeedbackRequest" resultType="Integer">
+    select count(t.id) from t_feedback t
+    <where>
+      <if test="feedbackId != null">
+        and (
+        t.id = #{feedbackId}
+        or t.parent_id = #{feedbackId}
+        or t.parent_ids like concat(#{feedbackId},',','%')
+        )
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listFeedback" parameterType="com.yier.platform.common.requestParam.FeedbackRequest" resultMap="BaseResultMap">
+    select t.*  from t_feedback t
+    <where>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="clientTypeId != null">
+        and t.client_type_id = #{clientTypeId}
+      </if>
+      <if test="parentId != null">
+        and t.parent_id = #{parentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="queryDate != null">
+        and t.gmt_modified BETWEEN  DATE_FORMAT( #{queryDate}, '%Y-%m-%d 00:00:00')  AND DATE_FORMAT( #{queryDate}, '%Y-%m-%d 23:59:59')
+      </if>
+      <choose>
+        <when test="visit == null">
+
+        </when>
+        <when test="visit != null and visit > 0">
+          <![CDATA[	 and t.visit >= #{visit} ]]>
+        </when>
+        <otherwise>
+          and t.visit = 0
+        </otherwise>
+      </choose>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listFeedbackCount" parameterType="com.yier.platform.common.requestParam.FeedbackRequest" resultType="Integer">
+    select count(t.id) from t_feedback t
+    <where>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="clientTypeId != null">
+        and t.client_type_id = #{clientTypeId}
+      </if>
+      <if test="parentId != null">
+        and t.parent_id = #{parentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="queryDate != null">
+        and t.gmt_modified BETWEEN  DATE_FORMAT( #{queryDate}, '%Y-%m-%d 00:00:00')  AND DATE_FORMAT( #{queryDate}, '%Y-%m-%d 23:59:59')
+      </if>
+      <choose>
+        <when test="visit == null">
+
+        </when>
+        <when test="visit != null and visit > 0">
+          <![CDATA[	 and t.visit >= #{visit} ]]>
+        </when>
+        <otherwise>
+          and t.visit = 0
+        </otherwise>
+      </choose>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+
+
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_feedback
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_feedback
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.Feedback">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_feedback (user_id, client_type_id, way_id, 
+      title, content, parent_id, 
+      parent_ids, visit, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{userId,jdbcType=BIGINT}, #{clientTypeId,jdbcType=BIGINT}, #{wayId,jdbcType=BIGINT}, 
+      #{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{parentId,jdbcType=BIGINT}, 
+      #{parentIds,jdbcType=VARCHAR}, #{visit,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.Feedback">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_feedback
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="clientTypeId != null">
+        client_type_id,
+      </if>
+      <if test="wayId != null">
+        way_id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="parentIds != null">
+        parent_ids,
+      </if>
+      <if test="visit != null">
+        visit,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="clientTypeId != null">
+        #{clientTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="wayId != null">
+        #{wayId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="parentIds != null">
+        #{parentIds,jdbcType=VARCHAR},
+      </if>
+      <if test="visit != null">
+        #{visit,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Feedback">
+    update t_feedback
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="clientTypeId != null">
+        client_type_id = #{clientTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="wayId != null">
+        way_id = #{wayId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="parentIds != null">
+        parent_ids = #{parentIds,jdbcType=VARCHAR},
+      </if>
+      <if test="visit != null">
+        visit = #{visit,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Feedback">
+    update t_feedback
+    set user_id = #{userId,jdbcType=BIGINT},
+      client_type_id = #{clientTypeId,jdbcType=BIGINT},
+      way_id = #{wayId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=BIGINT},
+      parent_ids = #{parentIds,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

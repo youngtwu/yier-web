@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.AppConfigMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.AppConfig">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="key" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pvalue" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="prefix" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, key, description, pvalue, prefix, display_order, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_app_config
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_app_config
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.AppConfig">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_app_config (type_id, key, description, 
+      pvalue, prefix, display_order, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{typeId,jdbcType=BIGINT}, #{key,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{pvalue,jdbcType=VARCHAR}, #{prefix,jdbcType=VARCHAR}, #{displayOrder,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.AppConfig">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_app_config
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="key != null">
+        key,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="pvalue != null">
+        pvalue,
+      </if>
+      <if test="prefix != null">
+        prefix,
+      </if>
+      <if test="displayOrder != null">
+        display_order,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="key != null">
+        #{key,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="pvalue != null">
+        #{pvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="prefix != null">
+        #{prefix,jdbcType=VARCHAR},
+      </if>
+      <if test="displayOrder != null">
+        #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.AppConfig">
+    update t_app_config
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="key != null">
+        key = #{key,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="pvalue != null">
+        pvalue = #{pvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="prefix != null">
+        prefix = #{prefix,jdbcType=VARCHAR},
+      </if>
+      <if test="displayOrder != null">
+        display_order = #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.AppConfig">
+    update t_app_config
+    set type_id = #{typeId,jdbcType=BIGINT},
+      key = #{key,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      pvalue = #{pvalue,jdbcType=VARCHAR},
+      prefix = #{prefix,jdbcType=VARCHAR},
+      display_order = #{displayOrder,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

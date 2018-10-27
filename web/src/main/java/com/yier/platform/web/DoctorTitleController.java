@@ -1,0 +1,108 @@
+package com.yier.platform.web;
+
+import com.github.yingzhuo.carnival.restful.security.Logical;
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.github.yingzhuo.carnival.restful.security.RequiresRoles;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.DoctorTitle;
+import com.yier.platform.common.requestParam.BaseRequest;
+import com.yier.platform.common.requestParam.DoctorRequest;
+import com.yier.platform.service.DoctorService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "医生职称信息管理相关的请求接口")
+@RestController
+@RequestMapping("/doctorTitle")
+@Slf4j
+public class DoctorTitleController {
+    private static final Logger logger = LoggerFactory.getLogger(DoctorTitleController.class);
+    @Autowired
+    private DoctorService serviceDoctorService;
+
+    @ApiOperation(value = "通过条件查询获取医生职称信息列表")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/getDoctorTitleList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DoctorTitle> getDoctorTitleList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "医生职称请求接口类") @RequestBody DoctorRequest params) {
+        params.doWithSortOrStart();
+        logger.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<DoctorTitle> res = new ListResponse<DoctorTitle>();
+        List<DoctorTitle> list = this.serviceDoctorService.listDoctorTitle(params);
+        int count = this.serviceDoctorService.listDoctorTitleCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "通过id查询获取医生职称信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/getDoctorTitleById.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<DoctorTitle> getDoctorTitleById(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "医生职称id") @RequestParam Long doctorTitleId) {
+        logger.info("通过id查询获取医生职称信息：{}", doctorTitleId);
+        CommonResponse<DoctorTitle> res = new CommonResponse<DoctorTitle>();
+        DoctorTitle doctorTitle = this.serviceDoctorService.getDoctorTitleById(doctorTitleId);
+        res.setData(doctorTitle);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增医生职称信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/insertDoctorTitle.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<String> insertDoctorTitle(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "医生职称请求接口类") @RequestBody DoctorTitle record) {
+        logger.info("新增医生职称信息, 请求参数：{}", record);
+        CommonResponse<String> res = new CommonResponse<String>();
+        this.serviceDoctorService.insertDoctorTitle(record);
+        res.setStatus(0);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "修改医生职称信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/updateDoctorTitle.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<String> updateDoctorTitle(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "医生职称请求接口类") @RequestBody DoctorTitle record) {
+        logger.info("修改医生职称信息, 请求参数：{}", record);
+        CommonResponse<String> res = new CommonResponse<String>();
+        this.serviceDoctorService.updateDoctorTitle(record);
+        res.setStatus(0);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "停用/启用医生职称信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/enabelOrDisableDoctorTitle.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<String> enabelOrDisableDoctorTitle(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "医生职称请求接口类") @RequestBody DoctorTitle record) {
+        logger.info("修改医生职称信息, 请求参数：{}", record);
+        CommonResponse<String> res = new CommonResponse<String>();
+        this.serviceDoctorService.enabelOrDisableDoctorTitle(record);
+        res.setStatus(0);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+}

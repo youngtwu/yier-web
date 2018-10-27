@@ -1,0 +1,195 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.List;
+
+@ApiModel(value = "医院分页查询请求类")
+public class HospitalRequest extends BaseRequest {
+    @ApiModelProperty(value = "省市ID。关联到t_provinces")
+    private String provinceId;
+    @ApiModelProperty(value = "城市ID。关联到t_cities")
+    private String cityId;
+    @ApiModelProperty(value = "区县ID。关联到t_areas")
+    private String areaId;
+    @ApiModelProperty(value = "医院等级。关联到t_hospital_level")
+    private List<Integer> levelIdList ;
+    @ApiModelProperty(value = "医院Id")
+    private Long hospitalId;
+    @ApiModelProperty(value = "医院科室大分类Id")
+    private Long catalogId;
+    @ApiModelProperty(value = "医院科室小分类Id")
+    private Long departmentId;
+    @ApiModelProperty(value = "经度")
+    private Double lng;
+    @ApiModelProperty(value = "纬度")
+    private Double lat;
+    @ApiModelProperty(value = "医院或医生的电话号码查询")
+    private String phoneNumber;
+    @ApiModelProperty(value = "显示医生或药师")
+    private String filterShow;
+    @ApiModelProperty(value = "通过医生或药师关联的患者Id，t_chat_state的联系")
+    private Long patientId;
+    @ApiModelProperty(value = "是否可聊天:0表示可以聊天")
+    private String chat;
+    @ApiModelProperty(value = "性质：公立、私立")
+    private String businessType;
+    @ApiModelProperty(value = "使用类型，药师专供是3，医生专供是2 目前废掉此种专供,可以备以后其他特殊应用")
+    private Integer useType;
+    @ApiModelProperty(value = "医院或者科室名称")
+    private String name;
+    @ApiModelProperty(value = "id列表")
+    private List<String> idList ;
+    @ApiModelProperty(value = "与基础点的距离")
+    private Double distance;
+
+    public List<String> getIdList() {
+        return idList;
+    }
+
+    public void setIdList(List<String> idList) {
+        this.idList = idList;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public HospitalRequest(BaseRequest br){
+        super(br);
+    }
+    public HospitalRequest(){}
+
+    public String getFilterShow() {
+        return filterShow;
+    }
+
+    public void setFilterShow(String filterShow) {
+        this.filterShow = filterShow;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+
+    public String getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(String areaId) {
+        this.areaId = areaId;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public String getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(String provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public List<Integer> getLevelIdList() {
+        return levelIdList;
+    }
+
+    public void setLevelIdList(List<Integer> levelIdList) {
+        this.levelIdList = levelIdList;
+    }
+
+    public Long getHospitalId() {
+        return hospitalId;
+    }
+
+    public void setHospitalId(Long hospitalId) {
+        this.hospitalId = hospitalId;
+    }
+
+    public Long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(Long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public String getChat() {
+        return chat;
+    }
+
+    public void setChat(String chat) {
+        this.chat = chat;
+    }
+
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
+    public Integer getUseType() {
+        return useType;
+    }
+
+    public void setUseType(Integer useType) {
+        this.useType = useType;
+    }
+}

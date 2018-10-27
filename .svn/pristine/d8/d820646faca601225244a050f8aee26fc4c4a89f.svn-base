@@ -1,0 +1,179 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+import java.util.Date;
+
+public class TaskSchedule extends BaseJsonObject {
+    private Long id;
+
+    private Long typeId;
+
+    private Long userId;
+
+    private Long taskType;
+
+    private Long subTaskType;
+
+    private String taskDescription;
+
+    private String taskParams;
+
+    private String taskResult;
+
+    private Date schedule;
+
+    private Long attach;
+
+    private String other;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public TaskSchedule(Long id, Long typeId, Long userId, Long taskType, Long subTaskType, String taskDescription, String taskParams, String taskResult, Date schedule, Long attach, String other, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.taskType = taskType;
+        this.subTaskType = subTaskType;
+        this.taskDescription = taskDescription;
+        this.taskParams = taskParams;
+        this.taskResult = taskResult;
+        this.schedule = schedule;
+        this.attach = attach;
+        this.other = other;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public TaskSchedule() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Long taskType) {
+        this.taskType = taskType;
+    }
+
+    public Long getSubTaskType() {
+        return subTaskType;
+    }
+
+    public void setSubTaskType(Long subTaskType) {
+        this.subTaskType = subTaskType;
+    }
+
+    public String getTaskDescription() {
+        return taskDescription;
+    }
+
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
+    }
+
+    public String getTaskParams() {
+        return taskParams;
+    }
+
+    public void setTaskParams(String taskParams) {
+        this.taskParams = taskParams;
+    }
+
+    public String getTaskResult() {
+        return taskResult;
+    }
+
+    public void setTaskResult(String taskResult) {
+        this.taskResult = taskResult;
+    }
+
+    public Date getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Date schedule) {
+        this.schedule = schedule;
+    }
+
+    public Long getAttach() {
+        return attach;
+    }
+
+    public void setAttach(Long attach) {
+        this.attach = attach;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

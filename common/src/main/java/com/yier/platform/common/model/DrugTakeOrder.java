@@ -1,0 +1,378 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+import java.util.List;
+
+@ApiModel(value = "客户取药订单表")
+public class DrugTakeOrder extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Long id;
+    @ApiModelProperty(value = "取药订单号")
+    private String takeOrderNo;
+    @ApiModelProperty(value = "对应的诊疗订单号,可能会是多个")
+    private String orderNo;
+    @ApiModelProperty(value = "处方编号,可能会是多个")
+    private String prescriptionId;
+    @ApiModelProperty(value = "处方编号id列表 方便批量删除或查询关联修改 格式是: 1,2,333,")
+    private String medicalPrescriptionId;
+    @ApiModelProperty(value = "药房 药库ID,关联t_pharmacy.id可能是第三方")
+    private String pharmacyId;
+    @ApiModelProperty(value = "药房名字 t_patient.true_name")
+    private String pharmacyName;
+    @ApiModelProperty(value = "药房名字 地址")
+    private String pharmacyAddress;
+    @ApiModelProperty(value = "联系电话")
+    private String pharmacyContact;
+    @ApiModelProperty(value = "患者ID,关联t_patient.id")
+    private Long patientId;
+    @ApiModelProperty(value = "患者身份证号码")
+    private String patientIdCardNo;
+    @ApiModelProperty(value = "患者姓名")
+    private String patientName;
+    @ApiModelProperty(value = "联系电话")
+    private String patientContact;
+    @ApiModelProperty(value = "地址")
+    private String patientAddress;
+    @ApiModelProperty(value = "患者用户性别")
+    private String patientSex;
+    @ApiModelProperty(value = "患者用户年龄")
+    private String patientYearOld;
+    @ApiModelProperty(value = "预约取药时间")
+    private Date planTime;
+    @ApiModelProperty(value = "时间段  全天，上午，下午")
+    private String workTime;
+    @ApiModelProperty(value = "预约送药开始时间")
+    private Date workStartTime;
+    @ApiModelProperty(value = "预约送药结束时间")
+    private Date workEndTime;
+    @ApiModelProperty(value = "支付费用 单位是分")
+    private Integer payment;
+    @ApiModelProperty(value = "提醒,注意信息")
+    private String remind;
+    @ApiModelProperty(value = "其他订单信息")
+    private String other;
+    @ApiModelProperty(value = "订单终止时间")
+    private Date overTime;
+    @ApiModelProperty(value = "订单终止类型")
+    private String overType;
+    @ApiModelProperty(value = "取药状态")
+    private String takeStatus;
+    @ApiModelProperty(value = "状态")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+    @ApiModelProperty(value = "查询搜索 处方编号列表")
+    private List<String > prescriptionIdList;
+    @ApiModelProperty(value = "查询搜索 对应信息,比如含有处方2,的处方id订单")
+    private String searchKey;
+    @ApiModelProperty(value = "查询搜索 状态信息,符合条件的将变成有效信息")
+    private String takeStatusChanging;
+
+    public String getTakeStatusChanging() {
+        return takeStatusChanging;
+    }
+
+    public void setTakeStatusChanging(String takeStatusChanging) {
+        this.takeStatusChanging = takeStatusChanging;
+    }
+
+    public String getSearchKey() {
+        return searchKey;
+    }
+
+    public void setSearchKey(String searchKey) {
+        this.searchKey = searchKey;
+    }
+    public List<String> getPrescriptionIdList() {
+        return prescriptionIdList;
+    }
+
+    public void setPrescriptionIdList(List<String> prescriptionIdList) {
+        this.prescriptionIdList = prescriptionIdList;
+    }
+
+    public DrugTakeOrder(Long id, String takeOrderNo, String orderNo, String prescriptionId, String medicalPrescriptionId, String pharmacyId, String pharmacyName, String pharmacyAddress, String pharmacyContact, Long patientId, String patientIdCardNo, String patientName, String patientContact, String patientAddress, String patientSex, String patientYearOld, Date planTime, String workTime, Date workStartTime, Date workEndTime, Integer payment, String remind, String other, Date overTime, String overType, String takeStatus, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.takeOrderNo = takeOrderNo;
+        this.orderNo = orderNo;
+        this.prescriptionId = prescriptionId;
+        this.medicalPrescriptionId = medicalPrescriptionId;
+        this.pharmacyId = pharmacyId;
+        this.pharmacyName = pharmacyName;
+        this.pharmacyAddress = pharmacyAddress;
+        this.pharmacyContact = pharmacyContact;
+        this.patientId = patientId;
+        this.patientIdCardNo = patientIdCardNo;
+        this.patientName = patientName;
+        this.patientContact = patientContact;
+        this.patientAddress = patientAddress;
+        this.patientSex = patientSex;
+        this.patientYearOld = patientYearOld;
+        this.planTime = planTime;
+        this.workTime = workTime;
+        this.workStartTime = workStartTime;
+        this.workEndTime = workEndTime;
+        this.payment = payment;
+        this.remind = remind;
+        this.other = other;
+        this.overTime = overTime;
+        this.overType = overType;
+        this.takeStatus = takeStatus;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public DrugTakeOrder() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTakeOrderNo() {
+        return takeOrderNo;
+    }
+
+    public void setTakeOrderNo(String takeOrderNo) {
+        this.takeOrderNo = takeOrderNo;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getMedicalPrescriptionId() {
+        return medicalPrescriptionId;
+    }
+
+    public void setMedicalPrescriptionId(String medicalPrescriptionId) {
+        this.medicalPrescriptionId = medicalPrescriptionId;
+    }
+
+    public String getPharmacyId() {
+        return pharmacyId;
+    }
+
+    public void setPharmacyId(String pharmacyId) {
+        this.pharmacyId = pharmacyId;
+    }
+
+    public String getPharmacyName() {
+        return pharmacyName;
+    }
+
+    public void setPharmacyName(String pharmacyName) {
+        this.pharmacyName = pharmacyName;
+    }
+
+    public String getPharmacyAddress() {
+        return pharmacyAddress;
+    }
+
+    public void setPharmacyAddress(String pharmacyAddress) {
+        this.pharmacyAddress = pharmacyAddress;
+    }
+
+    public String getPharmacyContact() {
+        return pharmacyContact;
+    }
+
+    public void setPharmacyContact(String pharmacyContact) {
+        this.pharmacyContact = pharmacyContact;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientIdCardNo() {
+        return patientIdCardNo;
+    }
+
+    public void setPatientIdCardNo(String patientIdCardNo) {
+        this.patientIdCardNo = patientIdCardNo;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getPatientContact() {
+        return patientContact;
+    }
+
+    public void setPatientContact(String patientContact) {
+        this.patientContact = patientContact;
+    }
+
+    public String getPatientAddress() {
+        return patientAddress;
+    }
+
+    public void setPatientAddress(String patientAddress) {
+        this.patientAddress = patientAddress;
+    }
+
+    public String getPatientSex() {
+        return patientSex;
+    }
+
+    public void setPatientSex(String patientSex) {
+        this.patientSex = patientSex;
+    }
+
+    public String getPatientYearOld() {
+        return patientYearOld;
+    }
+
+    public void setPatientYearOld(String patientYearOld) {
+        this.patientYearOld = patientYearOld;
+    }
+
+    public Date getPlanTime() {
+        return planTime;
+    }
+
+    public void setPlanTime(Date planTime) {
+        this.planTime = planTime;
+    }
+
+    public String getWorkTime() {
+        return workTime;
+    }
+
+    public void setWorkTime(String workTime) {
+        this.workTime = workTime;
+    }
+
+    public Date getWorkStartTime() {
+        return workStartTime;
+    }
+
+    public void setWorkStartTime(Date workStartTime) {
+        this.workStartTime = workStartTime;
+    }
+
+    public Date getWorkEndTime() {
+        return workEndTime;
+    }
+
+    public void setWorkEndTime(Date workEndTime) {
+        this.workEndTime = workEndTime;
+    }
+
+    public Integer getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Integer payment) {
+        this.payment = payment;
+    }
+
+    public String getRemind() {
+        return remind;
+    }
+
+    public void setRemind(String remind) {
+        this.remind = remind;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
+    public Date getOverTime() {
+        return overTime;
+    }
+
+    public void setOverTime(Date overTime) {
+        this.overTime = overTime;
+    }
+
+    public String getOverType() {
+        return overType;
+    }
+
+    public void setOverType(String overType) {
+        this.overType = overType;
+    }
+
+    public String getTakeStatus() {
+        return takeStatus;
+    }
+
+    public void setTakeStatus(String takeStatus) {
+        this.takeStatus = takeStatus;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

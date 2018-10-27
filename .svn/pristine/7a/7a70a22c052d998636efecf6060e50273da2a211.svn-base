@@ -1,0 +1,91 @@
+package com.yier.platform.common.util;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+public class IPUtils {
+	private static final Logger logger = LoggerFactory.getLogger(IPUtils.class);
+
+	private static final List<String> IP_HEADER_LIST = Arrays.asList("X-Forwarded-For", "Proxy-Client-IP",
+			"WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
+
+	private IPUtils() {
+
+	}
+
+
+	/**
+	 * 获得用户远程地址
+	 */
+	public static String getRemoteAddr(HttpServletRequest request){
+		String remoteAddr = request.getHeader("X-Real-IP");
+		if (StringUtils.isNotBlank(remoteAddr)) {
+			remoteAddr = request.getHeader("X-Forwarded-For");
+		}else if (StringUtils.isNotBlank(remoteAddr)) {
+			remoteAddr = request.getHeader("Proxy-Client-IP");
+		}else if (StringUtils.isNotBlank(remoteAddr)) {
+			remoteAddr = request.getHeader("WL-Proxy-Client-IP");
+		}
+		return remoteAddr != null ? remoteAddr : request.getRemoteAddr();
+	}
+
+	/**
+	 * 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址;
+	 *
+	 * @param request
+	 * @return
+	 */
+	public static String getIpAddress(HttpServletRequest request) {
+		// 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址
+		
+
+		String ip = "";
+		Iterator<String> iterHeader = IPUtils.IP_HEADER_LIST.iterator();
+		while (iterHeader.hasNext()) {
+			String header = iterHeader.next();
+			ip = request.getHeader(header);
+			if (StringUtils.isNotBlank(ip) && !"unknown".equalsIgnoreCase(ip)) {
+				logger.debug("{} = {}", header, ip);
+				break;
+			}
+		}
+		if (StringUtils.isBlank(ip)) {
+			ip = request.getRemoteAddr();
+			logger.debug("remote addr = {}", ip);
+		} else {
+			String[] toks = StringUtils.split(ip, ",");
+			for (int index = 0; index < toks.length && toks.length > 1; index++) {
+				String strIp = toks[index];
+				if (!"unknown".equalsIgnoreCase(strIp)) {
+					ip = strIp;
+					break;
+				}
+			}
+		}
+		if (StringUtils.isBlank(ip)) {
+			logger.error("无法获取请求方的IP");
+		}
+		return ip;
+	}
+
+    /**
+     * 获取报文头，没有获取的话，默认赋值
+	 * @param request
+     * @param headerKey
+     * @param defaultValue
+     * @return
+     */
+	public static String getHeaderValueByKey(HttpServletRequest request, String headerKey, String defaultValue) {
+		String result = request.getHeader(headerKey);
+		if(StringUtils.isBlank(result)){
+			result = defaultValue;
+		}
+		return result;
+	}
+}

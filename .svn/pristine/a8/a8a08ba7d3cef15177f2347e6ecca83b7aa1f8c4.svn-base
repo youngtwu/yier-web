@@ -1,0 +1,65 @@
+package com.yier.platform.common.requestParam;
+
+import java.util.List;
+
+public class ImagesRequest extends BaseRequest {
+    private Long imageId;
+
+    private Long typeId;
+
+    private String osType;
+
+    private Long markId;
+
+    private List<Long> markIds;
+
+    private Long databaseId;
+
+    public Long getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Long imageId) {
+        this.imageId = imageId;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getOsType() {
+        return osType;
+    }
+
+    public void setOsType(String osType) {
+        this.osType = osType;
+    }
+
+    public Long getMarkId() {
+        return markId;
+    }
+
+    public void setMarkId(Long markId) {
+        this.markId = markId;
+    }
+
+    public List<Long> getMarkIds() {
+        return markIds;
+    }
+
+    public void setMarkIds(List<Long> markIds) {
+        this.markIds = markIds;
+    }
+
+    public Long getDatabaseId() {
+        return databaseId;
+    }
+
+    public void setDatabaseId(Long databaseId) {
+        this.databaseId = databaseId;
+    }
+}

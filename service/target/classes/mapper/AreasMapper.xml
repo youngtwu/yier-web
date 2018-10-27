@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.AreasMapper">
+    <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Areas">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="area" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, area_id, area, city_id, status, gmt_create, gmt_modified, remarks
+  </sql>
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="listAreas" parameterType="com.yier.platform.common.requestParam.BaseRequest" resultMap="BaseResultMap">
+        select t.* from t_areas t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and t.city_id = #{searchKey}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id asc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listAreasCount" parameterType="com.yier.platform.common.requestParam.BaseRequest" resultType="Integer">
+        select count(t.id) from t_areas t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and t.city_id = #{searchKey}
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="getAreasList" parameterType="com.yier.platform.common.requestParam.DistrictRequest"
+            resultMap="BaseResultMap">
+        select t.* from t_areas t
+        <where>
+            <if test="cityId != null">
+                and t.city_id = #{cityId,jdbcType=VARCHAR}
+            </if>
+            <if test="areaId != null">
+                and t.area_id = #{areaId,jdbcType=VARCHAR}
+            </if>
+            <if test="areaName != null">
+                and t.area = #{areaName,jdbcType=VARCHAR}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id asc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="getAreasListCount" parameterType="com.yier.platform.common.requestParam.DistrictRequest"
+            resultType="Integer">
+        select count(t.id) from t_areas t
+        <where>
+            <if test="cityId != null">
+                and t.city_id = #{cityId,jdbcType=VARCHAR}
+            </if>
+            <if test="areaId != null">
+                and t.area_id = #{areaId,jdbcType=VARCHAR}
+            </if>
+            <if test="areaName != null">
+                and t.area = #{areaName,jdbcType=VARCHAR}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAreaById" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_areas
+        where area_id = #{areaId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectAreasByCondition" parameterType="com.yier.platform.common.requestParam.DistrictRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_areas t
+        <where>
+            <if test="status != null">
+                and t.status = #{status,jdbcType=VARCHAR}
+            </if>
+            <if test="areaId != null">
+                and t.area_id = #{areaId,jdbcType=VARCHAR}
+            </if>
+            <if test="areaName != null">
+                and t.area = #{areaName,jdbcType=VARCHAR}
+            </if>
+            <if test="cityId != null">
+                and t.city_id = #{cityId,jdbcType=VARCHAR }
+            </if>
+        </where>
+    </select>
+
+    <update id="updateAreaByAreaId" parameterType="com.yier.platform.common.model.Areas">
+        update t_areas
+        <set>
+            <if test="area != null">
+                area = #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where area_id = #{cityId,jdbcType=VARCHAR} or city_id = #{cityId,jdbcType=VARCHAR}
+    </update>
+
+    <delete id="deleteAreaByAreaId" parameterType="java.lang.String">
+        delete from t_areas t where t.area_id = #{areaId,jdbcType=VARCHAR}
+    </delete>
+
+    <delete id="deleteAreaByCityId" parameterType="java.lang.String">
+        delete from t_areas t where t.city_id = #{cityId,jdbcType=VARCHAR}
+    </delete>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_areas
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_areas
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.yier.platform.common.model.Areas">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_areas (area_id, area, city_id,
+        status, gmt_create, gmt_modified,
+        remarks)
+        values (#{areaId,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, #{cityId,jdbcType=VARCHAR},
+        #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},
+        #{remarks,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yier.platform.common.model.Areas">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_areas
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="areaId != null">
+                area_id,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="cityId != null">
+                city_id,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="areaId != null">
+                #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Areas">
+        update t_areas
+        <set>
+            <if test="areaId != null">
+                area_id = #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                area = #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Areas">
+    update t_areas
+    set area_id = #{areaId,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

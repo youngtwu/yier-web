@@ -1,0 +1,64 @@
+package com.yier.platform.common.model;
+
+public class ChatRecordPo extends ChatRecord {
+    private String sendUserName ;
+    private String receiveUserName ;
+    private String sendTypeIdDisplay;
+    private String receiveTypeIdDisplay;
+
+    public String getSendUserName() {
+        return sendUserName;
+    }
+
+    public void setSendUserName(String sendUserName) {
+        this.sendUserName = sendUserName;
+    }
+
+    public String getReceiveUserName() {
+        return receiveUserName;
+    }
+
+    public void setReceiveUserName(String receiveUserName) {
+        this.receiveUserName = receiveUserName;
+    }
+
+    public String getSendTypeIdDisplay() {
+        if (super.getSendTypeId().longValue() == 1){
+            sendTypeIdDisplay = "患者";
+        }
+        else if (super.getSendTypeId().longValue() == 2){
+            sendTypeIdDisplay = "医生";
+        }
+        else if (super.getSendTypeId().longValue() == 3){
+            sendTypeIdDisplay = "药师";
+        }
+        else if (super.getSendTypeId().longValue() == 4){
+            sendTypeIdDisplay = "客服";
+        }
+        return sendTypeIdDisplay;
+    }
+
+    public void setSendTypeIdDisplay(String sendTypeIdDisplay) {
+        this.sendTypeIdDisplay = sendTypeIdDisplay;
+    }
+
+    public String getReceiveTypeIdDisplay() {
+        if (super.getReceiveTypeId().longValue() == 1){
+            receiveTypeIdDisplay = "患者";
+        }
+        else if (super.getReceiveTypeId().longValue() == 2){
+            receiveTypeIdDisplay = "医生";
+        }
+        else if (super.getReceiveTypeId().longValue() == 3){
+            receiveTypeIdDisplay = "药师";
+        }
+        else if (super.getReceiveTypeId().longValue() == 4){
+            receiveTypeIdDisplay = "客服";
+        }
+        return receiveTypeIdDisplay;
+    }
+
+    public void setReceiveTypeIdDisplay(String receiveTypeIdDisplay) {
+        this.receiveTypeIdDisplay = receiveTypeIdDisplay;
+    }
+}

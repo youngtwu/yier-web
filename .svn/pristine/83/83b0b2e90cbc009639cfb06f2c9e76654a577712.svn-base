@@ -1,0 +1,47 @@
+package com.yier.platform.service;
+
+import com.yier.platform.TestBase;
+import com.yier.platform.common.model.HospitalPo;
+import com.yier.platform.common.requestParam.PracticeRequest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class HospitalServiceTest extends TestBase {
+    private static final Logger logger = LoggerFactory.getLogger(HospitalServiceTest.class);
+    @Autowired
+    private HospitalService serviceHospitalService;
+    @Before
+    public void setUp() throws Exception {
+    }
+
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void getHospitalPoWithNameByIds() {
+        PracticeRequest params = new PracticeRequest();
+        params.setHospitalId(1L);
+        params.setCatalogId(4L);
+        params.setHospitalDepartmentId(3L);
+        HospitalPo po = serviceHospitalService.getHospitalPoWithNameByIds(params);
+        logger.info("1目前查询的结果是：{}",po);
+
+        params = new PracticeRequest();
+        params.setHospitalId(1L);
+        params.setCatalogId(4L);
+        po = serviceHospitalService.getHospitalPoWithNameByIds(params);
+        logger.info("2目前查询的结果是：{}",po);
+
+        params = new PracticeRequest();
+        params.setHospitalId(1L);
+        params.setCatalogId(8L);
+        params.setHospitalDepartmentId(6L);
+        po = serviceHospitalService.getHospitalPoWithNameByIds(params);
+        logger.info("3目前查询的结果是：{}",po);
+    }
+}

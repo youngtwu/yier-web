@@ -1,0 +1,36 @@
+package com.yier.platform.common.po;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+public class DiseasePo extends BaseJsonObject {
+    private Long id;
+    private String name;
+    private int drugCount;
+
+    public int getDrugCount() {
+        return drugCount;
+    }
+
+    public void setDrugCount(int drugCount) {
+        this.drugCount = drugCount;
+    }
+
+    public DiseasePo(){}
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+}

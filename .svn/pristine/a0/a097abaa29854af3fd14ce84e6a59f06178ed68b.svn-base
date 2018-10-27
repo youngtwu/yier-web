@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.ProvincesMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Provinces">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="province" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, province_id, province
+  </sql>
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listProvinces" parameterType="com.yier.platform.common.requestParam.BaseRequest" resultMap="BaseResultMap">
+    select t.*  from t_provinces t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`province` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listProvincesCount" parameterType="com.yier.platform.common.requestParam.BaseRequest" resultType="Integer">
+    select count(t.id) from t_provinces t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`province` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_provinces
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_provinces
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.Provinces">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_provinces (province_id, province)
+    values (#{provinceId,jdbcType=VARCHAR}, #{province,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.Provinces">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_provinces
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="provinceId != null">
+        province_id,
+      </if>
+      <if test="province != null">
+        province,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="provinceId != null">
+        #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null">
+        #{province,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Provinces">
+    update t_provinces
+    <set>
+      <if test="provinceId != null">
+        province_id = #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null">
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Provinces">
+    update t_provinces
+    set province_id = #{provinceId,jdbcType=VARCHAR},
+      province = #{province,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

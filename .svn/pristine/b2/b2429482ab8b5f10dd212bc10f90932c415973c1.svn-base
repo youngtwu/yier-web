@@ -1,0 +1,62 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "药师职称")
+public class PharmacistTitle extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Long id;
+    @ApiModelProperty(value = "职称名称")
+    private String name;
+    @ApiModelProperty(value = "记录创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "记录修改时间")
+    private Date gmtModified;
+
+    public PharmacistTitle(Long id, String name, Date gmtCreate, Date gmtModified) {
+        this.id = id;
+        this.name = name;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+    }
+
+    public PharmacistTitle() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+}

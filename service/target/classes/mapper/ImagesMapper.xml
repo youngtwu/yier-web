@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.ImagesMapper">
+    <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Images">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="mark_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="database_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="os_type" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="title" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="width" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="height" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="other_url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="content_url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, type_id, mark_id, database_id, os_type, title, name, width, height, description, 
+    url, other_url, content_url, display_order, status, gmt_create, gmt_modified, remarks
+  </sql>
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="listImages" parameterType="com.yier.platform.common.requestParam.ImagesRequest"
+            resultMap="BaseResultMap">
+        select t.* from t_images t
+        <where>
+            <if test="imageId != null">
+                and t.id = #{imageId}
+            </if>
+            <if test="typeId != null">
+                and t.type_id = #{typeId}
+            </if>
+            <if test="osType != null">
+                and t.os_type = #{osType}
+            </if>
+            <if test="markId != null">
+                and t.mark_id = #{markId}
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(markIds)">
+                AND t.mark_id IN
+                <foreach collection="markIds" close=")" open="(" separator="," item="markIdInfo">
+                    #{markIdInfo}
+                </foreach>
+            </if>
+            <if test="databaseId != null">
+                and t.database_id = #{databaseId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`title` like concat('%',#{searchKey},'%')
+                or t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.display_order asc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listImagesCount" parameterType="com.yier.platform.common.requestParam.ImagesRequest"
+            resultType="Integer">
+        select count(t.id) from t_images t
+        <where>
+            <if test="imageId != null">
+                and t.id = #{imageId}
+            </if>
+            <if test="typeId != null">
+                and t.type_id = #{typeId}
+            </if>
+            <if test="osType != null">
+                and t.os_type = #{osType}
+            </if>
+            <if test="markId != null">
+                and t.mark_id = #{markId}
+            </if>
+            <if test="!@org.springframework.util.CollectionUtils@isEmpty(markIds)">
+                AND t.mark_id IN
+                <foreach collection="markIds" close=")" open="(" separator="," item="markIdInfo">
+                    #{markIdInfo}
+                </foreach>
+            </if>
+            <if test="databaseId != null">
+                and t.database_id = #{databaseId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`title` like concat('%',#{searchKey},'%')
+                or t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAppImagesByTypeIdAndMarkId" parameterType="com.yier.platform.common.requestParam.ImagesRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_images
+        where type_id = #{typeId,jdbcType=BIGINT} and mark_id = #{markId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getAppImagesByTypeId" parameterType="com.yier.platform.common.requestParam.ImagesRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_images
+        where type_id = #{typeId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getAppImagesByMarkId" parameterType="com.yier.platform.common.requestParam.ImagesRequest"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_images
+        where mark_id = #{markId,jdbcType=BIGINT}
+    </select>
+
+    <!--批量更新图片顺序-->
+    <!--<update id="updateAppImageOrderForBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update t_images
+            <set>
+                display_order = #{item.displayOrder,jdbcType=INTEGER}, gmt_modified = sysdate()
+            </set>
+            where id = #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>-->
+
+    <update id="updateAppImageOrderForBatch" parameterType="java.util.List">
+        update t_images
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="display_order =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when id=#{item.id} then #{item.displayOrder,jdbcType=INTEGER}
+                </foreach>
+            </trim>
+            <trim prefix="gmt_modified =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when id=#{item.id} then sysdate()
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_images
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_images
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yier.platform.common.model.Images">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_images (type_id, mark_id, database_id,
+        os_type, title, name,
+        width, height, description,
+        url, other_url, content_url,
+        display_order, status, gmt_create,
+        gmt_modified, remarks)
+        values (#{typeId,jdbcType=BIGINT}, #{markId,jdbcType=BIGINT}, #{databaseId,jdbcType=BIGINT},
+        #{osType,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+        #{width,jdbcType=INTEGER}, #{height,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR},
+        #{url,jdbcType=VARCHAR}, #{otherUrl,jdbcType=VARCHAR}, #{contentUrl,jdbcType=VARCHAR},
+        #{displayOrder,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP},
+        #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yier.platform.common.model.Images">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_images
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeId != null">
+                type_id,
+            </if>
+            <if test="markId != null">
+                mark_id,
+            </if>
+            <if test="databaseId != null">
+                database_id,
+            </if>
+            <if test="osType != null">
+                os_type,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="width != null">
+                width,
+            </if>
+            <if test="height != null">
+                height,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="url != null">
+                url,
+            </if>
+            <if test="otherUrl != null">
+                other_url,
+            </if>
+            <if test="contentUrl != null">
+                content_url,
+            </if>
+            <if test="displayOrder != null">
+                display_order,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeId != null">
+                #{typeId,jdbcType=BIGINT},
+            </if>
+            <if test="markId != null">
+                #{markId,jdbcType=BIGINT},
+            </if>
+            <if test="databaseId != null">
+                #{databaseId,jdbcType=BIGINT},
+            </if>
+            <if test="osType != null">
+                #{osType,jdbcType=VARCHAR},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="width != null">
+                #{width,jdbcType=INTEGER},
+            </if>
+            <if test="height != null">
+                #{height,jdbcType=INTEGER},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="url != null">
+                #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="otherUrl != null">
+                #{otherUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="contentUrl != null">
+                #{contentUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="displayOrder != null">
+                #{displayOrder,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Images">
+        update t_images
+        <set>
+            <if test="typeId != null">
+                type_id = #{typeId,jdbcType=BIGINT},
+            </if>
+            <if test="markId != null">
+                mark_id = #{markId,jdbcType=BIGINT},
+            </if>
+            <if test="databaseId != null">
+                database_id = #{databaseId,jdbcType=BIGINT},
+            </if>
+            <if test="osType != null">
+                os_type = #{osType,jdbcType=VARCHAR},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="width != null">
+                width = #{width,jdbcType=INTEGER},
+            </if>
+            <if test="height != null">
+                height = #{height,jdbcType=INTEGER},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="url != null">
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="otherUrl != null">
+                other_url = #{otherUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="contentUrl != null">
+                content_url = #{contentUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="displayOrder != null">
+                display_order = #{displayOrder,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Images">
+    update t_images
+    set type_id = #{typeId,jdbcType=BIGINT},
+      mark_id = #{markId,jdbcType=BIGINT},
+      database_id = #{databaseId,jdbcType=BIGINT},
+      os_type = #{osType,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      width = #{width,jdbcType=INTEGER},
+      height = #{height,jdbcType=INTEGER},
+      description = #{description,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      other_url = #{otherUrl,jdbcType=VARCHAR},
+      content_url = #{contentUrl,jdbcType=VARCHAR},
+      display_order = #{displayOrder,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,108 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+
+import java.util.List;
+
+@ApiModel(value = "疾病编码请求类")
+public class DiseaseCodeRequest extends BaseRequest {
+    private Long doctorDiseaseId;
+
+    private Long userId;
+
+    private Long diseaseCodeId;
+
+    private String diseaseCode;
+
+    private String codeAppend;
+
+    private String diseaseName;
+
+    private String pinyin;
+
+    private String groupPrefix;
+
+    private String shortName;
+
+    private List<Long> doctorDiseaseIdList;
+
+    public List<Long> getDoctorDiseaseIdList() {
+        return doctorDiseaseIdList;
+    }
+
+    public void setDoctorDiseaseIdList(List<Long> doctorDiseaseIdList) {
+        this.doctorDiseaseIdList = doctorDiseaseIdList;
+    }
+
+    public Long getDoctorDiseaseId() {
+        return doctorDiseaseId;
+    }
+
+    public void setDoctorDiseaseId(Long doctorDiseaseId) {
+        this.doctorDiseaseId = doctorDiseaseId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getDiseaseCodeId() {
+        return diseaseCodeId;
+    }
+
+    public void setDiseaseCodeId(Long diseaseCodeId) {
+        this.diseaseCodeId = diseaseCodeId;
+    }
+
+    public String getDiseaseCode() {
+        return diseaseCode;
+    }
+
+    public void setDiseaseCode(String diseaseCode) {
+        this.diseaseCode = diseaseCode;
+    }
+
+    public String getCodeAppend() {
+        return codeAppend;
+    }
+
+    public void setCodeAppend(String codeAppend) {
+        this.codeAppend = codeAppend;
+    }
+
+    public String getDiseaseName() {
+        return diseaseName;
+    }
+
+    public void setDiseaseName(String diseaseName) {
+        this.diseaseName = diseaseName;
+    }
+
+    public String getPinyin() {
+        return pinyin;
+    }
+
+    public void setPinyin(String pinyin) {
+        this.pinyin = pinyin;
+    }
+
+    public String getGroupPrefix() {
+        return groupPrefix;
+    }
+
+    public void setGroupPrefix(String groupPrefix) {
+        this.groupPrefix = groupPrefix;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+}

@@ -1,0 +1,101 @@
+package com.yier.platform.common.model;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "APP配置信息扩展类")
+public class AppConfigPo extends AppConfig {
+    @ApiModelProperty(value = "所属APP （端口类型 1患者端 2医生端 3药师端）")
+    private Long typeId;
+    @ApiModelProperty(value = "参数key")
+    private String pkey;
+    @ApiModelProperty(value = "参数描述")
+    private String description;
+    @ApiModelProperty(value = "启动页高度")
+    private String startupHeight;
+    @ApiModelProperty(value = "启动页宽度")
+    private String startupWidth;
+    @ApiModelProperty(value = "首页高度")
+    private String bannerHeight;
+    @ApiModelProperty(value = "首页宽度")
+    private String bannerWidth;
+
+
+    public AppConfigPo(){
+
+    }
+
+    public AppConfigPo(Long typeId, String pkey, String description, String startupHeight, String startupWidth, String bannerHeight, String bannerWidth) {
+        this.typeId = typeId;
+        this.pkey = pkey;
+        this.description = description;
+        this.startupHeight = startupHeight;
+        this.startupWidth = startupWidth;
+        this.bannerHeight = bannerHeight;
+        this.bannerWidth = bannerWidth;
+    }
+
+    @Override
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    @Override
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    @Override
+    public String getPkey() {
+        return pkey;
+    }
+
+    @Override
+    public void setPkey(String pkey) {
+        this.pkey = pkey;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStartupHeight() {
+        return startupHeight;
+    }
+
+    public void setStartupHeight(String startupHeight) {
+        this.startupHeight = startupHeight;
+    }
+
+    public String getStartupWidth() {
+        return startupWidth;
+    }
+
+    public void setStartupWidth(String startupWidth) {
+        this.startupWidth = startupWidth;
+    }
+
+    public String getBannerHeight() {
+        return bannerHeight;
+    }
+
+    public void setBannerHeight(String bannerHeight) {
+        this.bannerHeight = bannerHeight;
+    }
+
+    public String getBannerWidth() {
+        return bannerWidth;
+    }
+
+    public void setBannerWidth(String bannerWidth) {
+        this.bannerWidth = bannerWidth;
+    }
+}

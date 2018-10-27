@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="test.css" type="text/css">
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
+    <SCRIPT>
+        $(document).ready(function(){
+
+
+            $("#button01").click(function(){
+                console.log("开始调用请求----------》");
+
+/*                $.ajax({
+                    url: "user/getUserListParam.json?use=1",
+                    data: "", //需要将当前的对象转换为json字符串,
+                    datatype: "json",//请求页面返回的数据类型
+                    type: "POST",
+                    contentType: "application/json",//注意请求页面的contentType 要于此处保持一致
+                    success:function(data) {//这里的data是由请求页面返回的数据
+                        //var dataJson = JSON.parse(data); // 使用json2.js中的parse方法将data转换成json格式
+                        console.log(data);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("===============错误=======");
+                        console.log(XMLHttpRequest.status);
+                        console.log(XMLHttpRequest.readyState);
+                        console.log(textStatus);
+                        console.log(errorThrown.responseText);
+                    }
+                });*/
+                $.ajax({
+                    url: 'http://192.168.0.199:8802/user/getUserList.json?use=1',
+                    datatype: "json",
+                    type: 'POST',
+                    data : JSON.stringify({"searchKey":"","status":"0","type":0,"page":1,"size":10,"sort":"id","order":"desc"}), //需要将当前的对象转换为json字符串,
+                    contentType : 'application/json;charset=UTF-8',
+                    headers:{
+                        "typeId":"typeIdTest",
+                        "userId":"userIdTest",
+                        "token":"tokenTest",
+                        "osType":"webH5",
+                    },
+                    success: function (data) {
+                        //成功后回调
+                        console.log("0回调函数成功了");
+                        if(data.status ==0){
+                            console.log("信息内容为:"+data.data.length+" 总条目数："+data.total);
+                            $.each(data.data,function(i,item){
+                                console.log("名字："+item.trueName+" 昵称："+item.userName+" 手机："+item.phoneNumber);
+                            });
+
+                        }
+                        else{
+                            console.log("信息："+data.error)
+                        }
+                    },
+                    error: function(e){
+                        //失败后回调
+                        console.log("服务器请求失败");
+                    },
+                    beforeSend: function(){
+                        //发送请求前调用，可以放一些"正在加载"之类额话
+                        console.log("正在加载");
+                    }});
+
+
+
+            });
+/*
+【ajax 设置header】
+第一种：使用headers属性
+第二种：在beforeSend中通过setRequestHeader设置
+        */
+            $("#button02").click(function(){
+                console.log("开始调用请求----------》");
+
+                $.ajax({
+                    url: "http://192.168.0.199:8801/user/getUserList.json",
+                    data: JSON.stringify({"hospitalDepartmentId":1,"status":"0","page":1,"size":20}), //需要将当前的对象转换为json字符串,
+                    datatype: "json",//请求页面返回的数据类型
+                    type: "POST",
+                    contentType: "application/json;charset=UTF-8",//注意请求页面的contentType 要于此处保持一致
+                    success:function(data) {//这里的data是由请求页面返回的数据
+                        //var dataJson = JSON.parse(data); // 使用json2.js中的parse方法将data转换成json格式
+                        console.log(data);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("===============错误=======");
+                        console.log(XMLHttpRequest.status);
+                        console.log(XMLHttpRequest.readyState);
+                        console.log(textStatus);
+                        console.log(errorThrown.responseText);
+                    },
+                    beforeSend:function (xhr) {
+                        xhr.setRequestHeader("typeId","typeIdTest");
+                        xhr.setRequestHeader("token","token");
+                        xhr.setRequestHeader("osType","webH5");
+                    }
+                });
+
+
+                /*                $.ajax({
+                                    url: "/doctor/getDoctorPoEvaluationCase.json?id=12",
+                                    data: JSON.stringify({"id":1,"path":"list"}), //需要将当前的对象转换为json字符串,
+                                    datatype: "json",//请求页面返回的数据类型
+                                    type: "POST",
+                                    contentType: "application/json",//注意请求页面的contentType 要于此处保持一致
+                                    success:function(data) {//这里的data是由请求页面返回的数据
+                                        //var dataJson = JSON.parse(data); // 使用json2.js中的parse方法将data转换成json格式
+                                        console.log(data);
+                                    },
+                                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                        console.log("===============错误=======");
+                                        console.log(XMLHttpRequest.status);
+                                        console.log(XMLHttpRequest.readyState);
+                                        console.log(textStatus);
+                                        console.log(errorThrown.responseText);
+                                    }
+                                });*/
+
+
+
+            });
+
+
+            $("#button04").click(function(){
+                console.log("开始调用请求----------》");
+
+                $.getJSON("restControllerJson.json",function(data){
+                    //通过循环取出data里面的值
+                    console.log("2返回信息..............");
+                    if(data.status ==0){
+                        console.log("信息内容为:"+data.data);
+                    }
+                    else{
+                        console.log("信息："+data.error)
+                    }
+                });
+
+
+            });
+
+
+            $("#button05").click(function(){
+                console.log("开始调用请求----------》");
+
+                $.ajax({
+                    type : "post",
+                    async:false,
+                    contentType: "application/json;charset=UTF-8",//注意请求页面的contentType 要于此处保持一致
+                    data : JSON.stringify({"searchKey":"","status":"0","type":0,"page":1,"size":10,"sort":"id","order":"desc"}), //需要将当前的对象转换为json字符串,
+                    url : "http://192.168.0.199:8802/user/getJsonpUserList.json?use=1",
+                    dataType : "jsonp",//数据类型为jsonp
+                    jsonp: "jsonpCallback",//服务端用于接收callback调用的function名的参数
+                    success : function(data){
+                        console.log("信息："+data);
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        console.log("===============错误=======");
+                        console.log(XMLHttpRequest.status);
+                        console.log(XMLHttpRequest.readyState);
+                        console.log(textStatus);
+                        console.log(errorThrown.responseText);
+                    }
+                });
+
+
+            });
+
+
+            $("#button06").click(function(){
+                console.log("开始调用请求----------》");
+
+
+                $.ajax({
+                    url: 'http://192.168.0.199:8802/user/getJsonpUserList.json?use=1',
+                    datatype: "json",
+                    type: 'post',
+                    data : JSON.stringify({"searchKey":"","status":"0","type":0,"page":1,"size":10,"sort":"id","order":"desc"}), //需要将当前的对象转换为json字符串,
+                    contentType : 'application/json;charset=UTF-8',
+                    headers:{
+                        "typeId":"typeIdTest",
+                        "userId":"userIdTest",
+                        "token":"tokenTest",
+                        "osType":"webH5",
+                    },
+                    success: function (data) {
+                        //成功后回调
+                        console.log("0回调函数成功了");
+                        if(data.status ==0){
+                            console.log("信息内容为:"+data.data.length+" 总条目数："+data.total);
+                            $.each(data.data,function(i,item){
+                                console.log("名字："+item.trueName+" 昵称："+item.userName+" 手机："+item.phoneNumber);
+                            });
+
+                        }
+                        else{
+                            console.log("信息："+data.error)
+                        }
+                    },
+                    error: function(e){
+                        //失败后回调
+                        console.log("服务器请求失败");
+                    },
+                    beforeSend: function(){
+                        //发送请求前调用，可以放一些"正在加载"之类额话
+                        console.log("正在加载");
+                    }});
+
+
+            });
+
+
+
+
+        });
+
+    </SCRIPT>
+</head>
+<body>
+666666666666666 welcome ${nameInfo} to freemarker!<br />
+<h1>Hello World 你好，世界,真的吗</h1>
+<#list newList as item>
+标题：${item.title}   ,对应的URL : ${item.contentUrl}<br />
+</#list>
+<br />
+<button id="button01">单个参数查询返回列表结果</button>
+<button id="button02">json body 请求返回列表结果</button>
+<button id="button03">点我</button>
+<button id="button04">get 获取属性</button>
+<button id="button05">跨越处理</button>
+<button id="button06">跨越处理02</button>
+</body>
+</html>

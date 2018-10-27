@@ -1,0 +1,288 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class MedicalOrder extends BaseJsonObject {
+    private Long id;
+
+    private String orderNo;
+
+    private Long hospitalId;
+
+    private String hospitalName;
+
+    private String hospitalAddress;
+
+    private Long catalogId;
+
+    private Long departmentId;
+
+    private String departmentName;
+
+    private Long patientId;
+
+    private String patientName;
+
+    private String patientIdCardNo;
+
+    private Long doctorId;
+
+    private String doctorName;
+
+    private String doctorTitle;
+
+    private String doctorSignature;
+
+    private String medicalCase;
+
+    private String medicalInfo;
+
+    private String medicalPictures;
+
+    private Date planTime;
+
+    private String workTime;
+
+    private Integer payment;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public MedicalOrder(Long id, String orderNo, Long hospitalId, String hospitalName, String hospitalAddress, Long catalogId, Long departmentId, String departmentName, Long patientId, String patientName, String patientIdCardNo, Long doctorId, String doctorName, String doctorTitle, String doctorSignature, String medicalCase, String medicalInfo, String medicalPictures, Date planTime, String workTime, Integer payment, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.orderNo = orderNo;
+        this.hospitalId = hospitalId;
+        this.hospitalName = hospitalName;
+        this.hospitalAddress = hospitalAddress;
+        this.catalogId = catalogId;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
+        this.patientId = patientId;
+        this.patientName = patientName;
+        this.patientIdCardNo = patientIdCardNo;
+        this.doctorId = doctorId;
+        this.doctorName = doctorName;
+        this.doctorTitle = doctorTitle;
+        this.doctorSignature = doctorSignature;
+        this.medicalCase = medicalCase;
+        this.medicalInfo = medicalInfo;
+        this.medicalPictures = medicalPictures;
+        this.planTime = planTime;
+        this.workTime = workTime;
+        this.payment = payment;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public MedicalOrder() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public Long getHospitalId() {
+        return hospitalId;
+    }
+
+    public void setHospitalId(Long hospitalId) {
+        this.hospitalId = hospitalId;
+    }
+
+    public String getHospitalName() {
+        return hospitalName;
+    }
+
+    public void setHospitalName(String hospitalName) {
+        this.hospitalName = hospitalName;
+    }
+
+    public String getHospitalAddress() {
+        return hospitalAddress;
+    }
+
+    public void setHospitalAddress(String hospitalAddress) {
+        this.hospitalAddress = hospitalAddress;
+    }
+
+    public Long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(Long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getPatientIdCardNo() {
+        return patientIdCardNo;
+    }
+
+    public void setPatientIdCardNo(String patientIdCardNo) {
+        this.patientIdCardNo = patientIdCardNo;
+    }
+
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public String getDoctorTitle() {
+        return doctorTitle;
+    }
+
+    public void setDoctorTitle(String doctorTitle) {
+        this.doctorTitle = doctorTitle;
+    }
+
+    public String getDoctorSignature() {
+        return doctorSignature;
+    }
+
+    public void setDoctorSignature(String doctorSignature) {
+        this.doctorSignature = doctorSignature;
+    }
+
+    public String getMedicalCase() {
+        return medicalCase;
+    }
+
+    public void setMedicalCase(String medicalCase) {
+        this.medicalCase = medicalCase;
+    }
+
+    public String getMedicalInfo() {
+        return medicalInfo;
+    }
+
+    public void setMedicalInfo(String medicalInfo) {
+        this.medicalInfo = medicalInfo;
+    }
+
+    public String getMedicalPictures() {
+        return medicalPictures;
+    }
+
+    public void setMedicalPictures(String medicalPictures) {
+        this.medicalPictures = medicalPictures;
+    }
+
+    public Date getPlanTime() {
+        return planTime;
+    }
+
+    public void setPlanTime(Date planTime) {
+        this.planTime = planTime;
+    }
+
+    public String getWorkTime() {
+        return workTime;
+    }
+
+    public void setWorkTime(String workTime) {
+        this.workTime = workTime;
+    }
+
+    public Integer getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Integer payment) {
+        this.payment = payment;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

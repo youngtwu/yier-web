@@ -1,0 +1,60 @@
+package com.yier.platform.service.medical;
+
+import com.yier.platform.common.model.DrugSendOrder;
+import com.yier.platform.common.model.DrugSendOrderPo;
+import com.yier.platform.common.requestParam.DrugSendOrderRequest;
+import com.yier.platform.dao.DrugSendOrderMapper;
+import com.yier.platform.dao.MedicalDateMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+
+@Service
+public class DrugSendOrderService {
+    private final Logger logger = LoggerFactory.getLogger(DrugSendOrderService.class);
+    @Autowired
+    private DrugSendOrderMapper daoDrugSendOrderMapper;
+
+
+    // 根据条件查询送药的列表
+    public List<DrugSendOrderPo> listDrugSendOrderPo(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrderPo(params);
+    }
+    // 根据条件查询送药的列表 总数
+    public int listDrugSendOrderPoCount(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrderCount(params);
+    }
+
+    public DrugSendOrderPo getDrugSendOrderPoById(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.getDrugSendOrderPoById(params);
+    }
+    // 根据条件查询列表
+    public List<DrugSendOrder> listDrugSendOrder(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrder(params);
+    }
+    // 根据条件查询列表 总数
+    public int listDrugSendOrderCount(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrderCount(params);
+    }
+
+    public int deleteByPrimaryKey(Long id){
+        return daoDrugSendOrderMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insertSelective(DrugSendOrder record){
+        return daoDrugSendOrderMapper.insertSelective(record);
+    }
+
+    public DrugSendOrder selectByPrimaryKey(Long id){
+        return daoDrugSendOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(DrugSendOrder record){
+        return daoDrugSendOrderMapper.updateByPrimaryKeySelective(record);
+    }
+
+}

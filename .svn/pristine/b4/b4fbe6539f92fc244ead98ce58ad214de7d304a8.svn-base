@@ -1,0 +1,98 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "角色请求类")
+public class UserRequest extends BaseRequest {
+    @ApiModelProperty(value = "用户id")
+    private Long userId;
+    @ApiModelProperty(value = "角色类型")
+    private Long type;
+    @ApiModelProperty(value = "真实姓名")
+    private String trueName;
+    @ApiModelProperty(value = "用户名")
+    private String userName;
+    @ApiModelProperty(value = "微信id")
+    private String wxid;
+    @ApiModelProperty(value = "邮箱")
+    private String email;
+    @ApiModelProperty(value = "手机号")
+    private String phoneNumber;
+    @ApiModelProperty(value = "性别")
+    private String sex;
+    @ApiModelProperty(value = "聊天状态（0开通 1不开通））")
+    private String chat;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getType() {
+        return type;
+    }
+
+    public void setType(Long type) {
+        this.type = type;
+    }
+
+    public String getTrueName() {
+        return trueName;
+    }
+
+    public void setTrueName(String trueName) {
+        this.trueName = trueName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getWxid() {
+        return wxid;
+    }
+
+    public void setWxid(String wxid) {
+        this.wxid = wxid;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getChat() {
+        return chat;
+    }
+
+    public void setChat(String chat) {
+        this.chat = chat;
+    }
+}

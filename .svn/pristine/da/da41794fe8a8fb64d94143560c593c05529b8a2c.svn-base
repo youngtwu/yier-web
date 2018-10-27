@@ -1,0 +1,17 @@
+package com.yier.platform.common.model;
+
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
+public class MedicalPrescriptionPo extends MedicalPrescription {
+    private MedicalOrderPo medicalOrder ;
+
+    public MedicalOrderPo getMedicalOrder() {
+        return medicalOrder;
+    }
+
+    public void setMedicalOrder(MedicalOrderPo medicalOrder) {
+        this.medicalOrder = medicalOrder;
+    }
+}

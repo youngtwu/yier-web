@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.NewsMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.News">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="other_type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="title" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="content_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="images" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, other_type_id, title, content, content_url, images, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+  
+  <!-- 根据条件查询列表 -->
+  <select id="listNews" parameterType="com.yier.platform.common.requestParam.NewsRequest" resultMap="BaseResultMap">
+    select t.* from t_news t
+    <where>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`title` like concat('%',#{searchKey},'%')
+        or t.`content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listNewsCount" parameterType="com.yier.platform.common.requestParam.NewsRequest" resultType="Integer">
+    select count(t.id) from t_news t
+    <where>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`title` like concat('%',#{searchKey},'%')
+        or t.`content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_news
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_news
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.News">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_news (type_id, other_type_id, title, 
+      content, content_url, images, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{typeId,jdbcType=BIGINT}, #{otherTypeId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{contentUrl,jdbcType=VARCHAR}, #{images,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.News">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_news
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="otherTypeId != null">
+        other_type_id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="contentUrl != null">
+        content_url,
+      </if>
+      <if test="images != null">
+        images,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="otherTypeId != null">
+        #{otherTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="contentUrl != null">
+        #{contentUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="images != null">
+        #{images,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.News">
+    update t_news
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="otherTypeId != null">
+        other_type_id = #{otherTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="contentUrl != null">
+        content_url = #{contentUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="images != null">
+        images = #{images,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.News">
+    update t_news
+    set type_id = #{typeId,jdbcType=BIGINT},
+      other_type_id = #{otherTypeId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      content_url = #{contentUrl,jdbcType=VARCHAR},
+      images = #{images,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

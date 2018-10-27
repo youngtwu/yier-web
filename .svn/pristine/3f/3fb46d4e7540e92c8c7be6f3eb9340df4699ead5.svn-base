@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DeviceInfoMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DeviceInfo">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="os_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="version_code" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="sdk_int" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="brand" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="model" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="version_release" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hardware" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cpu_abi" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cpu_abi2" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="serial" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, type_id, os_type, version_code, sdk_int, brand, model, version_release, 
+    hardware, cpu_abi, cpu_abi2, serial, status, gmt_create, gmt_modified, remarks
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_device_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_device_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DeviceInfo">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_device_info (user_id, type_id, os_type, 
+      version_code, sdk_int, brand, 
+      model, version_release, hardware, 
+      cpu_abi, cpu_abi2, serial, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{userId,jdbcType=BIGINT}, #{typeId,jdbcType=BIGINT}, #{osType,jdbcType=VARCHAR}, 
+      #{versionCode,jdbcType=INTEGER}, #{sdkInt,jdbcType=INTEGER}, #{brand,jdbcType=VARCHAR}, 
+      #{model,jdbcType=VARCHAR}, #{versionRelease,jdbcType=VARCHAR}, #{hardware,jdbcType=VARCHAR}, 
+      #{cpuAbi,jdbcType=VARCHAR}, #{cpuAbi2,jdbcType=VARCHAR}, #{serial,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DeviceInfo">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_device_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="osType != null">
+        os_type,
+      </if>
+      <if test="versionCode != null">
+        version_code,
+      </if>
+      <if test="sdkInt != null">
+        sdk_int,
+      </if>
+      <if test="brand != null">
+        brand,
+      </if>
+      <if test="model != null">
+        model,
+      </if>
+      <if test="versionRelease != null">
+        version_release,
+      </if>
+      <if test="hardware != null">
+        hardware,
+      </if>
+      <if test="cpuAbi != null">
+        cpu_abi,
+      </if>
+      <if test="cpuAbi2 != null">
+        cpu_abi2,
+      </if>
+      <if test="serial != null">
+        serial,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="osType != null">
+        #{osType,jdbcType=VARCHAR},
+      </if>
+      <if test="versionCode != null">
+        #{versionCode,jdbcType=INTEGER},
+      </if>
+      <if test="sdkInt != null">
+        #{sdkInt,jdbcType=INTEGER},
+      </if>
+      <if test="brand != null">
+        #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null">
+        #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="versionRelease != null">
+        #{versionRelease,jdbcType=VARCHAR},
+      </if>
+      <if test="hardware != null">
+        #{hardware,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuAbi != null">
+        #{cpuAbi,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuAbi2 != null">
+        #{cpuAbi2,jdbcType=VARCHAR},
+      </if>
+      <if test="serial != null">
+        #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DeviceInfo">
+    update t_device_info
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="osType != null">
+        os_type = #{osType,jdbcType=VARCHAR},
+      </if>
+      <if test="versionCode != null">
+        version_code = #{versionCode,jdbcType=INTEGER},
+      </if>
+      <if test="sdkInt != null">
+        sdk_int = #{sdkInt,jdbcType=INTEGER},
+      </if>
+      <if test="brand != null">
+        brand = #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null">
+        model = #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="versionRelease != null">
+        version_release = #{versionRelease,jdbcType=VARCHAR},
+      </if>
+      <if test="hardware != null">
+        hardware = #{hardware,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuAbi != null">
+        cpu_abi = #{cpuAbi,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuAbi2 != null">
+        cpu_abi2 = #{cpuAbi2,jdbcType=VARCHAR},
+      </if>
+      <if test="serial != null">
+        serial = #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DeviceInfo">
+    update t_device_info
+    set user_id = #{userId,jdbcType=BIGINT},
+      type_id = #{typeId,jdbcType=BIGINT},
+      os_type = #{osType,jdbcType=VARCHAR},
+      version_code = #{versionCode,jdbcType=INTEGER},
+      sdk_int = #{sdkInt,jdbcType=INTEGER},
+      brand = #{brand,jdbcType=VARCHAR},
+      model = #{model,jdbcType=VARCHAR},
+      version_release = #{versionRelease,jdbcType=VARCHAR},
+      hardware = #{hardware,jdbcType=VARCHAR},
+      cpu_abi = #{cpuAbi,jdbcType=VARCHAR},
+      cpu_abi2 = #{cpuAbi2,jdbcType=VARCHAR},
+      serial = #{serial,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

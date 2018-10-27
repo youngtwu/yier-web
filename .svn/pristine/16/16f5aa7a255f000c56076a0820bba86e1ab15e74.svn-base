@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.AppConfigMapper">
+    <resultMap id="BaseResultMap" type="com.yier.platform.common.model.AppConfig">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="pkey" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="pvalue" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="prefix" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, type_id, pkey, description, pvalue, prefix, display_order, status, gmt_create,
+        gmt_modified, remarks
+    </sql>
+
+    <select id="getAppConfigByTypeId" parameterType="com.yier.platform.common.requestParam.AppConfigRequest"
+            resultMap="BaseResultMap">
+        select t.* from t_app_config t
+        where t.type_id = #{typeId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getAppConfigByPkey" parameterType="com.yier.platform.common.requestParam.AppConfigRequest"
+            resultMap="BaseResultMap">
+        select t.* from t_app_config t
+        where t.pkey = #{pkey,jdbcType=BIGINT}
+    </select>
+
+    <select id="getAppConfigList" parameterType="com.yier.platform.common.requestParam.AppConfigRequest"
+            resultMap="BaseResultMap">
+        select t.* from t_app_config t
+        <where>
+            <if test="appConfigId != null">
+                and t.id = #{appConfigId}
+            </if>
+            <if test="typeId != null">
+                and t.type_id = #{typeId}
+            </if>
+            <if test="pkey != null">
+                and t.pkey = #{pkey}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`title` like concat('%',#{searchKey},'%')
+                or t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.display_order asc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+
+    <select id="getAppConfigListCount" parameterType="com.yier.platform.common.requestParam.AppConfigRequest"
+            resultType="Integer">
+        select count(1) from (select count(t.id) from t_app_config t
+        <where>
+            <if test="appConfigId != null">
+                and t.id = #{appConfigId}
+            </if>
+            <if test="typeId != null">
+                and t.type_id = #{typeId}
+            </if>
+            <if test="pkey != null">
+                and t.pkey = #{pkey}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`title` like concat('%',#{searchKey},'%')
+                or t.`name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        group by t.type_id) tt
+    </select>
+
+    <!--<insert id="insertAppConfigForBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        <foreach collection="list" item="item" index="index" separator=";">
+            INSERT INTO t_app_config
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.typeId != null">
+                    type_id,
+                </if>
+                <if test="item.pkey != null">
+                    pkey,
+                </if>
+                <if test="item.description != null">
+                    description,
+                </if>
+                <if test="item.pvalue != null">
+                    pvalue,
+                </if>
+                <if test="item.prefix != null">
+                    prefix,
+                </if>
+                <if test="item.displayOrder != null">
+                    display_order,
+                </if>
+                <if test="item.status != null">
+                    status,
+                </if>
+                <if test="item.gmtCreate != null">
+                    gmt_create,
+                </if>
+                <if test="item.gmtModified != null">
+                    gmt_modified,
+                </if>
+                <if test="item.remarks != null">
+                    remarks,
+                </if>
+            </trim>
+            values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.typeId != null">
+                    #{item.typeId,jdbcType=BIGINT},
+                </if>
+                <if test="item.pkey != null">
+                    #{item.pkey,jdbcType=VARCHAR},
+                </if>
+                <if test="item.description != null">
+                    #{item.description,jdbcType=VARCHAR},
+                </if>
+                <if test="item.pvalue != null">
+                    #{item.pvalue,jdbcType=VARCHAR},
+                </if>
+                <if test="item.prefix != null">
+                    #{item.prefix,jdbcType=VARCHAR},
+                </if>
+                <if test="item.displayOrder != null">
+                    #{item.displayOrder,jdbcType=INTEGER},
+                </if>
+                <if test="item.status != null">
+                    #{item.status,jdbcType=CHAR},
+                </if>
+                <if test="item.gmtCreate != null">
+                    #{item.gmtCreate,jdbcType=TIMESTAMP},
+                </if>
+                <if test="item.gmtModified != null">
+                    #{item.gmtModified,jdbcType=TIMESTAMP},
+                </if>
+                <if test="item.remarks != null">
+                    #{item.remarks,jdbcType=VARCHAR},
+                </if>
+            </trim>
+        </foreach>
+    </insert>-->
+
+    <delete id="deleteAppConfigByTypeId" parameterType="java.lang.Long">
+        delete from t_app_config
+        where type_id = #{typeId,jdbcType=BIGINT}
+    </delete>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_app_config
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_app_config
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.yier.platform.common.model.AppConfig">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_app_config (type_id, pkey, description,
+        pvalue, prefix, display_order,
+        status, gmt_create, gmt_modified,
+        remarks)
+        values (#{typeId,jdbcType=BIGINT}, #{pkey,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+        #{pvalue,jdbcType=VARCHAR}, #{prefix,jdbcType=VARCHAR}, #{displayOrder,jdbcType=INTEGER},
+        #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},
+        #{remarks,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yier.platform.common.model.AppConfig">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_app_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeId != null">
+                type_id,
+            </if>
+            <if test="pkey != null">
+                pkey,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="pvalue != null">
+                pvalue,
+            </if>
+            <if test="prefix != null">
+                prefix,
+            </if>
+            <if test="displayOrder != null">
+                display_order,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeId != null">
+                #{typeId,jdbcType=BIGINT},
+            </if>
+            <if test="pkey != null">
+                #{pkey,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="pvalue != null">
+                #{pvalue,jdbcType=VARCHAR},
+            </if>
+            <if test="prefix != null">
+                #{prefix,jdbcType=VARCHAR},
+            </if>
+            <if test="displayOrder != null">
+                #{displayOrder,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.AppConfig">
+        update t_app_config
+        <set>
+            <if test="typeId != null">
+                type_id = #{typeId,jdbcType=BIGINT},
+            </if>
+            <if test="pkey != null">
+                pkey = #{pkey,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="pvalue != null">
+                pvalue = #{pvalue,jdbcType=VARCHAR},
+            </if>
+            <if test="prefix != null">
+                prefix = #{prefix,jdbcType=VARCHAR},
+            </if>
+            <if test="displayOrder != null">
+                display_order = #{displayOrder,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.AppConfig">
+        update t_app_config
+        set type_id = #{typeId,jdbcType=BIGINT},
+          key = #{pkey,jdbcType=VARCHAR},
+          description = #{description,jdbcType=VARCHAR},
+          pvalue = #{pvalue,jdbcType=VARCHAR},
+          prefix = #{prefix,jdbcType=VARCHAR},
+          display_order = #{displayOrder,jdbcType=INTEGER},
+          status = #{status,jdbcType=CHAR},
+          gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+          gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+          remarks = #{remarks,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

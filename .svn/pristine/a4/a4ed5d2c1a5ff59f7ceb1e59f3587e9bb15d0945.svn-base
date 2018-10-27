@@ -1,0 +1,135 @@
+package com.yier.platform.web;
+
+import com.github.yingzhuo.carnival.restful.security.Logical;
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.github.yingzhuo.carnival.restful.security.RequiresRoles;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Doctor;
+import com.yier.platform.common.model.Pharmacist;
+import com.yier.platform.common.model.PharmacistPo;
+import com.yier.platform.common.requestParam.PharmacistRequest;
+import com.yier.platform.service.PharmacistService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "药师相关的请求接口")
+@RestController
+@RequestMapping("/pharmacistManager")
+@Slf4j
+public class PharmacistManagerController {
+    private static final Logger logger = LoggerFactory.getLogger(PatientManagerController.class);
+
+    @Autowired
+    private PharmacistService pharmacistService;
+
+    @ApiOperation(value = "获取药师信息列表")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/getPharmacistList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<PharmacistPo> getPharmacistList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "药师请求接口类") @RequestBody PharmacistRequest params) {
+        params.doWithSortOrStart();
+        logger.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<PharmacistPo> res = new ListResponse<PharmacistPo>();
+        List<PharmacistPo> doctorList = pharmacistService.listPharmacistPo(params);
+        int doctorListCount = pharmacistService.listPharmacistCount(params);
+        res.setData(doctorList);
+        res.setTotal(doctorListCount);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "通过id获取药师信息，包括职位，职业点")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/getPharmacistPoById.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<PharmacistPo> getPharmacistPoById(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "药师请求接口类") @RequestBody PharmacistRequest params) {
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        logger.info("通过id获取药师信息，查询条件:{}", params);
+        PharmacistPo pharmacistPo = pharmacistService.getPharmacistPoById(params);
+        res.setData(pharmacistPo);
+        logger.debug("通过id获取药师信息，返回结果:{}", res);
+        return res;
+    }
+
+    @ApiOperation(value = "新增药师信息 状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交）")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/insertPharmacist.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<PharmacistPo> insertPharmacist(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "药师实体类") PharmacistPo record, @RequestParam(value = "avatarPic", required = false) MultipartFile avatarPic, @RequestParam(value = "photoPic", required = false) MultipartFile photoPic, @RequestParam(value = "idCardPic", required = false) MultipartFile idCardPic) {
+        logger.info("新增药师信息, 请求参数：{}", record);
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        String userIdStr = request.getHeader("userId");
+        Assert.isTrue(StringUtils.isNotBlank(userIdStr), "用户名不能为空！");
+        Long userId = Long.parseLong(userIdStr);
+        PharmacistPo pharmacistPo = this.pharmacistService.insertPharmacistWithPic(record, avatarPic, photoPic, idCardPic, userId);
+        res.setData(pharmacistPo);
+        res.setOtherInfo("新增药师信息");
+        logger.debug("新增药师信息, 返回参数：{}", res);
+        return res;
+    }
+
+    @ApiOperation(value = "更新药师信息 状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交）")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/updatePharmacist.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<PharmacistPo> updatePharmacist(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "药师实体类") PharmacistPo record, @RequestParam(value = "avatarPic", required = false) MultipartFile avatarPic, @RequestParam(value = "photoPic", required = false) MultipartFile photoPic, @RequestParam(value = "idCardPic", required = false) MultipartFile idCardPic) {
+        logger.info("更新药师信息, 请求参数参数：{}", record);
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        String userIdStr = request.getHeader("userId");
+        Assert.isTrue(StringUtils.isNotBlank(userIdStr), "用户名不能为空！");
+        Long userId = Long.parseLong(userIdStr);
+        this.pharmacistService.updatePharmacistWithPic(record, avatarPic, photoPic, idCardPic, userId);
+        res.setOtherInfo("更新药师信息");
+        logger.debug("更新药师信息, 返回参数：{}", record);
+        return res;
+    }
+
+    @ApiOperation(value = "后台管理系统启用/停用药师信息 状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交）")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/enableOrDisablePharmacist.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Doctor> enableOrDisablePharmacist(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "药师实体类") @RequestBody Pharmacist record) {
+        logger.info("后台管理系统启用/停用医生信息, 请求参数参数：{}", record);
+        CommonResponse<Doctor> res = new CommonResponse<Doctor>();
+        this.pharmacistService.enableOrDisablePharmacist(record);
+        res.setOtherInfo("启用/停用药师信息");
+        logger.debug("启用/停用药师信息, 返回参数：{}", record);
+        return res;
+    }
+
+    @ApiOperation(value = "删除药师信息 状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交）")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super", "Hospital"}, logical = Logical.OR)
+    @RequestMapping(value = "/deletePharmacist.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Pharmacist> deletePharmacist(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "客户端标识 1-患者端，2-医生端，3-药师端") @RequestParam Long typeId, @ApiParam(value = "药师实体类") @RequestBody Pharmacist record) {
+        logger.info("删除药师信息, 请求参数参数：{}, {}", record, typeId);
+        CommonResponse<Pharmacist> res = new CommonResponse<Pharmacist>();
+        this.pharmacistService.deletePharmacist(record, typeId);
+        res.setData(record);
+        res.setOtherInfo("删除药师信息");
+        logger.debug("删除药师信息, 返回参数：{}", res);
+        return res;
+    }
+}

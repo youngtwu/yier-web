@@ -1,0 +1,76 @@
+package com.yier.platform.service.feign;
+
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@Component
+@FeignClient(name = "yey-service-pharmacy")
+public interface RemotePharmacyService {
+    /**
+     * 获取指定药房药品列表
+     * @param pharmacyId 药房编号
+     * @param name 药品名称
+     * @param s 起始记录
+     * @param n 返回数量
+     * @return 当前可用的药品列表
+     */
+    @RequestMapping(value = "/pharmacy/{id}/drugs", method = RequestMethod.GET)
+    Map<String, Object> listDrugs(@PathVariable("id") String pharmacyId, @RequestParam("name") String name, @RequestParam("s")Integer s, @RequestParam("n")Integer n);
+
+    /**
+     * 获取可取药药房列表
+     * @param drugList 药品列表
+     * @return 可用药房ID列表
+     */
+    @RequestMapping(value = "/pharmacies", method = RequestMethod.POST)
+    Map<String, Object> listPharmacies(@RequestBody List<LockDrug> drugList);
+
+    /**
+     * 上报处方并锁定对应药品库存
+     * @param prescription 处方信息
+     * @return
+     */
+    @RequestMapping(value = "/prescription", method = RequestMethod.POST)
+    Map<String, Object> uploadPrescription(@RequestBody Prescription prescription);
+
+    /**
+     * 处方取药并解锁对应药品库存
+     * @param hospitalId 医院ID
+     * @param pharmacyId 药房ID
+     * @param prescriptionId 处方编号
+     * @return
+     */
+    @RequestMapping(value = "/hospital/{hid}/prescription/{pid}/used", method = RequestMethod.PATCH)
+    Map<String, Object> usePrescription(@PathVariable("hid") String hospitalId, @PathVariable("pid") String prescriptionId, @RequestParam("pharmacyId")String pharmacyId);
+
+    /**
+     * 根据处方编号查询处方信息
+     * @param hospitalId 医院ID
+     * @param prescriptionId 处方编号
+     * @return
+     */
+    @RequestMapping(value = "/hospital/{hid}/prescription/{pid}", method = RequestMethod.GET)
+    Map<String, Object> getPrescription(@PathVariable("hid") String hospitalId, @PathVariable("pid") String prescriptionId);
+
+    /**
+     * 根据患者ID查询处方信息
+     * @param patientId 患者身份证号码
+     * @return
+     */
+    @RequestMapping(value = "/prescriptions", method = RequestMethod.GET)
+    Map<String, Object> listPrescriptions(@RequestParam("id") String patientId);
+
+    /**
+     * 处方已被支付，更新处方状态
+     * @param hospitalId 医院ID
+     * @param prescriptionId 处方编号
+     * @return
+     */
+    @RequestMapping(value = "/hospital/{hid}/prescription/{pid}/paid", method = RequestMethod.PATCH)
+    Map<String, Object> paidPrescription(@PathVariable("hid") String hospitalId, @PathVariable("pid") String prescriptionId);
+}

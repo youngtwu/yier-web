@@ -1,0 +1,55 @@
+package com.yier.platform.conf;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+
+//@Component
+@ConfigurationProperties(prefix = "common.application.config")
+public class ApplicationConfig {
+
+    private String uploadImageUrlPrefix;
+    private SmsConfig sms;
+    private RongCloudConfig rongcloud;
+    private AndroidConfig android;
+    private JpushConfig jpush;
+
+    public String getUploadImageUrlPrefix() {
+        return uploadImageUrlPrefix;
+    }
+
+    public void setUploadImageUrlPrefix(String uploadImageUrlPrefix) {
+        this.uploadImageUrlPrefix = uploadImageUrlPrefix;
+    }
+
+    public JpushConfig getJpush() {
+        return jpush;
+    }
+
+    public void setJpush(JpushConfig jpush) {
+        this.jpush = jpush;
+    }
+
+    public AndroidConfig getAndroid() {
+        return android;
+    }
+
+    public void setAndroid(AndroidConfig android) {
+        this.android = android;
+    }
+
+    public RongCloudConfig getRongcloud() {
+        return rongcloud;
+    }
+
+    public void setRongcloud(RongCloudConfig rongcloud) {
+        this.rongcloud = rongcloud;
+    }
+
+    public SmsConfig getSms() {
+        return sms;
+    }
+
+    public void setSms(SmsConfig sms) {
+        this.sms = sms;
+    }
+}

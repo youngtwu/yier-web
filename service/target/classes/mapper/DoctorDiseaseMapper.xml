@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DoctorDiseaseMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DoctorDisease">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="disease_code_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="disease_code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="code_append" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="disease_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pinyin" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="group_prefix" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="short_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, disease_code_id, disease_code, code_append, disease_name, pinyin, group_prefix, 
+    short_name, display_order, status, gmt_create, gmt_modified, remarks
+  </sql>
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDoctorDisease" parameterType="com.yier.platform.common.requestParam.DiseaseCodeRequest" resultMap="BaseResultMap">
+    select t.* from t_doctor_disease t
+    <where>
+      <if test="doctorDiseaseId != null">
+        and t.id = #{doctorDiseaseId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="diseaseCodeId != null">
+        and t.disease_code_id = #{diseaseCodeId}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( diseaseCode )">
+        and (t.`disease_code` like concat('%',#{diseaseCode},'%')
+        )
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( diseaseName )">
+        and (t.`disease_name` like concat('%',#{diseaseName},'%')
+        )
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( pinyin )">
+        and (t.`pinyin` like concat('%',#{pinyin},'%')
+        )
+      </if>
+      <if test="groupPrefix != null">
+        and t.group_prefix = #{groupPrefix}
+      </if>
+      <if test="shortName != null">
+        and t.short_name = #{shortName}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`disease_code` like concat('%',#{searchKey},'%')
+        or t.`disease_name` like concat('%',#{searchKey},'%')
+        or t.`pinyin` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDoctorDiseaseCount" parameterType="com.yier.platform.common.requestParam.DiseaseCodeRequest" resultType="Integer">
+    select count(t.id) from t_doctor_disease t
+    <where>
+      <if test="doctorDiseaseId != null">
+        and t.id = #{doctorDiseaseId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="diseaseCodeId != null">
+        and t.disease_code_id = #{diseaseCodeId}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( diseaseCode )">
+        and (t.`disease_code` like concat('%',#{diseaseCode},'%')
+        )
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( diseaseName )">
+        and (t.`disease_name` like concat('%',#{diseaseName},'%')
+        )
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( pinyin )">
+        and (t.`pinyin` like concat('%',#{pinyin},'%')
+        )
+      </if>
+      <if test="groupPrefix != null">
+        and t.group_prefix = #{groupPrefix}
+      </if>
+      <if test="shortName != null">
+        and t.short_name = #{shortName}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`disease_code` like concat('%',#{searchKey},'%')
+        or t.`disease_name` like concat('%',#{searchKey},'%')
+        or t.`pinyin` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_doctor_disease
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_doctor_disease
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DoctorDisease">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_doctor_disease (user_id, disease_code_id, disease_code, 
+      code_append, disease_name, pinyin, 
+      group_prefix, short_name, display_order, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{userId,jdbcType=BIGINT}, #{diseaseCodeId,jdbcType=BIGINT}, #{diseaseCode,jdbcType=VARCHAR}, 
+      #{codeAppend,jdbcType=VARCHAR}, #{diseaseName,jdbcType=VARCHAR}, #{pinyin,jdbcType=VARCHAR}, 
+      #{groupPrefix,jdbcType=VARCHAR}, #{shortName,jdbcType=VARCHAR}, #{displayOrder,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DoctorDisease">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_doctor_disease
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="diseaseCodeId != null">
+        disease_code_id,
+      </if>
+      <if test="diseaseCode != null">
+        disease_code,
+      </if>
+      <if test="codeAppend != null">
+        code_append,
+      </if>
+      <if test="diseaseName != null">
+        disease_name,
+      </if>
+      <if test="pinyin != null">
+        pinyin,
+      </if>
+      <if test="groupPrefix != null">
+        group_prefix,
+      </if>
+      <if test="shortName != null">
+        short_name,
+      </if>
+      <if test="displayOrder != null">
+        display_order,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="diseaseCodeId != null">
+        #{diseaseCodeId,jdbcType=BIGINT},
+      </if>
+      <if test="diseaseCode != null">
+        #{diseaseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="codeAppend != null">
+        #{codeAppend,jdbcType=VARCHAR},
+      </if>
+      <if test="diseaseName != null">
+        #{diseaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyin != null">
+        #{pinyin,jdbcType=VARCHAR},
+      </if>
+      <if test="groupPrefix != null">
+        #{groupPrefix,jdbcType=VARCHAR},
+      </if>
+      <if test="shortName != null">
+        #{shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="displayOrder != null">
+        #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DoctorDisease">
+    update t_doctor_disease
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="diseaseCodeId != null">
+        disease_code_id = #{diseaseCodeId,jdbcType=BIGINT},
+      </if>
+      <if test="diseaseCode != null">
+        disease_code = #{diseaseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="codeAppend != null">
+        code_append = #{codeAppend,jdbcType=VARCHAR},
+      </if>
+      <if test="diseaseName != null">
+        disease_name = #{diseaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyin != null">
+        pinyin = #{pinyin,jdbcType=VARCHAR},
+      </if>
+      <if test="groupPrefix != null">
+        group_prefix = #{groupPrefix,jdbcType=VARCHAR},
+      </if>
+      <if test="shortName != null">
+        short_name = #{shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="displayOrder != null">
+        display_order = #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DoctorDisease">
+    update t_doctor_disease
+    set user_id = #{userId,jdbcType=BIGINT},
+      disease_code_id = #{diseaseCodeId,jdbcType=BIGINT},
+      disease_code = #{diseaseCode,jdbcType=VARCHAR},
+      code_append = #{codeAppend,jdbcType=VARCHAR},
+      disease_name = #{diseaseName,jdbcType=VARCHAR},
+      pinyin = #{pinyin,jdbcType=VARCHAR},
+      group_prefix = #{groupPrefix,jdbcType=VARCHAR},
+      short_name = #{shortName,jdbcType=VARCHAR},
+      display_order = #{displayOrder,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

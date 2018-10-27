@@ -1,0 +1,225 @@
+package com.yier.platform.service;
+
+import com.alibaba.fastjson.JSONObject;
+import com.yier.platform.TestBase;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Pharmacist;
+import com.yier.platform.common.model.PharmacistPo;
+import com.yier.platform.common.model.PharmacistTitle;
+import com.yier.platform.common.requestParam.PharmacistRequest;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.apache.http.entity.ContentType;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
+
+@ApiModel(value = "药师相关的请求接口测试类")
+public class PharmacistServiceTest extends TestBase {
+    private static final Logger logger = LoggerFactory.getLogger(PharmacistServiceTest.class);
+
+    @Autowired
+    private PharmacistService pharmacistService;
+
+    @ApiOperation(value = "获取药师信息列表")
+    @Test
+    public void getPharmacistList() {
+        PharmacistRequest params = new PharmacistRequest();
+        params.doWithSortOrStart();
+        logger.info("获取药师信息列表, 目前分页条件如下：" + params.toJsonString());
+        ListResponse<PharmacistPo> res = new ListResponse<PharmacistPo>();
+        List<PharmacistPo> doctorList = pharmacistService.listPharmacistPo(params);
+        int doctorListCount = pharmacistService.listPharmacistCount(params);
+        res.setData(doctorList);
+        res.setTotal(doctorListCount);
+        logger.info("获取药师信息列表, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "通过id获取药师信息")
+    @Test
+    public void getPharmacistPoById() {
+        PharmacistRequest params = new PharmacistRequest();
+        params.setPharmacistId(500L);
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        logger.info("通过id获取药师信息，查询条件:{}", params);
+        PharmacistPo pharmacistPo = pharmacistService.getPharmacistPoById(params);
+        res.setData(pharmacistPo);
+        logger.info("通过id获取药师信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "新增药师信息")
+    @Test
+    public void insertPharmacist() {
+        String json = "{\"trueName\":\"测试1\",\"idCardNo\":\"130102199003073191\",\"doctorCardNo\":\"222\",\"phoneNumber\":\"11111111112\",\"hospitalId\":61,\"catalogId\":4,\"departmentId\":1,\"titleId\":0,\"field\":\"\",\"visit\":0,\"practicePoint\":\"\",\"birthday\":null,\"sex\":\"男\",\"chat\":\"1\",\"profile\":\"测试\",\"selectWorkTimeList\":null,\"doctorTitle\":\"\",\"practicePointList\":[],\"visitDisplay\":\"0\",\"hospitalDepartmentPo\":null,\"evaluationTypeList\":[],\"shareTitle\":\"分享标题\",\"shareSummary\":\"分享简介\",\"shareImageUrl\":\"http: //www.ccae.cc/upload/201801/1514960822.jpg\",\"shareUrl\":\"http: //www.ccae.cc/\",\"chatState\":\"\"}";
+        PharmacistPo record = JSONObject.parseObject(json, PharmacistPo.class);
+
+        String fileName1 = "F:\\pic\\1.jpg";
+        String fileName2 = "F:\\pic\\2.jpg";
+        String fileName3 = "F:\\pic\\3.jpg";
+        File file1 = new File(fileName1);
+        File file2 = new File(fileName2);
+        File file3 = new File(fileName3);
+
+        MultipartFile avatarPic = null;
+        MultipartFile photoPic = null;
+        MultipartFile idCardPic = null;
+        try {
+            FileInputStream fileInputStream1 = new FileInputStream(file1);
+            avatarPic = new MockMultipartFile(file1.getName(), file1.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream1);
+
+            FileInputStream fileInputStream2 = new FileInputStream(file2);
+            photoPic = new MockMultipartFile(file2.getName(), file2.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream2);
+
+            FileInputStream fileInputStream3 = new FileInputStream(file3);
+            idCardPic = new MockMultipartFile(file3.getName(), file3.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream3);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        logger.info("新增药师信息, 请求参数：{}", record);
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        PharmacistPo pharmacistPo = this.pharmacistService.insertPharmacistWithPic(record, avatarPic, photoPic, idCardPic, 8L);
+        res.setData(pharmacistPo);
+        logger.info("新增药师信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "更新药师信息")
+    @Test
+    public void updatePharmacist() {
+        String json = "{\"id\":500,\"trueName\":\"测试1\",\"idCardNo\":\"130102199003073191\",\"doctorCardNo\":\"222\",\"phoneNumber\":\"11111111112\",\"hospitalId\":11,\"catalogId\":1,\"departmentId\":11,\"pharmacyId\":126,\"titleId\":0,\"field\":\"\",\"visit\":0,\"practicePoint\":\"\",\"birthday\":null,\"sex\":\"男\",\"chat\":\"1\",\"profile\":\"测试\",\"selectWorkTimeList\":null,\"doctorTitle\":\"\",\"practicePointList\":[],\"visitDisplay\":\"0\",\"hospitalDepartmentPo\":null,\"evaluationTypeList\":[],\"shareTitle\":\"分享标题\",\"shareSummary\":\"分享简介\",\"shareImageUrl\":\"http: //www.ccae.cc/upload/201801/1514960822.jpg\",\"shareUrl\":\"http: //www.ccae.cc/\",\"chatState\":\"\"}";
+        PharmacistPo record = JSONObject.parseObject(json, PharmacistPo.class);
+
+        String fileName1 = "F:\\pic\\1.jpg";
+        String fileName2 = "F:\\pic\\2.jpg";
+        String fileName3 = "F:\\pic\\3.jpg";
+        File file1 = new File(fileName1);
+        File file2 = new File(fileName2);
+        File file3 = new File(fileName3);
+
+        MultipartFile avatarPic = null;
+        MultipartFile photoPic = null;
+        MultipartFile idCardPic = null;
+        try {
+            FileInputStream fileInputStream1 = new FileInputStream(file1);
+            avatarPic = new MockMultipartFile(file1.getName(), file1.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream1);
+
+            FileInputStream fileInputStream2 = new FileInputStream(file2);
+            photoPic = new MockMultipartFile(file2.getName(), file2.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream2);
+
+            FileInputStream fileInputStream3 = new FileInputStream(file3);
+            idCardPic = new MockMultipartFile(file3.getName(), file3.getName(),
+                    ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream3);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        logger.info("更新药师信息, 请求参数参数：{}", record);
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        this.pharmacistService.updatePharmacistWithPic(record, avatarPic, photoPic, idCardPic, 8L);
+        res.setData(record);
+        logger.info("更新药师信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "启用/停用药师信息")
+    @Test
+    public void enableOrDisablePharmacist() {
+        String json = "{\"id\":500,\"status\":\"0\"}";
+        PharmacistPo record = JSONObject.parseObject(json, PharmacistPo.class);
+        logger.info("启用/停用药师信息, 请求参数参数：{}", record);
+        CommonResponse<PharmacistPo> res = new CommonResponse<PharmacistPo>();
+        this.pharmacistService.enableOrDisablePharmacist(record);
+        res.setData(record);
+        logger.info("启用/停用药师信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "删除药师信息")
+    @Test
+    public void deletePharmacist() {
+        String json = "{\"id\":500,\"status\":\"1\"}";
+        PharmacistPo record = JSONObject.parseObject(json, PharmacistPo.class);
+        logger.info("删除药师信息, 请求参数参数：{}", record);
+        CommonResponse<Pharmacist> res = new CommonResponse<Pharmacist>();
+        this.pharmacistService.deletePharmacist(record, 2L);
+        res.setData(record);
+        logger.info("删除药师信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "通过条件查询获取药师职称信息列表")
+    @Test
+    public void getPharmacistTitleList() {
+        PharmacistRequest params = new PharmacistRequest();
+        params.doWithSortOrStart();
+        logger.info("通过条件查询获取药师职称信息列表, 目前分页条件如下：" + params.toJsonString());
+        ListResponse<PharmacistTitle> res = new ListResponse<PharmacistTitle>();
+        List<PharmacistTitle> list = this.pharmacistService.listPharmacistTitle(params);
+        int count = this.pharmacistService.listPharmacistTitleCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        logger.info("通过条件查询获取药师职称信息列表, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "通过id查询获取药师职称信息")
+    @Test
+    public void getDoctorTitleById() {
+        CommonResponse<PharmacistTitle> res = new CommonResponse<PharmacistTitle>();
+        PharmacistTitle pharmacistTitle = this.pharmacistService.getPharmacistTitleById(1L);
+        res.setData(pharmacistTitle);
+        logger.info("通过id查询获取药师职称信息：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "通过id查询获取药师职称信息")
+    @Test
+    public void insertPharmacistTitle() {
+        String json = "{\"name\":\"初级药士\"}";
+        PharmacistTitle record = JSONObject.parseObject(json, PharmacistTitle.class);
+        logger.info("新增药师职称信息, 请求参数：{}", record);
+        CommonResponse<String> res = new CommonResponse<String>();
+        this.pharmacistService.insertPharmacistTitle(record);
+        res.setOtherInfo("新增成功");
+        res.setStatus(0);
+        logger.info("新增药师职称信息：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "修改药师职称信息")
+    @Test
+    public void updateDoctorTitle() {
+        String json = "{\"id\":1,\"name\":\"初级药士\"}";
+        PharmacistTitle record = JSONObject.parseObject(json, PharmacistTitle.class);
+        logger.info("修改药师职称信息, 请求参数：{}", record);
+        CommonResponse<PharmacistTitle> res = new CommonResponse<PharmacistTitle>();
+        this.pharmacistService.updatePharmacistTitle(record);
+        res.setData(record);
+        logger.info("修改药师职称信息：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "停用/启用药师职称信息")
+    @Test
+    public void enableOrDisablePharmacistTitle() {
+        String json = "{\"id\":1,\"status\":\"0\"}";
+        PharmacistTitle record = JSONObject.parseObject(json, PharmacistTitle.class);
+        logger.info("停用/启用药师职称信息, 请求参数：{}", record);
+        CommonResponse<PharmacistTitle> res = new CommonResponse<PharmacistTitle>();
+        this.pharmacistService.enableOrDisablePharmacistTitle(record);
+        res.setData(record);
+        logger.debug("停用/启用药师职称信息：{}", res.toJsonString());
+    }
+}

@@ -1,0 +1,10 @@
+package com.yier.platform.controller.feign;
+
+import cc.ccae.yry.service.drug.query.sdk.DrugClientApi;
+import org.springframework.cloud.openfeign.FeignClient;
+
+
+@FeignClient(name = "yry-service-drug-query", path = "/drug")
+public interface DrugClientFeign extends DrugClientApi {
+
+}

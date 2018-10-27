@@ -1,0 +1,36 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.MedicalOrder;
+import com.yier.platform.common.model.MedicalOrderPo;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface MedicalOrderMapper {
+    //通过条件（可能是多个的查询）可能批量更新列表
+    int updateBatchByCondition(MedicalOrder params);
+    // 根据条件查询列表
+    List<MedicalOrderPo> listMedicalOrderPo(MedicalOrderRequest params);
+    // 根据条件查询列表 总数
+    int listMedicalOrderPoCount(MedicalOrderRequest params);
+    // 根据ID Key 获取一个订单
+    MedicalOrder selectMedicalOrderByIdKey(MedicalOrderRequest params);
+    // 根据条件查询列表
+    List<MedicalOrder> listMedicalOrder(MedicalOrderRequest params);
+    // 根据条件查询列表 总数
+    int listMedicalOrderCount(MedicalOrderRequest params);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(MedicalOrder record);
+
+    int insertSelective(MedicalOrder record);
+
+    MedicalOrder selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(MedicalOrder record);
+
+    int updateByPrimaryKey(MedicalOrder record);
+}

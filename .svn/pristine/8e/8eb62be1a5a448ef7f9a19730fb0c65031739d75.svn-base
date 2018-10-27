@@ -1,0 +1,61 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * 区县信息
+ */
+public class Areas extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Integer id;
+
+    private String areaId;
+
+    private String area;
+
+    private String cityId;
+
+    public Areas(Integer id, String areaId, String area, String cityId) {
+        this.id = id;
+        this.areaId = areaId;
+        this.area = area;
+        this.cityId = cityId;
+    }
+
+    public Areas() {
+        super();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(String areaId) {
+        this.areaId = areaId;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+}

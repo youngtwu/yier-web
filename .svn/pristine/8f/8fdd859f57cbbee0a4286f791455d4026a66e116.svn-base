@@ -1,0 +1,80 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+import java.util.Date;
+
+public class RemindTime extends BaseJsonObject {
+    private Long id;
+
+    private Long remindId;
+
+    private Date remindTime;
+
+    private Integer idDeleted;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    public RemindTime(Long id, Long remindId, Date remindTime, Integer idDeleted, Date gmtCreate, Date gmtModified) {
+        this.id = id;
+        this.remindId = remindId;
+        this.remindTime = remindTime;
+        this.idDeleted = idDeleted;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+    }
+
+    public RemindTime() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getRemindId() {
+        return remindId;
+    }
+
+    public void setRemindId(Long remindId) {
+        this.remindId = remindId;
+    }
+
+    public Date getRemindTime() {
+        return remindTime;
+    }
+
+    public void setRemindTime(Date remindTime) {
+        this.remindTime = remindTime;
+    }
+
+    public Integer getIdDeleted() {
+        return idDeleted;
+    }
+
+    public void setIdDeleted(Integer idDeleted) {
+        this.idDeleted = idDeleted;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+}

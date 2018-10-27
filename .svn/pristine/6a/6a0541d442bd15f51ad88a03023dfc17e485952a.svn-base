@@ -1,0 +1,124 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+import java.util.Date;
+
+public class ChatState extends BaseJsonObject {
+    private Long id;
+
+    private String chatSpace;
+
+    private Long senderCount;
+
+    private Long receiverCount;
+
+    private Long lastId;
+
+    private String chat;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public ChatState(Long id, String chatSpace, Long senderCount, Long receiverCount, Long lastId, String chat, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.chatSpace = chatSpace;
+        this.senderCount = senderCount;
+        this.receiverCount = receiverCount;
+        this.lastId = lastId;
+        this.chat = chat;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public ChatState() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getChatSpace() {
+        return chatSpace;
+    }
+
+    public void setChatSpace(String chatSpace) {
+        this.chatSpace = chatSpace;
+    }
+
+    public Long getSenderCount() {
+        return senderCount;
+    }
+
+    public void setSenderCount(Long senderCount) {
+        this.senderCount = senderCount;
+    }
+
+    public Long getReceiverCount() {
+        return receiverCount;
+    }
+
+    public void setReceiverCount(Long receiverCount) {
+        this.receiverCount = receiverCount;
+    }
+
+    public Long getLastId() {
+        return lastId;
+    }
+
+    public void setLastId(Long lastId) {
+        this.lastId = lastId;
+    }
+
+    public String getChat() {
+        return chat;
+    }
+
+    public void setChat(String chat) {
+        this.chat = chat;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

@@ -1,0 +1,727 @@
+package com.yier.platform.service;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.po.IdCardClass;
+import com.yier.platform.common.requestParam.*;
+import com.yier.platform.common.rongYun.RongYunTokenResult;
+import com.yier.platform.common.typeEnum.EvaluationType;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.common.util.RandomUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.PharmacistEvaluationMapper;
+import com.yier.platform.dao.PharmacistMapper;
+import com.yier.platform.dao.PharmacistTitleMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 药师信息 service
+ */
+@ApiModel(value = "药师信息 service")
+@Service
+public class PharmacistService {
+    private static final Logger logger = LoggerFactory.getLogger(PharmacistService.class);
+    @Autowired
+    private PharmacistMapper daoPharmacistMapper;
+    @Autowired
+    private PharmacistEvaluationMapper daoPharmacistEvaluationMapper;
+    @Autowired
+    private RongCloudService serviceRongCloudService;
+    @Autowired
+    private Uploader uploader;
+    @Autowired
+    private SmsService smsService;
+    @Autowired
+    private ChatRecordService serviceChatRecordService;
+    @Autowired
+    private PharmacistTitleMapper daoPharmacistTitleMapper;
+    @Autowired
+    private JwtTokenService jwtTokenService;
+    @Autowired
+    private PracticePointTimeService practicePointTimeService;
+    @Autowired
+    private SignatureService signatureService;//签名方面的生成
+    @Autowired
+    private CommonService commonService;
+    @Autowired
+    private UserService serviceUserService;
+    @Autowired
+    private AuditInfoService auditInfoService;
+    @Autowired
+    private RedisService redisService;
+
+
+    @ApiOperation(value = "获取DB中所有的用户平台药师列表")
+    public List<Pharmacist> getListAllPlat() {
+        List<Pharmacist> listAllPlat =  redisService.getJsonObjectByKey(ConstantAll.REDIS_ALL_PLAT_PHARMACIST, new TypeReference<List<Pharmacist>>() {
+        });
+        if(listAllPlat==null || listAllPlat.size()==0){
+            PharmacistRequest params = new PharmacistRequest();
+            params.setPlatType(ConstantAll.PLAT_TYPE_1);
+            params.setStatus(ConstantAll.STATUS_0);
+            listAllPlat = this.listPharmacist(params);
+            redisService.setJsonObjectBy(ConstantAll.REDIS_ALL_PLAT_PHARMACIST,listAllPlat,12L,TimeUnit.HOURS);
+//            redisService.setJsonObjectBy(ConstantAll.REDIS_ALL_PLAT_PHARMACIST,listAllPlat,30L,TimeUnit.SECONDS);
+            logger.info("目前DB调用查询情况是：key-{} value：{}",ConstantAll.REDIS_ALL_PLAT_PHARMACIST,JsonUtils.toJsonString(listAllPlat));
+        }
+        return listAllPlat;
+    }
+    @ApiOperation(value = "更新数据库中DB中所有的平台药师列表")
+    public void updateListAllPlat(){
+        this.redisService.deleteRedisByKey(ConstantAll.REDIS_ALL_PLAT_PHARMACIST);
+    }
+
+    @ApiOperation(value = "获取DB中所有的审核药师列表")
+    public List<Pharmacist> getListAllCheck() {
+        List<Pharmacist> listAllCheck =  redisService.getJsonObjectByKey(ConstantAll.REDIS_ALL_CHECK_PHARMACIST, new TypeReference<List<Pharmacist>>() {
+        });
+        if(listAllCheck==null || listAllCheck.size()==0){
+            PharmacistRequest params = new PharmacistRequest();
+            params.setPlatType(ConstantAll.PLAT_TYPE_0);
+            params.setStatus(ConstantAll.STATUS_0);
+            listAllCheck = this.listPharmacist(params);
+            redisService.setJsonObjectBy(ConstantAll.REDIS_ALL_CHECK_PHARMACIST,listAllCheck,12L,TimeUnit.HOURS);
+//            redisService.setJsonObjectBy(ConstantAll.REDIS_ALL_CHECK_PHARMACIST,listAllCheck,30L,TimeUnit.SECONDS);
+            logger.info("目前DB调用查询情况是：key-{} value：{}",ConstantAll.REDIS_ALL_CHECK_PHARMACIST,JsonUtils.toJsonString(listAllCheck));
+        }
+        return listAllCheck;
+    }
+    @ApiOperation(value = "更新数据库中DB中所有的审核药师列表")
+    public void updateListAllCheck(){
+        this.redisService.deleteRedisByKey(ConstantAll.REDIS_ALL_CHECK_PHARMACIST);
+    }
+
+    @ApiOperation(value = "开通或关闭药师聊天设定对应的影响：推送，延迟，提醒等")
+    public String updateChatState(ChatStateRequest params) {
+        return serviceChatRecordService.updateChatState(params);
+    }
+
+    @ApiOperation(value = "根据条件查询评价携带药师职称列表")
+    public List<PharmacistTitle> listPharmacistTitle(BaseRequest params) {
+        return this.daoPharmacistTitleMapper.listPharmacistTitle(params);
+    }
+
+    @ApiOperation(value = "根据条件查询评价携带药师职称列表总数")
+    public int listPharmacistTitleCount(BaseRequest params) {
+        return this.daoPharmacistTitleMapper.listPharmacistTitleCount(params);
+    }
+
+    @ApiOperation(value = "根据条件Id查询评价药师及科室关联的医院及主分类信息")
+    public PharmacistEvaluationPo getPharmacistEvaluationPoWithPharmacistById(Long id) {
+        return daoPharmacistEvaluationMapper.getPharmacistEvaluationPoWithPharmacistById(id);
+    }
+
+
+    @ApiOperation(value = "根据条件患者或药师分组查询评价携带药师信息列表")
+    public List<PharmacistEvaluationPo> listEvaluationWithGroupPharmacistContent(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.listEvaluationWithGroupPharmacistContent(params);
+    }
+
+    @ApiOperation(value = "根据条件患者或药师分组查询评价携带药师信息列表总数")
+    public int listEvaluationWithGroupPharmacistContentCount(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.listEvaluationWithGroupPharmacistContentCount(params);
+    }
+
+    @ApiOperation(value = "根据条件查询评价携带药师信息列表")
+    public List<PharmacistEvaluationPo> listEvaluationWithPharmacistContent(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.listEvaluationWithPharmacistContent(params);
+    }
+
+    @ApiOperation(value = "根据条件查询评价携带药师信息列表总数")
+    public int listEvaluationWithPharmacistContentCount(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.listEvaluationWithPharmacistContentCount(params);
+    }
+
+    @ApiOperation(value = "根据条件查询评价列表")
+    public List<PharmacistEvaluationPo> listPharmacistEvaluationPo(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.listPharmacistEvaluationPo(params);
+    }
+
+    @ApiOperation(value = "根据条件查询评价列表总数")
+    public int listPharmacistEvaluationPoCount(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.listPharmacistEvaluationPoCount(params);
+    }
+
+    @ApiOperation(value = "获取包含医院科室信息患者关注执业点 的药师信息 ")
+    public PharmacistPo getPharmacistPoWithHospitalDepartmentAndEvaluationList(PharmacistRequest params) {
+        PharmacistPo result = this.getPharmacistPoById(params);//包含患者关注，医院科室信息，执业点信息
+        //和患者关联的信息不存在了 PharmacistPo result = daoPharmacistEvaluationMapper.getPharmacistPoById(params.getPharmacistId());//不存在getId
+        //PharmacistPo result = daoPharmacistMapper.getPharmacistPoById(params.getId());
+        Assert.isTrue(result != null, "不存在该药师");
+        if (StringUtils.equals("list", params.getPath())) {
+            PharmacistRequest paramsDE = new PharmacistRequest();
+            paramsDE.setPharmacistId(result.getId());
+            paramsDE.setStatus("0");
+            String evaluations = daoPharmacistEvaluationMapper.getPharmacistEvaluationList(paramsDE);
+            if (evaluations == null) {
+                evaluations = "";//如果为空的话返回个空数据
+                logger.info("评价描述:{}", params.toJsonString());
+            }
+            List<String> evaluationsList = Arrays.asList(StringUtils.split(evaluations, ','));
+            long total = this.listPharmacistEvaluationPoCount(paramsDE);
+            List<MutableTriple<String, String, String>> list = Lists.newArrayList();
+            for (EvaluationType item : EvaluationType.values()) {
+                if (item.getType() == "-1") {
+                    continue;
+                }
+                long currentCount = evaluationsList.stream().filter(r -> r.equals(item.getType())).count();
+                if (currentCount > 0) {
+                    //total += currentCount;
+                    list.add(new MutableTriple(item.getType(), item.getDesc(), "" + currentCount));
+                }
+            }
+            list.add(0, new MutableTriple("", "全部", "" + total));
+            for (String item : evaluationsList) {
+                logger.info("------>" + item);
+            }
+            result.setEvaluationTypeList(list);
+        } else if (StringUtils.equals("insert", params.getPath())) {
+            List<MutableTriple<String, String, String>> list = Lists.newArrayList();
+            for (EvaluationType item : EvaluationType.values()) {
+                if (item.getType() == "-1") {
+                    continue;
+                }
+                list.add(new MutableTriple(item.getType(), item.getDesc(), "支持多选"));
+            }
+            result.setEvaluationTypeList(list);
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "获取药师评价列表")
+    public String getPharmacistEvaluationList(PharmacistRequest params) {
+        return daoPharmacistEvaluationMapper.getPharmacistEvaluationList(params);
+    }
+
+    @ApiOperation(value = "插入评价")
+    public int insertPharmacistEvaluation(PharmacistEvaluation record) {
+        Assert.isTrue(record.getDoctorId() != null && record.getDoctorId().longValue() > 0, "请传递正确的药师ID");
+        Assert.isTrue(record.getPatientId() != null && record.getPatientId().longValue() > 0, "请传递正确的患者ID");
+        Assert.isTrue(StringUtils.isNotBlank(record.getContent()), "请输入有效的反馈内容");
+        if (record.getTypeIds() != null) {
+            record.setTypeIds(record.getTypeIds().replaceAll(" ", ""));//过滤掉无效空格 输入内容如：1,2
+        }
+        return daoPharmacistEvaluationMapper.insertSelective(record);
+    }
+
+    @ApiOperation(value = "搜索对应的模糊名字")
+    public List<String> getSimilarNameList(BaseRequest params) {
+        return daoPharmacistMapper.getSimilarNameList(params);
+    }
+
+    // 根据条件查询列表
+    public List<PharmacistPo> listPharmacistPo(PharmacistRequest params) {
+        return daoPharmacistMapper.listPharmacistPo(params);
+    }
+
+    // 根据条件查询列表 总数
+    public int listPharmacistPoCount(PharmacistRequest params) {
+        return daoPharmacistMapper.listPharmacistPoCount(params);
+    }
+
+
+    // 根据条件查询列表
+    public List<Pharmacist> listPharmacist(PharmacistRequest params) {
+        return daoPharmacistMapper.listPharmacist(params);
+    }
+
+    // 根据条件查询列表 总数
+    public int listPharmacistCount(PharmacistRequest params) {
+        return daoPharmacistMapper.listPharmacistPoCount(params);
+    }
+
+
+    //根据IP获取药师详情信息
+    public PharmacistPo getPharmacistPoById(PharmacistRequest params) {
+        PharmacistPo p = daoPharmacistMapper.getPharmacistPoById(params);
+        Assert.isTrue(p != null, "不存在该药师");
+        PracticeRequest paramsPr = new PracticeRequest();
+        paramsPr.setTypeId(3L);
+        paramsPr.setDoctorId(p.getId());
+        List<PracticePointPo> listP = this.practicePointTimeService.listPracticePointPo(paramsPr);
+        if (listP != null) {
+            p.setPracticePointList(listP);
+        }
+        return p;
+    }
+
+    //根据IP获取药师详情信息
+    public Pharmacist selectByPrimaryKey(Long id) {
+        return daoPharmacistMapper.selectByPrimaryKey(id);
+    }
+
+    @ApiOperation(value = "修改用户头像或近照图片")
+    public Pharmacist adjustPharmacistInfo(MultipartFile file, Long id, String use) {
+        Assert.isTrue(file != null, "头像无效，请重新传递");
+        Pharmacist record = this.selectByPrimaryKey(id);
+        Assert.isTrue(record != null, "传递的ID无效，无法查询到对应的药师");
+        String url = uploader.upload(file);
+        if (StringUtils.equalsIgnoreCase("avatar", use)) {
+            logger.info("头像显示：{}", url);
+            record.setAvatarUrl(url);
+//            RongYunTokenResult ry = this.serviceRongCloudService.getToken(3L, record.getId(), record.getTrueName(), record.getAvatarUrl());
+//            if (ry == null) {
+//                Assert.isTrue(false, "获取第三方即时通讯工具token错误");
+//            } else {
+//                Assert.isTrue(ry.getCode() == 200, ry.getMsg());
+//            }
+//            record.setImtoken(ry.getToken());
+        } else {
+            record.setPhotoUrl(url);
+        }
+        record.setGmtModified(new Date());
+        this.updatePharmacistSelective(record);
+        PharmacistPo po = new PharmacistPo(record);
+        return po;
+    }
+
+    @ApiOperation(value = "通过身份证号，验证证件是否有效")
+    public List<Pharmacist> verifyIdCardNo(String idCardNo, String useType) {
+        Assert.isTrue(StringUtils.isNotBlank(idCardNo), "身份证号无效");
+        Assert.isTrue(idCardNo.trim().length() == 15 || idCardNo.trim().length() == 18, "身份证号长度无效");
+        PharmacistRequest params = new PharmacistRequest();
+        params.setIdCardNo(idCardNo);
+        List<Pharmacist> list = this.listPharmacist(params);
+        if (list.size() > 1) {
+            Assert.isTrue(false, "重复存在该用户，请联系管理员处理");
+        }
+        if (StringUtils.equals("0", useType)) {
+            if (list.size() == 1) {
+                Assert.isTrue(false, "该身份证号码已经注册，无法重新绑定");//系统存在该用户，无法注册
+            }
+        } else if (StringUtils.equals("1", useType)) {
+            if (list.size() == 0) {
+                Assert.isTrue(false, "该身份证对应的用户不存在");
+            }
+        }
+        return list;
+    }
+
+    @ApiOperation(value = "通过使用类型，验证手机号码是否有效")
+    public List<PharmacistPo> verifyPhoneNumber(String phoneNumber, String useType) {
+        Assert.isTrue(Utils.isValidMobileNumber(phoneNumber), "手机号格式错误");
+        PharmacistRequest params = new PharmacistRequest();
+        params.setPhoneNumber(phoneNumber);
+        List<PharmacistPo> list = this.listPharmacistPo(params);
+        if (list.size() > 1) {
+            Assert.isTrue(false, "重复存在该用户，请联系管理员处理");
+        }
+        if (StringUtils.equals("0", useType)) {
+            if (list.size() == 1) {
+                Assert.isTrue(false, "该手机号码已经存在，无法重新绑定");//系统存在该用户，无法注册
+            }
+        } else if (StringUtils.equals("1", useType)) {
+            if (list.size() == 0) {
+                Assert.isTrue(false, "该手机用户不存在");
+            }
+        }
+        return list;
+    }
+
+    @ApiOperation(value = "新增对应条目入库，并思考附加及特殊字段，默认处理医师的执业点")
+    @Transactional
+    public PharmacistPo insertPharmacistSelective(Pharmacist record, String osType) {
+        Assert.isTrue(Utils.isValidMobileNumber(record.getPhoneNumber()), "手机号格式错误");
+        Assert.isTrue(StringUtils.isNotBlank(record.getPassHash()), "用户密码无效");
+        Assert.isTrue(record.getPassHash().length() > 2 && record.getPassHash().length() < 17, "密码长度无效");
+        this.verifyPhoneNumber(record.getPhoneNumber(), "0");
+        //临时去掉
+        this.verifyIdCardNo(record.getIdCardNo(), "0");
+        //保证必须进行实名认证
+        Assert.isTrue(StringUtils.isNotBlank(record.getTrueName()), "没有输入真实姓名");
+        String randomSalt = RandomUtils.randomAlphanumeric(8);//随机字母及数字
+        record.setPassSalt(randomSalt);//加盐数不加密，反向解密比较麻烦
+        record.setPassHash(Utils.aesEncrypt(record.getPassHash(), randomSalt));
+        IdCardClass idCardClass = this.commonService.getIdCardClass(record.getIdCardNo());
+        String sex = idCardClass.getResult().getSex();
+        String area = idCardClass.getResult().getArea();
+        String birthday = idCardClass.getResult().getBirthday();
+        Date birthdayDate = Utils.parseDate(birthday, "yyyy年MM月dd日");
+
+        record.setSex(sex);
+        record.setRemarks(area);
+        record.setBirthday(birthdayDate);
+        if (record.getProfile() == null) {
+            record.setProfile("");
+            logger.info("设定个空值插入：{}------>Field 'profile' doesn't have a default value", record.getProfile());
+        }
+        logger.info(record.toJsonString());
+        this.daoPharmacistMapper.insertSelective(record);
+        updateImtoken(record, true);
+        PharmacistPo model = new PharmacistPo(record);//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        model.setToken(this.jwtTokenService.createToken("3", model.getId().toString(), osType, model.getPhoneNumber()));
+        model.setNonce(RandomUtils.randomNumeric(4));
+        model.setAppKey(this.signatureService.getAppKeyBy(3L, model.getNonce()));
+        model.setTimestamp(this.signatureService.getTimestamp());
+        model.setSignature(this.signatureService.getSign(model.getAppKey(), model.getNonce(), model.getTimestamp()));
+        DoctorPracticePoint doctorPracticePoint = new DoctorPracticePoint();
+        doctorPracticePoint.setHospitalId(model.getHospitalId());
+        doctorPracticePoint.setCatalogId(model.getCatalogId());
+        doctorPracticePoint.setDepartmentId(model.getDepartmentId());
+        doctorPracticePoint.setDefaultPoint("1");
+        doctorPracticePoint.setTypeId(3L);
+        doctorPracticePoint.setDoctorId(model.getId());
+        doctorPracticePoint.setSelectWorkTimeList(record.getSelectWorkTimeList());
+        this.practicePointTimeService.insertPracticePoint(doctorPracticePoint, true);//创建时的执业地点及工作时间分配
+        return model;
+    }
+
+    @ApiOperation(value = "如果没有token，将会获取token,isNeedToken 表示必须获取")
+    public String updateImtoken(Pharmacist record, boolean isNeedToken) {
+        String token = null;
+        if (StringUtils.isBlank(record.getImtoken()) || isNeedToken) {
+            RongYunTokenResult ry = this.serviceRongCloudService.getToken(3L, record.getId(), record.getTrueName(), record.getAvatarUrl());
+            if (ry == null) {
+                Assert.isTrue(false, "获取第三方即时通讯工具token错误");
+            } else {
+                Assert.isTrue(ry.getCode() == 200, ry.getMsg());
+            }
+            record.setImtoken(ry.getToken());
+            record.setGmtModified(new Date());
+            this.updatePharmacistSelective(record);
+            token = record.getImtoken();
+        }
+        return token;
+    }
+
+    @ApiOperation(value = "验证手机号码跟验证码是否正确，然后直接更新手机号码")
+    public Pharmacist updatePhoneNumberByVerifyCodeId(String phoneNumber, String verifyCode, long id) {
+        smsService.checkCode(phoneNumber, 3L, verifyCode);//验证码验证
+        this.verifyPhoneNumber(phoneNumber, "0");//保证手机没有被使用
+        Pharmacist record = new Pharmacist();
+        record.setId(id);
+        record.setPhoneNumber(phoneNumber);
+        record.setGmtModified(new Date());
+        record.setRemarks("用户更换手机号码");
+        this.updatePharmacistSelective(record);
+        return record;
+    }
+
+    @ApiOperation(value = "用户通过Id进行调整信息的任何修改接口")
+    public Pharmacist updatePasswordById(String passwordOld, String password, long id) {
+        Assert.isTrue(StringUtils.isNotBlank(passwordOld), "请输入旧的密码");
+        Assert.isTrue(StringUtils.isNotBlank(password) && password.length() > 5 && password.length() < 17, "新登录密码长度无效");
+        Pharmacist record = this.selectByPrimaryKey(id);
+        Assert.isTrue(record != null, "指定用户Id没有找到对应的用户");
+        Assert.isTrue(StringUtils.equals(record.getPassHash(), Utils.aesEncrypt(passwordOld, record.getPassSalt())), "原登录密码无效");
+        record.setPassHash(Utils.aesEncrypt(password, record.getPassSalt()));
+        record.setGmtModified(new Date());
+        record.setRemarks("用户修改密码");
+        this.updatePharmacistSelective(record);
+        record.thinkField();//完事后的思考及隐蔽
+        return record;
+    }
+
+    @ApiOperation(value = "用户通过Id进行调整信息的任何修改接口")
+    public int updateAnyInfoById(Pharmacist record) {
+        Pharmacist pharmacist = this.selectByPrimaryKey(record.getId());
+        Assert.isTrue(pharmacist != null, "指定用户Id没有找到对应的用户");
+        if (StringUtils.isNotBlank(record.getPassHash())) {
+            record.setPassHash(Utils.aesEncrypt(record.getPassHash(), pharmacist.getPassSalt()));// record.setPassword(DigestUtils.md5Hex(record.getPassword()));
+        }
+        return this.updatePharmacistSelective(record);
+    }
+
+    public int updatePharmacistSelective(Pharmacist record) {
+        return this.daoPharmacistMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @ApiOperation(value = "输入实名信息，获取对应的ID")
+    public Long getIdByTrueInfo(String phoneNumber, String trueName, String idCardNo) {
+        Assert.isTrue(Utils.isValidMobileNumber(phoneNumber), "手机号格式错误");
+        Assert.isTrue(StringUtils.isNotBlank(trueName), "真实名字有误");
+        Assert.isTrue(idCardNo.trim().length() == 15 || idCardNo.trim().length() == 18, "身份证号长度无效");
+        PharmacistRequest params = new PharmacistRequest();
+        params.setPhoneNumber(phoneNumber);
+        params.setTrueName(trueName);
+        params.setIdCardNo(idCardNo);
+        List<Pharmacist> list = this.listPharmacist(params);
+        Assert.isTrue(list.size() == 1, "该用户并不合法存在");
+        return list.get(0).getId();
+    }
+
+    public PharmacistPo loginByVerifyCode(PharmacistRequest params, String verifyCode, String osType) {
+        List<PharmacistPo> list = this.verifyPhoneNumber(params.getPhoneNumber(), "1");
+        PharmacistPo model = list.get(0);
+        smsService.checkCode(model.getPhoneNumber(), 3L, verifyCode);
+        ToolShareService.statusException(model.getStatus(), model.getId().toString());//验证状态是否异常
+        updateImtoken(model, false);
+        model.thinkField();//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        PracticeRequest paramsPr = new PracticeRequest();
+        paramsPr.setTypeId(3L);
+        paramsPr.setDoctorId(model.getId());
+        List<PracticePointPo> listP = this.practicePointTimeService.listPracticePointPo(paramsPr);
+        if (listP != null) {
+            model.setPracticePointList(listP);
+        }
+        model.setToken(this.jwtTokenService.createToken("3", model.getId().toString(), osType, model.getPhoneNumber()));
+        model.setNonce(RandomUtils.randomNumeric(4));
+        model.setAppKey(this.signatureService.getAppKeyBy(3L, model.getNonce()));
+        model.setTimestamp(this.signatureService.getTimestamp());
+        model.setSignature(this.signatureService.getSign(model.getAppKey(), model.getNonce(), model.getTimestamp()));
+        return model;
+    }
+
+    public PharmacistPo loginByPassword(PharmacistRequest params, String password, String osType, boolean onlyVerify) {
+        List<PharmacistPo> list = this.verifyPhoneNumber(params.getPhoneNumber(), "1");
+        PharmacistPo model = list.get(0);
+        Assert.isTrue(StringUtils.equals(Utils.aesEncrypt(password, model.getPassSalt()), model.getPassHash()), "密码无效，请重新输入");
+        ToolShareService.statusException(model.getStatus(), model.getId().toString());//验证状态是否异常
+        if (!onlyVerify) updateImtoken(model, false);
+        model.thinkField();//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        if (!onlyVerify) {
+            PracticeRequest paramsPr = new PracticeRequest();
+            paramsPr.setTypeId(3L);
+            paramsPr.setDoctorId(model.getId());
+            List<PracticePointPo> listP = this.practicePointTimeService.listPracticePointPo(paramsPr);
+            if (listP != null) {
+                model.setPracticePointList(listP);
+            }
+            model.setToken(this.jwtTokenService.createToken("3", model.getId().toString(), osType, model.getPhoneNumber()));
+            model.setNonce(RandomUtils.randomNumeric(4));
+            model.setAppKey(this.signatureService.getAppKeyBy(3L, model.getNonce()));
+            model.setTimestamp(this.signatureService.getTimestamp());
+            model.setSignature(this.signatureService.getSign(model.getAppKey(), model.getNonce(), model.getTimestamp()));
+        }
+        return model;
+    }
+
+    @ApiOperation(value = "修改用户手机号码，并上传审核图片")
+    public Pharmacist adjustRegisterInfo(MultipartFile file, Long id, String phoneNumber, String password, boolean check) {
+        Assert.isTrue(file != null, "上传审核图片无效");
+        Pharmacist record = this.selectByPrimaryKey(id);
+        Assert.isTrue(record != null, "传递的ID无效，无法查询到对应的药师");
+        if (StringUtils.isNotBlank(phoneNumber)) {
+            this.verifyPhoneNumber(phoneNumber, "0");//新的手机号码不存在才更新 实际类似于库中无0
+            record.setPhoneNumber(phoneNumber);
+        }
+        if (StringUtils.isNotBlank(password)) {
+            record.setPassHash(Utils.aesEncrypt(password, record.getPassSalt()));
+        }
+        String url = uploader.upload(file);
+        record.setCheckUrl(url);
+        record.setGmtModified(new Date());
+        if (check) {
+            record.setStatus("A");//状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交
+        }
+        this.updatePharmacistSelective(record);
+        PharmacistPo modelPo = new PharmacistPo(record);
+        return modelPo;
+    }
+
+    @ApiOperation(value = "后台管理系统新增药师信息")
+    @Transactional
+    public PharmacistPo insertPharmacistWithPic(PharmacistPo record, MultipartFile avatarPic, MultipartFile photoPic, MultipartFile idCardPic, Long userId) {
+        String avatarPicImagesUrl = "";
+        String photoPicImagesUrl = "";
+        String idCardPicImagesUrl = "";
+        if (avatarPic != null) {
+            avatarPicImagesUrl = this.uploader.upload(avatarPic);//上传头像图片到服务器
+        }
+        if (photoPic != null) {
+            photoPicImagesUrl = this.uploader.upload(photoPic);//上传近照图片到服务器
+        }
+        if (idCardPic != null) {
+            idCardPicImagesUrl = this.uploader.upload(idCardPic);//上传手持身份证图片到服务器
+        }
+
+        //添加医生基本信息
+        Assert.isTrue(Utils.isValidMobileNumber(record.getPhoneNumber()), "手机号格式错误");
+        this.verifyPhoneNumber(record.getPhoneNumber(), "0");
+        //临时去掉
+        this.verifyIdCardNo(record.getIdCardNo(), "0");
+        //保证必须进行实名认证
+        Assert.isTrue(StringUtils.isNotBlank(record.getTrueName()), "没有输入真实姓名");
+        IdCardClass idCardClass = this.commonService.getIdCardClass(record.getIdCardNo());
+        String sex = idCardClass.getResult().getSex();
+        String area = idCardClass.getResult().getArea();
+        String birthday = idCardClass.getResult().getBirthday();
+        Date birthdayDate = Utils.parseDate(birthday, "yyyy年MM月dd日");
+        record.setSex(sex);
+        record.setRemarks(area);
+        record.setBirthday(birthdayDate);
+
+        if (record.getProfile() == null) {
+            record.setProfile("");
+            logger.info("设定个空值插入：{}------>Field 'profile' doesn't have a default value", record.getProfile());
+        }
+        record.setAvatarUrl(avatarPicImagesUrl);
+        record.setPhotoUrl(photoPicImagesUrl);
+        record.setCheckUrl(idCardPicImagesUrl);
+        logger.info("目前传递的药师数据是：{}", record.toJsonString());
+        this.insertSelective(record);
+        PharmacistPo model = new PharmacistPo(record);//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        DoctorPracticePoint doctorPracticePoint = new DoctorPracticePoint();
+        doctorPracticePoint.setHospitalId(model.getHospitalId());
+        doctorPracticePoint.setCatalogId(model.getCatalogId());
+        doctorPracticePoint.setDepartmentId(model.getDepartmentId());
+        doctorPracticePoint.setDefaultPoint("1");
+        doctorPracticePoint.setTypeId(2L);
+        doctorPracticePoint.setDoctorId(model.getId());
+        doctorPracticePoint.setSelectWorkTimeList(record.getSelectWorkTimeList());
+        this.practicePointTimeService.insertPracticePoint(doctorPracticePoint, true);//创建时的执业地点及工作时间分配
+
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setAuditType(3);
+        auditInfo.setTableId(model.getId());
+        auditInfo.setOperate("A");
+        auditInfo.setRemarks(model.getRemarks());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.auditInfoService.insertAuditInfo(auditInfo);//新增审核信息表
+        return model;
+    }
+
+    @ApiOperation(value = "后台管理系统更新药师信息")
+    @Transactional
+    public PharmacistPo updatePharmacistWithPic(PharmacistPo record, MultipartFile avatarPic, MultipartFile photoPic, MultipartFile idCardPic, Long userId) {
+        String avatarPicImagesUrl = "";
+        String photoPicImagesUrl = "";
+        String idCardPicImagesUrl = "";
+        if (avatarPic != null) {
+            avatarPicImagesUrl = uploader.upload(avatarPic);//上传头像图片到服务器
+        }
+        if (photoPic != null) {
+            photoPicImagesUrl = uploader.upload(photoPic);//上传近照图片到服务器
+        }
+        if (idCardPic != null) {
+            idCardPicImagesUrl = uploader.upload(idCardPic);//上传手持身份证图片到服务器
+        }
+
+        //更新药师基本信息
+        Assert.isTrue(Utils.isValidMobileNumber(record.getPhoneNumber()), "手机号格式错误");
+        this.verifyPhoneNumber(record.getPhoneNumber(), "0");
+        //临时去掉
+        this.verifyIdCardNo(record.getIdCardNo(), "0");
+        //保证必须进行实名认证
+        Assert.isTrue(StringUtils.isNotBlank(record.getTrueName()), "没有输入真实姓名");
+        IdCardClass idCardClass = this.commonService.getIdCardClass(record.getIdCardNo());
+        String sex = idCardClass.getResult().getSex();
+        String area = idCardClass.getResult().getArea();
+        String birthday = idCardClass.getResult().getBirthday();
+        Date birthdayDate = Utils.parseDate(birthday, "yyyy年MM月dd日");
+        record.setSex(sex);
+        record.setRemarks(area);
+        record.setBirthday(birthdayDate);
+
+        if (record.getProfile() == null) {
+            record.setProfile("");
+            logger.info("设定个空值插入：{}------>Field 'profile' doesn't have a default value", record.getProfile());
+        }
+        record.setAvatarUrl(avatarPicImagesUrl);
+        record.setPhotoUrl(photoPicImagesUrl);
+        record.setCheckUrl(idCardPicImagesUrl);
+        record.setGmtModified(new Date());
+        logger.info("目前传递的药师数据是：{}", record.toJsonString());
+        this.updateByPrimaryKeySelective(record);
+        PharmacistPo model = new PharmacistPo(record);//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        DoctorPracticePoint doctorPracticePoint = new DoctorPracticePoint();
+        doctorPracticePoint.setHospitalId(model.getHospitalId());
+        doctorPracticePoint.setCatalogId(model.getCatalogId());
+        doctorPracticePoint.setDepartmentId(model.getDepartmentId());
+        doctorPracticePoint.setDefaultPoint("1");
+        doctorPracticePoint.setTypeId(2L);
+        doctorPracticePoint.setDoctorId(model.getId());
+        doctorPracticePoint.setSelectWorkTimeList(record.getSelectWorkTimeList());
+        doctorPracticePoint.setGmtModified(new Date());
+        this.practicePointTimeService.updatePracticePoint(doctorPracticePoint);//创建时的执业地点及工作时间分配
+
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setAuditType(3);
+        auditInfo.setTableId(model.getId());
+        auditInfo.setOperate("A");
+        auditInfo.setRemarks(model.getRemarks());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.auditInfoService.insertAuditInfo(auditInfo);//新增审核信息表
+        return model;
+    }
+
+    @ApiOperation(value = "后台管理系统启用/停用药师信息")
+    public Long enableOrDisablePharmacist(Pharmacist record) {
+        logger.info("目前传递的医生数据是：{}", record.toJsonString());
+        //启用/停用药师
+        record.setGmtModified(new Date());
+        this.updateByPrimaryKeySelective(record);
+        return record.getId();
+    }
+
+    @ApiOperation(value = "后台管理系统删除药师信息")
+    @Transactional
+    public Long deletePharmacist(Pharmacist record, Long typeId) {
+        logger.info("目前传递的药师数据是：{}", record.toJsonString());
+        //删除药师对应执业点信息和执业时间信息
+        PracticeRequest params = new PracticeRequest();
+        params.setDoctorId(record.getId());
+        params.setTypeId(typeId);
+        this.practicePointTimeService.deletePracticePointByDoctorId(params);
+        //删除医生信息 逻辑删除
+        record.setStatus("1");
+        record.setGmtModified(new Date());
+        this.updateByPrimaryKeySelective(record);
+        return record.getId();
+    }
+
+    @ApiOperation(value = "根据条件查询评价携带药师职称列表总数")
+    public PharmacistTitle getPharmacistTitleById(Long pharmacistTitleId) {
+        logger.info("目前传递的药师职称信息是：{}", pharmacistTitleId);
+        return this.daoPharmacistTitleMapper.selectByPrimaryKey(pharmacistTitleId);
+    }
+
+    @ApiOperation(value = "新增药师职称信息")
+    public int insertPharmacistTitle(PharmacistTitle record) {
+        logger.info("目前传递的药师职称信息是：{}", record.toJsonString());
+        return this.daoPharmacistTitleMapper.insertSelective(record);
+    }
+
+    @ApiOperation(value = "修改药师职称信息")
+    public int updatePharmacistTitle(PharmacistTitle record) {
+        logger.info("目前传递的药师职称信息是：{}", record.toJsonString());
+        record.setGmtModified(new Date());
+        return this.daoPharmacistTitleMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @ApiOperation(value = "停用/启用药师职称信息")
+    public int enableOrDisablePharmacistTitle(PharmacistTitle record) {
+        logger.info("目前传递的药师职称信息是：{}", record.toJsonString());
+        record.setGmtModified(new Date());
+        return this.daoPharmacistTitleMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @ApiOperation(value = "新增药师职称信息")
+    public int insertSelective(Pharmacist record) {
+        logger.info("目前传递的药师职称信息是：{}", record.toJsonString());
+        record.setGmtModified(new Date());
+        return this.daoPharmacistMapper.insertSelective(record);
+    }
+
+    @ApiOperation(value = "更新药师职称信息")
+    public int updateByPrimaryKeySelective(Pharmacist record) {
+        logger.info("目前传递的药师职称信息是：{}", record.toJsonString());
+        record.setGmtModified(new Date());
+        return this.daoPharmacistMapper.updateByPrimaryKeySelective(record);
+    }
+}

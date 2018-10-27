@@ -1,0 +1,48 @@
+package com.yier.platform.common.model;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "医院科室信息扩展类")
+public class HospitalDepartmentPo extends HospitalDepartment {
+    @ApiModelProperty(value = "医院名称")
+    private String hospitalName = "";
+    @ApiModelProperty(value = "医院地址")
+    private String hospitalAddress = "";
+    @ApiModelProperty(value = "科室名称")
+    private String catalogName ="";
+    @ApiModelProperty(value = "医院的等级信息")
+    private String levelInfo = "";
+
+    public String getLevelInfo() {
+        return levelInfo;
+    }
+
+    public void setLevelInfo(String levelInfo) {
+        this.levelInfo = levelInfo;
+    }
+
+    public String getHospitalName() {
+        return hospitalName;
+    }
+
+    public void setHospitalName(String hospitalName) {
+        this.hospitalName = hospitalName;
+    }
+
+    public String getHospitalAddress() {
+        return hospitalAddress;
+    }
+
+    public void setHospitalAddress(String hospitalAddress) {
+        this.hospitalAddress = hospitalAddress;
+    }
+
+    public String getCatalogName() {
+        return catalogName;
+    }
+
+    public void setCatalogName(String catalogName) {
+        this.catalogName = catalogName;
+    }
+}

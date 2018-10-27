@@ -1,0 +1,256 @@
+package com.yier.platform.service;
+
+import com.google.common.collect.Lists;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.MessagesRequest;
+import com.yier.platform.dao.MessageUserMapper;
+import com.yier.platform.dao.MessagesMapper;
+import com.yier.platform.dao.MessagesPersonMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * 消息公告信息 service
+ */
+@ApiModel(value = "消息公告信息 service")
+@Service
+public class MessageService {
+    private static final Logger logger = LoggerFactory.getLogger(MessageService.class);
+    @Autowired
+    private MessageUserMapper daoMessageUserMapper;
+    @Autowired
+    private MessagesPersonMapper daoMessagesPersonMapper;
+    @Autowired
+    private MessagesMapper messagesMapper;
+    @Autowired
+    private AuditInfoService auditInfoService;
+    @Autowired
+    private UserService serviceUserService;
+
+    //关联查询个人消息对应的信息列表
+    public List<MessagesPersonPo> listMessagesPersonsPo(MessagesRequest params) {
+        List<MessagesPersonPo> list = this.daoMessagesPersonMapper.listMessagesPersonsPo(params);
+        //目前调用此接口将会考虑批量更新
+        MessagesRequest updateRequest = new MessagesRequest();
+        updateRequest.setStatus("0");
+        updateRequest.setGradeList(Lists.newArrayList());
+        for (MessagesPersonPo item : list) {
+            if (item.getGrade() != null && item.getGrade() == 2) {
+                updateRequest.getGradeList().add(item.getId());
+            }
+        }
+        if (updateRequest.getGradeList().size() > 0) {
+            logger.info("批量更新个人消息的条件是：{}", updateRequest.toJsonString());
+            this.updateMessagesPersonReadBatch(updateRequest);
+        }
+        return list;
+    }
+
+    public int updateMessagesPersonReadBatch(MessagesRequest params) {
+        return this.daoMessagesPersonMapper.updateMessagesPersonReadBatch(params);
+    }
+
+    @ApiOperation(value = "调整个人信息")
+    @Transactional
+    public int adjustMessagesPerson(MessagesPerson record) {
+        Assert.isTrue(record.getUserId() != null && record.getUserId().longValue() > 0, "请传递正确的用户ID");
+        Assert.isTrue(record.getTypeId() != null && record.getTypeId().longValue() > 0, "请传递正确的用户端口");
+        Assert.isTrue(record.getGrade() != null, "请传递正确的修改等级");
+        int result = 0;
+        if (record.getMessageIdList() != null && record.getMessageIdList().size() > 0) {
+            result = this.daoMessagesPersonMapper.deleteMessagesPersonBatch(record);
+        } else {
+            Assert.isTrue(record.getId() != null && record.getId().longValue() > 0, "请传递正确的个人消息ID");
+            result = this.daoMessagesPersonMapper.updateByPrimaryKeySelective(record);
+        }
+        return result;//插入条新的条目
+    }
+
+    //关联查询个人消息对应的信息列表 总数
+    public int listMessagesPersonPoCount(MessagesRequest params) {
+        return this.daoMessagesPersonMapper.listMessagesPersonPoCount(params);
+    }
+
+    //根据推送批量插入对应的个人信息
+    public int insertMessagesPersonByList(String title, String message, List<String> listPushUserId) {
+        int result = 0;
+        for (String pushUserId : listPushUserId) {
+            MessagesPerson record = new MessagesPerson();
+            record.setTitle(title);
+            record.setContent(message);
+            record.setGrade(2L);//没有查看详情
+            if (pushUserId.contains("patient")) {
+                record.setTypeId(1L);
+                Long id = Long.parseLong(pushUserId.replace("patient", ""));
+                record.setUserId(id);
+            } else if (pushUserId.contains("doctor")) {
+                record.setTypeId(2L);
+                Long id = Long.parseLong(pushUserId.replace("doctor", ""));
+                record.setUserId(id);
+            } else if (pushUserId.contains("pharmacist")) {
+                record.setTypeId(3L);
+                Long id = Long.parseLong(pushUserId.replace("pharmacist", ""));
+                record.setUserId(id);
+            } else if (pushUserId.contains("user")) {
+                record.setTypeId(4L);
+                Long id = Long.parseLong(pushUserId.replace("user", ""));
+                record.setUserId(id);
+            }
+            this.daoMessagesPersonMapper.insertSelective(record);
+        }
+
+        return result;
+    }
+
+    @ApiOperation(value = "关联查询对应的信息列表")
+    public List<MessagesPo> listMessagesPo(MessagesRequest params) {
+        List<MessagesPo> list = this.listMessagesPoByRequest(params);
+        //目前调用此接口将会考虑批量更新
+
+        for (MessagesPo item : list) {
+            if (item.getGrade() != null && item.getGrade() == 2) {
+                MessageUser record = new MessageUser();
+                record.setMessageId(item.getId());
+                record.setTypeId(item.getTypeId());
+                record.setUserId(params.getUserId());
+                record.setGrade(1L);
+                this.messageUserOperate(record);
+                logger.info("更新无详情的个人公告：{}", record);
+            }
+        }
+        return list;
+    }
+
+    @ApiOperation(value = "关联查询对应的信息列表 总数")
+    public int listMessagesPoCount(MessagesRequest params) {
+        return this.daoMessageUserMapper.listMessagesPoCount(params);
+    }
+
+    @ApiOperation(value = "关联查询对应的信息列表 总数")
+    public List<MessagesPo> listMessagesPoByRequest(MessagesRequest params) {
+        return this.daoMessageUserMapper.listMessagesPo(params);
+    }
+
+    @ApiOperation(value = "调整插入联合列表信息")
+    public int adjustMessageUser(MessageUser record) {
+        Assert.isTrue(record.getUserId() != null && record.getUserId().longValue() > 0, "请传递正确的用户ID");
+        Assert.isTrue(record.getTypeId() != null && record.getTypeId().longValue() > 0, "请传递正确的用户端口");
+        Assert.isTrue(record.getGrade() != null, "请传递正确的查看等级");
+        int result = 0;
+        if (record.getMessageIdList() != null && record.getMessageIdList().size() > 0) {
+            for (Long id : record.getMessageIdList()) {
+                record.setMessageId(id);
+                result += this.messageUserOperate(record);
+            }
+        } else {
+            Assert.isTrue(record.getMessageId() != null && record.getMessageId().longValue() > 0, "请传递正确的公告ID");
+            result = this.messageUserOperate(record);
+        }
+        return result;//插入条新的条目
+    }
+
+    @Transactional
+    public int messageUserOperate(MessageUser record) {
+        MessagesRequest params = new MessagesRequest();
+        params.setUserId(record.getUserId());
+        params.setMessageId(record.getMessageId());
+        params.setTypeId(record.getTypeId());
+        List<MessagesPo> list = this.daoMessageUserMapper.listMessageUser(params);//查询是否有对应的联合信息存在，目前DB保证唯一联合
+        if (list.size() > 0) {
+            this.daoMessageUserMapper.deleteMessageUserByUnique(params);//删除对应的联合信息
+        }
+        return this.daoMessageUserMapper.insertSelective(record);//插入条新的条目
+    }
+
+    @ApiOperation(value = "根据id查询公告消息")
+    public Messages selectByPrimaryKey(Long id) {
+        return this.messagesMapper.selectByPrimaryKey(id);
+    }
+
+    @ApiOperation(value = "根据id查询公告消息")
+    public MessagesPo getMessagesById(MessagesRequest params) {
+        Messages messages = this.selectByPrimaryKey(params.getMessageId());
+        MessagesPo messagesPo = null;
+        if(messages != null){
+            messagesPo = new MessagesPo(messages);
+        } else{
+            messagesPo = new MessagesPo();
+        }
+        return messagesPo;
+    }
+
+    @ApiOperation(value = "新增公告消息")
+    @Transactional
+    public int insertSelective(Messages messages) {
+        return this.messagesMapper.insertSelective(messages);//新增公告消息
+    }
+
+    @ApiOperation(value = "新增公告消息")
+    public MessagesPo insertMessages(Messages messages, Long userId) {
+        messages.setRemarks("新增公告消息");
+        this.insertSelective(messages);//新增公告消息
+
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setAuditType(4);
+        auditInfo.setTableId(messages.getId());
+        auditInfo.setOperate(messages.getStatus());
+        auditInfo.setRemarks(messages.getRemarks());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.auditInfoService.insertAuditInfo(auditInfo);//新增审核信息表
+        return new MessagesPo(messages);
+    }
+
+    @ApiOperation(value = "更新公告消息")
+    public MessagesPo updateMessages(Messages messages, Long userId) {
+        messages.setGmtModified(new Date());
+        messages.setRemarks("更新公告消息");
+        this.messagesMapper.updateByPrimaryKeySelective(messages);
+
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setAuditType(4);
+        auditInfo.setTableId(messages.getId());
+        auditInfo.setOperate(messages.getStatus());
+        auditInfo.setRemarks(messages.getRemarks());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.auditInfoService.insertAuditInfo(auditInfo);//新增审核信息表
+        return new MessagesPo(messages);
+    }
+
+    @ApiOperation(value = "更新公告消息")
+    public int updateByPrimaryKeySelective(Messages messages) {
+        return this.messagesMapper.updateByPrimaryKeySelective(messages);
+    }
+
+    @ApiOperation(value = "删除公告消息")
+    public int deleteByPrimaryKey(MessagesRequest params) {
+        return this.messagesMapper.deleteByPrimaryKey(params.getMessageId());
+    }
+
+    @ApiOperation(value = "启用/停用公告消息")
+    public int enableOrDisableMessages(Messages info) {
+        info.setGmtModified(new Date());
+        if (info.getStatus() != null && "0".equals(info.getStatus())) {
+            info.setRemarks("启用公告消息");
+        } else {
+            info.setRemarks("停用公告消息");
+        }
+        return this.updateByPrimaryKeySelective(info);
+    }
+}

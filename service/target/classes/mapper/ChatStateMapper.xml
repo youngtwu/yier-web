@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.ChatStateMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.ChatState">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="chat_space" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="sender_count" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="receiver_count" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="last_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="chat" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, chat_space, sender_count, receiver_count, last_id, chat, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listChatState" parameterType="com.yier.platform.common.requestParam.ChatStateRequest" resultMap="BaseResultMap">
+    select t.*  from t_chat_state t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (
+        t.`chat_space` like #{searchKey}
+        )
+      </if>
+      <if test="chatSpace != null">
+        and t.chat_space = #{chatSpace}
+      </if>
+      <if test="chat != null">
+        and t.chat = #{chat}
+      </if>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.last_id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listChatStateCount" parameterType="com.yier.platform.common.requestParam.ChatStateRequest" resultType="Integer">
+    select count(t.id) from t_chat_state t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (
+          t.`chat_space` like #{searchKey}
+        )
+      </if>
+      <if test="chatSpace != null">
+        and t.chat_space = #{chatSpace}
+      </if>
+      <if test="chat != null">
+        and t.chat = #{chat}
+      </if>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+    </where>
+  </select>
+
+
+  <update id="updateChatStateBatch"  parameterType="com.yier.platform.common.requestParam.ChatStateRequest">
+    update t_chat_state
+    <set>
+      <if test="chat != null">
+        chat = #{chat,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (
+          `chat_space` like #{searchKey}
+        )
+      </if>
+      <if test="chatSpace != null">
+        and chat_space = #{chatSpace}
+      </if>
+    </where>
+  </update>
+
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_chat_state
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_chat_state
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.ChatState">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_chat_state (chat_space, sender_count, receiver_count, 
+      last_id, chat, status, gmt_create, 
+      gmt_modified, remarks)
+    values (#{chatSpace,jdbcType=VARCHAR}, #{senderCount,jdbcType=BIGINT}, #{receiverCount,jdbcType=BIGINT}, 
+      #{lastId,jdbcType=BIGINT}, #{chat,jdbcType=CHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.ChatState">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_chat_state
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="chatSpace != null">
+        chat_space,
+      </if>
+      <if test="senderCount != null">
+        sender_count,
+      </if>
+      <if test="receiverCount != null">
+        receiver_count,
+      </if>
+      <if test="lastId != null">
+        last_id,
+      </if>
+      <if test="chat != null">
+        chat,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="chatSpace != null">
+        #{chatSpace,jdbcType=VARCHAR},
+      </if>
+      <if test="senderCount != null">
+        #{senderCount,jdbcType=BIGINT},
+      </if>
+      <if test="receiverCount != null">
+        #{receiverCount,jdbcType=BIGINT},
+      </if>
+      <if test="lastId != null">
+        #{lastId,jdbcType=BIGINT},
+      </if>
+      <if test="chat != null">
+        #{chat,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.ChatState">
+    update t_chat_state
+    <set>
+      <if test="chatSpace != null">
+        chat_space = #{chatSpace,jdbcType=VARCHAR},
+      </if>
+      <if test="senderCount != null">
+        sender_count = #{senderCount,jdbcType=BIGINT},
+      </if>
+      <if test="receiverCount != null">
+        receiver_count = #{receiverCount,jdbcType=BIGINT},
+      </if>
+      <if test="lastId != null">
+        last_id = #{lastId,jdbcType=BIGINT},
+      </if>
+      <if test="chat != null">
+        chat = #{chat,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.ChatState">
+    update t_chat_state
+    set chat_space = #{chatSpace,jdbcType=VARCHAR},
+      sender_count = #{senderCount,jdbcType=BIGINT},
+      receiver_count = #{receiverCount,jdbcType=BIGINT},
+      last_id = #{lastId,jdbcType=BIGINT},
+      chat = #{chat,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

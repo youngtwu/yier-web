@@ -1,0 +1,47 @@
+package com.yier.platform.service;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.yier.platform.common.model.Images;
+import com.yier.platform.common.requestParam.ImagesRequest;
+import com.yier.platform.dao.ImagesMapper;
+import io.swagger.annotations.ApiModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 图片展示信息 service
+ */
+@ApiModel(value = "图片展示信息 service")
+@Service
+public class ImagesService {
+    private static final Logger log = LoggerFactory.getLogger(ImagesService.class);
+    @Autowired
+    private ImagesMapper daoImagesMapper;
+    @Autowired
+    private RedisService redisService;
+
+    // 根据条件key查询列表
+    public List<Images> getRedisListImagesByKey(String key, ImagesRequest params){
+        List<Images> result = redisService.getJsonObjectByKey(key, new TypeReference<List<Images>>() {
+        });
+        if(result==null){
+            result = daoImagesMapper.listImages(params);
+            redisService.setJsonObjectBy(key,result,12L,TimeUnit.HOURS);
+        }
+        return result;
+    }
+
+    // 根据条件查询列表
+    public List<Images> listImages(ImagesRequest params){
+       return daoImagesMapper.listImages(params);
+    }
+    // 根据条件查询列表 总数
+    public int listImagesCount(ImagesRequest params){
+        return daoImagesMapper.listImagesCount(params);
+    }
+}

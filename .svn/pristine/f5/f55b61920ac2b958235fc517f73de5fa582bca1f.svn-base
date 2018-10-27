@@ -1,0 +1,29 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.Images;
+import com.yier.platform.common.requestParam.ImagesRequest;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ImagesMapper {
+    // 根据条件查询列表
+    List<Images> listImages(ImagesRequest params);
+    // 根据条件查询列表 总数
+    int listImagesCount(ImagesRequest params);
+
+
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(Images record);
+
+    int insertSelective(Images record);
+
+    Images selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(Images record);
+
+    int updateByPrimaryKey(Images record);
+}

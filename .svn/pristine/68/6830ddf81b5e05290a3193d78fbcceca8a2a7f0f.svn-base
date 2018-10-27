@@ -1,0 +1,89 @@
+package com.yier.platform.task;
+
+import com.google.common.collect.Lists;
+import com.yier.platform.common.requestParam.TaskScheduleRequest;
+import com.yier.platform.common.typeEnum.RefreshRedisFlag;
+import com.yier.platform.conf.CommonCfg;
+import com.yier.platform.service.ChatRecordService;
+import com.yier.platform.service.RedisService;
+import com.yier.platform.service.RefreshRedisCacheService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 用于定期将数据库中的数据更新到redis缓存中
+ */
+@Component  //是一个泛化的概念，仅仅表示一个组件 (Bean)
+public class RefreshRedisTask {
+    private static final Logger logger = LoggerFactory.getLogger(RefreshRedisTask.class);
+    @Autowired
+    private RefreshRedisCacheService refreshRedisCacheService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private CommonCfg commonCfg;
+    @Autowired
+    private ChatRecordService chatRecordService;
+
+    /**
+     * 6小时执行一次
+     */
+    @Scheduled(initialDelay = 5000, fixedRate = 6 * 60 * 60 * 1000) //初始化 延时5秒执行，每6小时执行一次
+    //@Scheduled(initialDelay = 5000, fixedRate = 1 * 20 * 1000)
+    public void updateRedisCache() {
+        logger.info(">>用于定期将数据库中的数据更新到redis缓存中");
+        this.refreshRedisCacheService.updateRedisCache(EnumSet.allOf(RefreshRedisFlag.class), 24, TimeUnit.HOURS);
+        //this.refreshRedisCacheService.updateRedisCache(EnumSet.allOf(RefreshRedisFlag.class),10,TimeUnit.SECONDS);
+        logger.info("<<用于定期将数据库中的数据更新到redis缓存中");
+    }
+
+    /**
+     * 6小时执行一次
+     */
+    @Scheduled(initialDelay = 6000, fixedRate = 6 * 60 * 60 * 1000) //初始化 延时5秒执行，每6小时执行一次
+    //@Scheduled(initialDelay = 5000, fixedRate = 1 * 20 * 1000)
+    public void deleteImageRedisCache() {
+        logger.info(">>用于定期将redis缓存中的数据清空，让数据库重新加载");
+        List<String> list = Lists.newArrayList();
+        for (int typeId = 1; typeId < 4; typeId++) {
+            list.add(StringUtils.join("getAppBannerInfo_ANDROID_", typeId));//安卓bannner图
+            list.add(StringUtils.join("getAppBannerInfo_IOS_", typeId));//IOS bannner图
+            list.add(StringUtils.join("getAppInfo_", typeId));//App 广告图
+        }
+        list.add("findDiseasesInitialAll_");//疾病首字母
+        list.add("findDiseasesAll_");//所有的有效疾病
+        for (String key : list) {
+            logger.info("目前的key:{} 在缓存中是否存在:{}", key, redisService.hasRedisKey(key));
+        }
+        Long result = redisService.deleteRedisByKeys(list);
+        logger.info("<<用于定期将redis缓存中的数据清空 共删除:{}", result);
+    }
+
+
+    /**
+     * 每1分钟执行一次，批量处理与医师的聊天批处理设置状态
+     */
+    @Scheduled(initialDelay = 1000, fixedRate = 60 * 1000) //初始化 延时5秒执行，每1分钟执行一次
+    //@Scheduled(initialDelay = 5000, fixedRate = 1 * 20 * 1000)
+    public void taskSchedule() {
+        logger.debug(">>批量处理与医师的聊天批处理设置状态");
+        TaskScheduleRequest params = new TaskScheduleRequest();
+        params.setTaskType(1L);//类型是1表示要考虑医生或药师聊天设置波及到的用户条目
+        params.setSchedule(new Date());
+        params.setStatus("0");
+        params.setConsiderAttach("目前时间达到区间值，就需要考虑");
+        int updateChatStateBatchCount = this.chatRecordService.scanningTaskSchedule(params);
+        if (updateChatStateBatchCount > 0) {
+            logger.info("<<用于批量处理与医师的聊天批处理设置状态，共影响到:{}", updateChatStateBatchCount);
+        }
+    }
+}

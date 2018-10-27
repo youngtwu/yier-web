@@ -1,0 +1,260 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "药房药库信息")
+public class Pharmacy extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Long id;
+    @ApiModelProperty(value = "药房统一编号")
+    private String pharmacyCodeNo;
+    @ApiModelProperty(value = "药房名称名称")
+    private String name;
+    @ApiModelProperty(value = "医院ID,关联t_hospital.id")
+    private Long hospitalId;
+    @ApiModelProperty(value = "医院统一编号")
+    private String hospitalCodeNo;
+    @ApiModelProperty(value = "医院名字 t_patient.name")
+    private String hospitalName;
+    @ApiModelProperty(value = "医院地址")
+    private String hospitalAddress;
+    @ApiModelProperty(value = "官网介绍")
+    private String webSite;
+    @ApiModelProperty(value = "省市ID。关联到t_provinces")
+    private String provinceId;
+    @ApiModelProperty(value = "城市ID。关联到t_cities")
+    private String cityId;
+    @ApiModelProperty(value = "区县ID。关联到t_areas")
+    private String areaId;
+    @ApiModelProperty(value = "医院地址")
+    private String address;
+    @ApiModelProperty(value = "联系电话")
+    private String contact;
+    @ApiModelProperty(value = "接诊量")
+    private Integer visit;
+    @ApiModelProperty(value = "经度")
+    private Double lng;
+    @ApiModelProperty(value = "纬度")
+    private Double lat;
+    @ApiModelProperty(value = "其他补充信息")
+    private String other;
+    @ApiModelProperty(value = "状态（0正常 1删除 2停用 3冻结）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "主键标识Id")
+    private String remarks;
+    @ApiModelProperty(value = "备注信息")
+    private String profile;
+
+    public Pharmacy(Long id, String pharmacyCodeNo, String name, Long hospitalId, String hospitalCodeNo, String hospitalName, String hospitalAddress, String webSite, String provinceId, String cityId, String areaId, String address, String contact, Integer visit, Double lng, Double lat, String other, String status, Date gmtCreate, Date gmtModified, String remarks, String profile) {
+        this.id = id;
+        this.pharmacyCodeNo = pharmacyCodeNo;
+        this.name = name;
+        this.hospitalId = hospitalId;
+        this.hospitalCodeNo = hospitalCodeNo;
+        this.hospitalName = hospitalName;
+        this.hospitalAddress = hospitalAddress;
+        this.webSite = webSite;
+        this.provinceId = provinceId;
+        this.cityId = cityId;
+        this.areaId = areaId;
+        this.address = address;
+        this.contact = contact;
+        this.visit = visit;
+        this.lng = lng;
+        this.lat = lat;
+        this.other = other;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+        this.profile = profile;
+    }
+
+    public Pharmacy() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPharmacyCodeNo() {
+        return pharmacyCodeNo;
+    }
+
+    public void setPharmacyCodeNo(String pharmacyCodeNo) {
+        this.pharmacyCodeNo = pharmacyCodeNo;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getHospitalId() {
+        return hospitalId;
+    }
+
+    public void setHospitalId(Long hospitalId) {
+        this.hospitalId = hospitalId;
+    }
+
+    public String getHospitalCodeNo() {
+        return hospitalCodeNo;
+    }
+
+    public void setHospitalCodeNo(String hospitalCodeNo) {
+        this.hospitalCodeNo = hospitalCodeNo;
+    }
+
+    public String getHospitalName() {
+        return hospitalName;
+    }
+
+    public void setHospitalName(String hospitalName) {
+        this.hospitalName = hospitalName;
+    }
+
+    public String getHospitalAddress() {
+        return hospitalAddress;
+    }
+
+    public void setHospitalAddress(String hospitalAddress) {
+        this.hospitalAddress = hospitalAddress;
+    }
+
+    public String getWebSite() {
+        return webSite;
+    }
+
+    public void setWebSite(String webSite) {
+        this.webSite = webSite;
+    }
+
+    public String getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(String provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+
+    public String getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(String areaId) {
+        this.areaId = areaId;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public Integer getVisit() {
+        return visit;
+    }
+
+    public void setVisit(Integer visit) {
+        this.visit = visit;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+}

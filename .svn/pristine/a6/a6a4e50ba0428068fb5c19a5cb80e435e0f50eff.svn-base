@@ -1,0 +1,857 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DoctorMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Doctor">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="true_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="avatar_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="id_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="phone_number" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pass_hash" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pass_salt" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="catalog_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="title_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="field" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="visit" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="practice_point" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="birthday" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="sex" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="chat" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="medical" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="medical_payment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="medical_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="check_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="photo_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="imtoken" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.yier.platform.common.model.Doctor">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="true_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="avatar_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="id_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="phone_number" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pass_hash" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pass_salt" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="catalog_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="title_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="field" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="visit" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="practice_point" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="birthday" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="sex" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="chat" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="medical" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="medical_payment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="medical_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="check_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="photo_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="imtoken" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="profile" javaType="java.lang.String" jdbcType="LONGVARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, true_name, avatar_url, id_card_no, doctor_card_no, phone_number, pass_hash, pass_salt, 
+    hospital_id, catalog_id, department_id, title_id, field, visit, practice_point, birthday, 
+    sex, chat, medical, medical_payment, medical_num, check_url, photo_url, imtoken, 
+    status, gmt_create, gmt_modified, remarks
+  </sql>
+  <sql id="Blob_Column_List">
+    profile
+  </sql>
+  
+  
+  
+  
+  
+
+
+
+
+  <!-- 定义医生数据库字段与实体对象的映射关系  -->
+  <resultMap type="com.yier.platform.common.model.DoctorPo" id="getDoctorPoByIdMap">
+    <id column="id" property="id" />
+    <result column="attentionTotal" property="attentionTotal" />
+    <result column="chat" property="chat" />
+    <result column="medical" property="medical" />
+    <result column="medical_payment" property="medicalPayment" />
+    <result column="medical_num" property="medicalNum" />
+      <result column="planTime" property="planTime" />
+      <result column="appointmentNum" property="appointmentNum" />
+    <result column="attention" property="attention" />
+    <result column="doctorTitle" property="doctorTitle" />
+    <result column="trueName" property="trueName" />
+    <result column="avatarUrl" property="avatarUrl" />
+    <result column="idCardNo" property="idCardNo" />
+    <result column="phoneNumber" property="phoneNumber" />
+    <result column="departmentId" property="departmentId" />
+    <result column="titleId" property="titleId" />
+    <result column="field" property="field" />
+    <result column="visit" property="visit" />
+    <result column="practicePoint" property="practicePoint" />
+    <result column="imtoken" property="imtoken" />
+    <result column="doctorCardNo" property="doctorCardNo" />
+    <result column="hospitalId" property="hospitalId" />
+    <result column="catalogId" property="catalogId" />
+    <result column="birthday" property="birthday" />
+    <result column="sex" property="sex" />
+    <result column="checkUrl" property="checkUrl" />
+    <result column="photoUrl" property="photoUrl" />
+    <result column="status" property="status" />
+    <result column="gmtCreate" property="gmtCreate" />
+    <result column="gmtModified" property="gmtModified" />
+    <result column="remarks" property="remarks" />
+    <!-- 一对一的关系 -->
+    <!-- property: 指的是属性的值, javaType：指的是元素的类型 -->
+    <!--<association property="hospitalDepartmentPo" column="departmentId" javaType="com.yier.platform.common.model.HospitalDepartmentPo"  select="getHospitalDepartmentPoForDoctorById"/>-->
+    <association property="hospitalDepartmentPo" column="catalogId" javaType="com.yier.platform.common.model.HospitalDepartmentPo"  select="getHospitalCatalogPoForDoctorById"/>
+  </resultMap>
+  <!-- 根据条件Id查询大科室关联的医院及主分类信息 -->
+  <select id="getHospitalCatalogPoForDoctorById" parameterType="java.lang.Long" resultType="com.yier.platform.common.model.HospitalDepartmentPo">
+    SELECT hl.`name` levelInfo, h.`name` hospitalName,h.address hospitalAddress,  t.`name` catalogName,0 id,'' name,t.hospital_id hospitalId,t.id catalogId,t.display_order displayOrder, t.flag, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_department_catalog t LEFT JOIN t_hospital h ON t.hospital_id = h.id LEFT JOIN t_hospital_level hl ON h.level_id = hl.id
+    where t.id = #{id,jdbcType=BIGINT}
+  </select>
+
+
+  <!-- 根据名字模糊查询对应的医生及医院名字列表 -->
+  <select id="getSimilarNameList" parameterType="com.yier.platform.common.requestParam.BaseRequest" resultType="String">
+    SELECT DISTINCT tt.searchName from (
+    SELECT t.true_name searchName from  t_doctor t where t.true_name LIKE concat('%',#{searchKey},'%')
+    UNION
+    SELECT h.`name` searchName from t_hospital h where h.`name` LIKE concat('%',#{searchKey},'%')
+    ) tt
+  </select>
+
+
+
+
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="listMedicalDoctorPo" parameterType="com.yier.platform.common.requestParam.DoctorRequest" resultMap="getDoctorPoByIdMap">
+        select dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+        t.sex, t.chat,t.medical, t.medical_payment, t.medical_num, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+        t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks,t.`profile`,md.appointmentNum,md.planTime
+        from t_doctor t LEFT JOIN t_doctor_title dt ON t.title_id = dt.id
+            INNER JOIN (
+            SELECT gmd.type_id,gmd.user_id, gmd.plan_time planTime,SUM(gmd.num - gmd.appointment - gmd.lock_num) appointmentNum from t_medical_date gmd
+            WHERE gmd.`status` = '0' and gmd.type_id = '2'
+                <if test="queryDate != null">
+                    and gmd.plan_time = #{queryDate}
+                </if>
+            GROUP BY gmd.type_id,gmd.user_id, gmd.plan_time ) md ON md.user_id = t.id and md.appointmentNum > 0
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( medical )">
+                and (
+                t.medical=#{medical}
+                )
+            </if>
+            <if test="hospitalId != null">
+                and t.hospital_id = #{hospitalId}
+            </if>
+            <if test="catalogId != null">
+                and t.catalog_id = #{catalogId}
+            </if>
+            <if test="hospitalDepartmentId != null">
+                and t.department_id = #{hospitalDepartmentId}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listMedicalDoctorPoCount" parameterType="com.yier.platform.common.requestParam.DoctorRequest" resultType="Integer">
+        select count(t.id)
+        from t_doctor t
+            INNER JOIN (
+            SELECT gmd.type_id,gmd.user_id, gmd.plan_time planTime,SUM(gmd.num - gmd.appointment - gmd.lock_num) appointmentNum from t_medical_date gmd
+            WHERE gmd.`status` = '0' and gmd.type_id = '2'
+            <if test="queryDate != null">
+                and gmd.plan_time = #{queryDate}
+            </if>
+            GROUP BY gmd.type_id,gmd.user_id, gmd.plan_time ) md ON md.user_id = t.id and md.appointmentNum > 0
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( medical )">
+                and (
+                t.medical=#{medical}
+                )
+            </if>
+            <if test="hospitalId != null">
+                and t.hospital_id = #{hospitalId}
+            </if>
+            <if test="catalogId != null">
+                and t.catalog_id = #{catalogId}
+            </if>
+            <if test="hospitalDepartmentId != null">
+                and t.department_id = #{hospitalDepartmentId}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDoctorPo" parameterType="com.yier.platform.common.requestParam.DoctorRequest" resultMap="getDoctorPoByIdMap">
+    select dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+    t.sex, t.chat,t.medical, t.medical_payment, t.medical_num, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks,t.`profile`
+    from t_doctor t LEFT JOIN t_doctor_title dt ON t.title_id = dt.id
+    LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',t.id)
+    <where>
+        <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chat )">
+          and (
+          t.chat=#{chat} or cs.chat=#{chat}
+          )
+        </if>
+        <if test="hospitalId != null">
+            and t.hospital_id = #{hospitalId}
+        </if>
+        <if test="catalogId != null">
+            and t.catalog_id = #{catalogId}
+        </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="phoneNumber != null">
+        and t.phone_number = #{phoneNumber}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDoctorPoCount" parameterType="com.yier.platform.common.requestParam.DoctorRequest" resultType="Integer">
+    select count(t.id) from t_doctor t LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',t.id)
+    <where>
+        <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chat )">
+          and (
+          t.chat=#{chat} or cs.chat=#{chat}
+          )
+        </if>
+        <if test="hospitalId != null">
+            and t.hospital_id = #{hospitalId}
+        </if>
+        <if test="catalogId != null">
+            and t.catalog_id = #{catalogId}
+        </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="phoneNumber != null">
+        and t.phone_number = #{phoneNumber}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+    <!-- 根据条件（患者信息）查询医生信息（患者关注信息attention） -->
+  <select id="getDoctorPoById" parameterType="com.yier.platform.common.requestParam.DoctorRequest"  resultMap="getDoctorPoByIdMap">
+    select IF(atotal.attention IS NULL,0,atotal.attention) attentionTotal, if(tc.chat IS NULL, t.chat , tc.chat) chat,if(aa.attention IS NULL, 0 , aa.attention) attention, dt.`name` doctorTitle ,t.medical, t.medical_payment, t.medical_num,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+    t.sex, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified,t.profile, t.remarks
+    from t_doctor t LEFT JOIN t_doctor_title dt ON t.title_id = dt.id  LEFT JOIN t_attention_user aa ON t.id = aa.attention_user_id and aa.attention_type_id = 2 and aa.type_id = 1
+    <if test="patientId != null">
+      and aa.user_id = #{patientId}
+    </if>
+    LEFT JOIN t_chat_state tc ON t.id = replace(tc.chat_space,concat('patient',#{patientId},'doctor'), '')
+    LEFT JOIN (
+    SELECT sum(atotalGroup.attention) attention,atotalGroup.attention_type_id ,atotalGroup.attention_user_id from t_attention_user atotalGroup
+    <where>
+      atotalGroup.attention_type_id = 2
+      <if test="doctorId != null">
+        and atotalGroup.attention_user_id = #{doctorId}
+      </if>
+    </where>
+    GROUP BY atotalGroup.attention_type_id ,atotalGroup.attention_user_id
+    ) atotal
+    ON atotal.attention_type_id = 2 AND atotal.attention_user_id = t.id
+    <where>
+      <if test="doctorId != null">
+        and t.id = #{doctorId}
+      </if>
+    </where>
+    limit 1
+  </select>
+
+  <!-- 根据条件获取医生对应医院,科室信息 -->
+  <select id="getDoctorHospitalPoById"  parameterType="java.lang.Long"  resultMap="getDoctorPoByIdMap">
+	select dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+    t.sex, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.practice_point practicePoint,t.medical, t.medical_payment, t.medical_num, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified,t.profile, t.remarks
+    from t_doctor t LEFT JOIN t_doctor_title dt ON t.title_id = dt.id
+    where t.id = #{id}
+  </select>
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDoctor" parameterType="com.yier.platform.common.requestParam.DoctorRequest" resultType="com.yier.platform.common.model.Doctor">
+    select t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,t.profile,
+    t.sex, t.chat,t.medical, t.medical_payment, t.medical_num, t.check_url checkUrl, t.photo_url photoUrl,t.imtoken,t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks from t_doctor t
+    <where>
+      <if test="doctorId != null">
+        and t.id = #{doctorId}
+      </if>
+        <if test="hospitalId != null">
+            and t.hospital_id = #{hospitalId}
+        </if>
+        <if test="catalogId != null">
+            and t.catalog_id = #{catalogId}
+        </if>
+        <if test="hospitalDepartmentId != null">
+            and t.department_id = #{hospitalDepartmentId}
+        </if>
+      <if test="trueName != null">
+        and t.true_name = #{trueName}
+      </if>
+      <if test="phoneNumber != null">
+        and t.phone_number = #{phoneNumber}
+      </if>
+      <if test="passHash != null">
+        and t.pass_hash = #{passHash}
+      </if>
+      <if test="passSalt != null">
+        and t.pass_salt = #{passSalt}
+      </if>
+      <if test="idCardNo != null">
+        and t.id_card_no = #{idCardNo}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDoctorCount" parameterType="com.yier.platform.common.requestParam.DoctorRequest" resultType="Integer">
+    select count(t.id) from t_doctor t
+    <where>
+      <if test="doctorId != null">
+        and t.id = #{doctorId}
+      </if>
+        <if test="hospitalId != null">
+            and t.hospital_id = #{hospitalId}
+        </if>
+        <if test="catalogId != null">
+            and t.catalog_id = #{catalogId}
+        </if>
+        <if test="hospitalDepartmentId != null">
+            and t.department_id = #{hospitalDepartmentId}
+        </if>
+      <if test="trueName != null">
+        and t.true_name = #{trueName}
+      </if>
+      <if test="phoneNumber != null">
+        and t.phone_number = #{phoneNumber}
+      </if>
+      <if test="passHash != null">
+        and t.pass_hash = #{passHash}
+      </if>
+      <if test="passSalt != null">
+        and t.pass_salt = #{passSalt}
+      </if>
+      <if test="idCardNo != null">
+        and t.id_card_no = #{idCardNo}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+  
+ 
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_doctor
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_doctor
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.Doctor">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_doctor (true_name, avatar_url, id_card_no, 
+      doctor_card_no, phone_number, pass_hash, 
+      pass_salt, hospital_id, catalog_id, 
+      department_id, title_id, field, 
+      visit, practice_point, birthday, 
+      sex, chat, medical, medical_payment, 
+      medical_num, check_url, photo_url, 
+      imtoken, status, gmt_create, 
+      gmt_modified, remarks, profile
+      )
+    values (#{trueName,jdbcType=VARCHAR}, #{avatarUrl,jdbcType=VARCHAR}, #{idCardNo,jdbcType=VARCHAR}, 
+      #{doctorCardNo,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{passHash,jdbcType=VARCHAR}, 
+      #{passSalt,jdbcType=VARCHAR}, #{hospitalId,jdbcType=BIGINT}, #{catalogId,jdbcType=BIGINT}, 
+      #{departmentId,jdbcType=BIGINT}, #{titleId,jdbcType=BIGINT}, #{field,jdbcType=VARCHAR}, 
+      #{visit,jdbcType=DECIMAL}, #{practicePoint,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP}, 
+      #{sex,jdbcType=CHAR}, #{chat,jdbcType=CHAR}, #{medical,jdbcType=CHAR}, #{medicalPayment,jdbcType=INTEGER}, 
+      #{medicalNum,jdbcType=INTEGER}, #{checkUrl,jdbcType=VARCHAR}, #{photoUrl,jdbcType=VARCHAR}, 
+      #{imtoken,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}, #{profile,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.Doctor">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_doctor
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="trueName != null">
+        true_name,
+      </if>
+      <if test="avatarUrl != null">
+        avatar_url,
+      </if>
+      <if test="idCardNo != null">
+        id_card_no,
+      </if>
+      <if test="doctorCardNo != null">
+        doctor_card_no,
+      </if>
+      <if test="phoneNumber != null">
+        phone_number,
+      </if>
+      <if test="passHash != null">
+        pass_hash,
+      </if>
+      <if test="passSalt != null">
+        pass_salt,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="catalogId != null">
+        catalog_id,
+      </if>
+      <if test="departmentId != null">
+        department_id,
+      </if>
+      <if test="titleId != null">
+        title_id,
+      </if>
+      <if test="field != null">
+        field,
+      </if>
+      <if test="visit != null">
+        visit,
+      </if>
+      <if test="practicePoint != null">
+        practice_point,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="chat != null">
+        chat,
+      </if>
+      <if test="medical != null">
+        medical,
+      </if>
+      <if test="medicalPayment != null">
+        medical_payment,
+      </if>
+      <if test="medicalNum != null">
+        medical_num,
+      </if>
+      <if test="checkUrl != null">
+        check_url,
+      </if>
+      <if test="photoUrl != null">
+        photo_url,
+      </if>
+      <if test="imtoken != null">
+        imtoken,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+      <if test="profile != null">
+        profile,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="trueName != null">
+        #{trueName,jdbcType=VARCHAR},
+      </if>
+      <if test="avatarUrl != null">
+        #{avatarUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardNo != null">
+        #{idCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorCardNo != null">
+        #{doctorCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneNumber != null">
+        #{phoneNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="passHash != null">
+        #{passHash,jdbcType=VARCHAR},
+      </if>
+      <if test="passSalt != null">
+        #{passSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="catalogId != null">
+        #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="titleId != null">
+        #{titleId,jdbcType=BIGINT},
+      </if>
+      <if test="field != null">
+        #{field,jdbcType=VARCHAR},
+      </if>
+      <if test="visit != null">
+        #{visit,jdbcType=DECIMAL},
+      </if>
+      <if test="practicePoint != null">
+        #{practicePoint,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null">
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=CHAR},
+      </if>
+      <if test="chat != null">
+        #{chat,jdbcType=CHAR},
+      </if>
+      <if test="medical != null">
+        #{medical,jdbcType=CHAR},
+      </if>
+      <if test="medicalPayment != null">
+        #{medicalPayment,jdbcType=INTEGER},
+      </if>
+      <if test="medicalNum != null">
+        #{medicalNum,jdbcType=INTEGER},
+      </if>
+      <if test="checkUrl != null">
+        #{checkUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="photoUrl != null">
+        #{photoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imtoken != null">
+        #{imtoken,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="profile != null">
+        #{profile,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Doctor">
+    update t_doctor
+    <set>
+      <if test="trueName != null">
+        true_name = #{trueName,jdbcType=VARCHAR},
+      </if>
+      <if test="avatarUrl != null">
+        avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardNo != null">
+        id_card_no = #{idCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorCardNo != null">
+        doctor_card_no = #{doctorCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneNumber != null">
+        phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="passHash != null">
+        pass_hash = #{passHash,jdbcType=VARCHAR},
+      </if>
+      <if test="passSalt != null">
+        pass_salt = #{passSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        hospital_id = #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="catalogId != null">
+        catalog_id = #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="titleId != null">
+        title_id = #{titleId,jdbcType=BIGINT},
+      </if>
+      <if test="field != null">
+        field = #{field,jdbcType=VARCHAR},
+      </if>
+      <if test="visit != null">
+        visit = #{visit,jdbcType=DECIMAL},
+      </if>
+      <if test="practicePoint != null">
+        practice_point = #{practicePoint,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null">
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=CHAR},
+      </if>
+      <if test="chat != null">
+        chat = #{chat,jdbcType=CHAR},
+      </if>
+      <if test="medical != null">
+        medical = #{medical,jdbcType=CHAR},
+      </if>
+      <if test="medicalPayment != null">
+        medical_payment = #{medicalPayment,jdbcType=INTEGER},
+      </if>
+      <if test="medicalNum != null">
+        medical_num = #{medicalNum,jdbcType=INTEGER},
+      </if>
+      <if test="checkUrl != null">
+        check_url = #{checkUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="photoUrl != null">
+        photo_url = #{photoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imtoken != null">
+        imtoken = #{imtoken,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="profile != null">
+        profile = #{profile,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yier.platform.common.model.Doctor">
+    update t_doctor
+    set true_name = #{trueName,jdbcType=VARCHAR},
+      avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+      id_card_no = #{idCardNo,jdbcType=VARCHAR},
+      doctor_card_no = #{doctorCardNo,jdbcType=VARCHAR},
+      phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      pass_hash = #{passHash,jdbcType=VARCHAR},
+      pass_salt = #{passSalt,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      catalog_id = #{catalogId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      title_id = #{titleId,jdbcType=BIGINT},
+      field = #{field,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=DECIMAL},
+      practice_point = #{practicePoint,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      sex = #{sex,jdbcType=CHAR},
+      chat = #{chat,jdbcType=CHAR},
+      medical = #{medical,jdbcType=CHAR},
+      medical_payment = #{medicalPayment,jdbcType=INTEGER},
+      medical_num = #{medicalNum,jdbcType=INTEGER},
+      check_url = #{checkUrl,jdbcType=VARCHAR},
+      photo_url = #{photoUrl,jdbcType=VARCHAR},
+      imtoken = #{imtoken,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      profile = #{profile,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Doctor">
+    update t_doctor
+    set true_name = #{trueName,jdbcType=VARCHAR},
+      avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+      id_card_no = #{idCardNo,jdbcType=VARCHAR},
+      doctor_card_no = #{doctorCardNo,jdbcType=VARCHAR},
+      phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      pass_hash = #{passHash,jdbcType=VARCHAR},
+      pass_salt = #{passSalt,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      catalog_id = #{catalogId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      title_id = #{titleId,jdbcType=BIGINT},
+      field = #{field,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=DECIMAL},
+      practice_point = #{practicePoint,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      sex = #{sex,jdbcType=CHAR},
+      chat = #{chat,jdbcType=CHAR},
+      medical = #{medical,jdbcType=CHAR},
+      medical_payment = #{medicalPayment,jdbcType=INTEGER},
+      medical_num = #{medicalNum,jdbcType=INTEGER},
+      check_url = #{checkUrl,jdbcType=VARCHAR},
+      photo_url = #{photoUrl,jdbcType=VARCHAR},
+      imtoken = #{imtoken,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

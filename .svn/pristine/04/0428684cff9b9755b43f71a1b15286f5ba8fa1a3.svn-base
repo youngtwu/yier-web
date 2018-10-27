@@ -1,0 +1,257 @@
+package com.yier.platform.service;
+
+import com.google.common.collect.Lists;
+import com.yier.platform.common.model.DoctorPracticePoint;
+import com.yier.platform.common.model.HospitalPo;
+import com.yier.platform.common.model.PracticePointPo;
+import com.yier.platform.common.model.PracticeWorkTime;
+import com.yier.platform.common.requestParam.PracticeRequest;
+import com.yier.platform.dao.DoctorPracticePointMapper;
+import com.yier.platform.dao.PracticeWorkTimeMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 医生执业点工作时间信息 service
+ */
+@ApiModel(value = "医生执业点工作时间信息 service")
+@Service
+public class PracticePointTimeService {
+    private static final Logger logger = LoggerFactory.getLogger(PracticePointTimeService.class);
+    @Autowired
+    private DoctorPracticePointMapper daoDoctorPracticePointMapper;
+    @Autowired
+    private PracticeWorkTimeMapper daoPracticeWorkTimeMapper;
+    @Autowired
+    private HospitalService daoHospitalService;
+
+    public MutablePair<String, List<PracticePointPo>> updatePracticePoint(DoctorPracticePoint record) {
+        MutablePair<String, List<PracticePointPo>> mutable = new MutablePair<String, List<PracticePointPo>>();
+        Assert.isTrue(record.getId() != null, "必须传递对应职业点的id");
+        Assert.isTrue(record.getDoctorId() != null, "必须传递对应医师的id");
+        Assert.isTrue(record.getTypeId() != null, "必须传递对应使用端口的id");
+        Assert.isTrue(record.getHospitalId() != null, "必须传递对应医院的id");
+        Assert.isTrue(record.getCatalogId() != null, "必须传递科室大分类的id");
+        Assert.isTrue(record.getDepartmentId() != null, "必须传递科室小分类的id");
+        PracticeRequest paramAllForUser = new PracticeRequest();
+        paramAllForUser.setTypeId(record.getTypeId());
+        paramAllForUser.setDoctorId(record.getDoctorId());
+        paramAllForUser.setStatus("0");
+        List<DoctorPracticePoint> currentList = this.daoDoctorPracticePointMapper.listPracticePoint(paramAllForUser);
+        Assert.isTrue(currentList.stream().filter(r -> r.getId().longValue() != record.getId().longValue() && r.getHospitalId().longValue() == record.getHospitalId().longValue()).count() == 0, "不能够添加重复医院为执业点！");
+
+        PracticeRequest params = new PracticeRequest();
+        params.setHospitalId(record.getHospitalId());
+        params.setCatalogId(record.getCatalogId());
+        params.setHospitalDepartmentId(record.getDepartmentId());
+        HospitalPo hospitalPo = daoHospitalService.getHospitalPoWithNameByIds(params);
+        record.setProvinceId(hospitalPo.getProvinceId());
+        record.setCityId(hospitalPo.getCityId());
+        record.setAreaId(hospitalPo.getAreaId());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(hospitalPo.getProvinceName())
+//                .append(hospitalPo.getCityName())
+//                .append(" ")
+//                .append(hospitalPo.getHospitalName())
+//                .append(" ")
+//                .append(hospitalPo.getCatalogName()==null?"":hospitalPo.getCatalogName())
+//                .append(hospitalPo.getHospitalDepartmentName()==null?"":hospitalPo.getHospitalDepartmentName());
+//        record.setAddress(sb.toString());
+        record.setAddress(hospitalPo.getAddress());//此时显示与医院的地址相符地址
+        record.setGmtModified(new Date());
+        record.setRemarks("修改职业点的信息[可能是医院，大小分类信息]");
+        this.daoDoctorPracticePointMapper.updateByPrimaryKeySelective(record);
+
+        mutable.left = "practicePointList";
+        PracticeRequest paramspr = new PracticeRequest();
+        paramspr.setTypeId(record.getTypeId());
+        paramspr.setDoctorId(record.getDoctorId());
+        mutable.right = this.listPracticePointPo(paramspr);
+        return mutable;
+    }
+
+    public void insertPracticePoint(DoctorPracticePoint record, boolean isFirstDefaultAdd) {
+        logger.info("将要插入的执业点信息前为:{}", record);
+        Assert.isTrue(record.getDoctorId() != null, "必须传递对应医师的id");
+        Assert.isTrue(record.getTypeId() != null, "必须传递对应使用端口的id");
+        Assert.isTrue(record.getHospitalId() != null, "必须传递对应医院的id");
+        Assert.isTrue(record.getCatalogId() != null, "必须传递科室大分类的id");
+        Assert.isTrue(record.getDepartmentId() != null, "必须传递科室小分类的id");
+        if (!isFirstDefaultAdd) {
+            PracticeRequest paramAllForUser = new PracticeRequest();
+            paramAllForUser.setTypeId(record.getTypeId());
+            paramAllForUser.setDoctorId(record.getDoctorId());
+            paramAllForUser.setStatus("0");
+            List<DoctorPracticePoint> currentList = this.daoDoctorPracticePointMapper.listPracticePoint(paramAllForUser);
+            if (record.getTypeId().longValue() == 2) {
+                Assert.isTrue(currentList.size() < 3, "医生目前规定最多只能有3个执业点");
+            } else if (record.getTypeId().longValue() == 3) {
+                Assert.isTrue(currentList.size() < 2, "药师目前规定最多只能有2个执业点");
+            }
+            Assert.isTrue(currentList.stream().filter(r -> r.getHospitalId().longValue() == record.getHospitalId().longValue()).count() == 0, "不能够添加重复医院为执业点！");
+        }
+        List<String> workTimeList = record.getSelectWorkTimeList();
+        PracticeRequest params = new PracticeRequest();
+        params.setHospitalId(record.getHospitalId());
+        params.setCatalogId(record.getCatalogId());
+        params.setHospitalDepartmentId(record.getDepartmentId());
+        HospitalPo hospitalPo = daoHospitalService.getHospitalPoWithNameByIds(params);
+        record.setProvinceId(hospitalPo.getProvinceId());
+        record.setCityId(hospitalPo.getCityId());
+        record.setAreaId(hospitalPo.getAreaId());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(hospitalPo.getProvinceName())
+//                .append(hospitalPo.getCityName())
+//                .append(" ")
+//                .append(hospitalPo.getHospitalName())
+//                .append(" ")
+//                .append(hospitalPo.getCatalogName()==null?"":hospitalPo.getCatalogName())
+//                .append(hospitalPo.getHospitalDepartmentName()==null?"":hospitalPo.getHospitalDepartmentName());
+//        record.setAddress(sb.toString());
+        record.setAddress(hospitalPo.getAddress());//此时显示与医院的地址相符地址
+        this.daoDoctorPracticePointMapper.insertSelective(record);
+        logger.info("插入的执业点信息为:{}", record);
+        this.updateWorkTimeList(record.getId(), record.getTypeId(), record.getDoctorId(), record.getSelectWorkTimeList(), isFirstDefaultAdd);
+    }
+
+    @ApiOperation(value = "执业点的出诊工作时间处理，所选中的出诊工作时间覆盖掉以前的出诊工作时间，先删后插入")
+    @Transactional
+    public void updateWorkTimeList(long practicePointId, long typeId, long doctorId, List<String> workTimeList, boolean isFirstDefaultAdd) {
+        if (workTimeList != null) {
+            if (!isFirstDefaultAdd) {//第一次默认插入不用考虑覆盖，直接是插入工时
+                PracticeRequest param = new PracticeRequest();
+                param.setPracticePointId(practicePointId);
+                daoPracticeWorkTimeMapper.deleteByCondition(param);
+            }
+            for (String item : workTimeList) {//目前的时间冲突，都是放置在前台进行校验的，此处默认前台传递过来的合法有效
+                PracticeWorkTime recordWorkTime = new PracticeWorkTime();
+                recordWorkTime.setPracticePointId(practicePointId);
+                recordWorkTime.setTypeId(typeId);
+                recordWorkTime.setDoctorId(doctorId);
+                String[] weekTime = StringUtils.split(item, "_");
+                Assert.isTrue(weekTime != null && weekTime.length == 2, "传递的工作时间不规范");
+                recordWorkTime.setWorkDay(weekTime[0]);
+                recordWorkTime.setWorkTime(weekTime[1]);
+                daoPracticeWorkTimeMapper.insertSelective(recordWorkTime);//插入时间
+                logger.info("插入的执业点时间信息为:{}", recordWorkTime);
+            }
+        }
+    }
+
+    @ApiOperation(value = "查询目前执业点的出诊工作时间选择left及别的执业点选择情况right，说明：left表示别人选中的列表，right表示自己选中的类别 标识说明 5_11:星期五 全天;5_10:星期五 上午;5_01:星期五 下午;")
+    public MutableTriple<List<String>, String, List<String>> getWorkTimeCaseList(PracticeRequest param) {
+        Assert.isTrue(param.getTypeId() != null, "请指定端口");
+        Assert.isTrue(param.getDoctorId() != null, "请指定医师Id");
+        Assert.isTrue(param.getPracticePointId() != null, "请指定目前业务点");
+        PracticeRequest paramAllForUser = new PracticeRequest();
+        paramAllForUser.setTypeId(param.getTypeId());
+        paramAllForUser.setDoctorId(param.getDoctorId());
+        paramAllForUser.setStatus("0");
+        List<PracticeWorkTime> practiceWorkTimeList = daoPracticeWorkTimeMapper.listPracticeWorkTime(paramAllForUser);
+        if (param.getPracticePointId() == null) {
+            logger.info("目前没有指定执业点，可能是新增执业点操作!");
+            param.setPracticePointId(0L);//如果是新增，执业点默认没有，目的显示出其他全部其他执业点的选择
+        }
+        List<PracticeWorkTime> selectPracticeWorkTimeList = practiceWorkTimeList.stream().filter(r -> r.getPracticePointId().longValue() == param.getPracticePointId().longValue()).collect(Collectors.toList());
+        List<PracticeWorkTime> otherPracticeWorkTimeList = practiceWorkTimeList.stream().filter(r -> r.getPracticePointId().longValue() != param.getPracticePointId().longValue()).collect(Collectors.toList());
+
+        MutableTriple<List<String>, String, List<String>> mutable = new MutableTriple<List<String>, String, List<String>>();
+        List<String> disableList = Lists.newArrayList();
+        for (PracticeWorkTime item : otherPracticeWorkTimeList) {
+            disableList.add(item.getWorkDay() + "_" + item.getWorkTime());
+        }
+        List<String> select = Lists.newArrayList();
+        for (PracticeWorkTime item : selectPracticeWorkTimeList) {
+            select.add(item.getWorkDay() + "_" + item.getWorkTime());
+        }
+        mutable.left = disableList;
+        mutable.right = select;
+        mutable.middle = "说明：left表示别的执业点选中的列表，right表示自己选中的类别 标识说明 5_11:星期五 全天;5_10:星期五 上午;5_01:星期五 下午;";
+        return mutable;
+    }
+
+    // 根据条件查询执业点附近名字详情列表
+    @ApiOperation(value = "根据条件查询执业点附近名字详情列表")
+    public List<PracticePointPo> listPracticePointPo(PracticeRequest param) {
+        List<PracticePointPo> listP = this.daoDoctorPracticePointMapper.listPracticePointPo(param);
+        if (listP != null && listP.size() > 0) {
+            PracticeRequest paramAllForUser = new PracticeRequest();
+            paramAllForUser.setTypeId(param.getTypeId());
+            paramAllForUser.setDoctorId(param.getDoctorId());
+            paramAllForUser.setStatus("0");
+            List<PracticeWorkTime> practiceWorkTimeList = daoPracticeWorkTimeMapper.listPracticeWorkTime(paramAllForUser);
+            for (PracticePointPo practicePointPo : listP) {
+                List<PracticeWorkTime> selectPracticeWorkTimeList = practiceWorkTimeList.stream().filter(r -> r.getPracticePointId().longValue() == practicePointPo.getId().longValue()).collect(Collectors.toList());
+                List<String> select = Lists.newArrayList();
+                for (PracticeWorkTime item : selectPracticeWorkTimeList) {
+                    select.add(item.getWorkDay() + "_" + item.getWorkTime());
+                }
+                practicePointPo.setSelectWorkTimeList(select);//每个职业点对应的时间点也显示出来
+            }
+        }
+        return listP;
+    }
+
+    // 根据条件查询执业点附近名字详情列表 总数
+    @ApiOperation(value = "根据条件查询执业点附近名字详情列表 总数")
+    public int listPracticePointPoCount(PracticeRequest params) {
+        return this.daoDoctorPracticePointMapper.listPracticePointPoCount(params);
+    }
+
+    // 删除对应的执业点
+    @ApiOperation(value = "删除对应的执业点及对应的执业点工作时间")
+    @Transactional
+    public int deletePracticePointByPrimaryKey(Long id) {
+        Assert.isTrue(id != null, "必须传递对应的id");
+        PracticeRequest param = new PracticeRequest();
+        param.setPracticePointId(id);
+        daoPracticeWorkTimeMapper.deleteByCondition(param);//删除执业点
+        this.daoDoctorPracticePointMapper.deleteByPrimaryKey(id);
+        return id.intValue();
+    }
+
+
+    /**
+     * 删除对应的执业点及对应的执业点工作时间
+     *
+     * @param params
+     * @return
+     */
+    @ApiOperation(value = "删除对应的执业点及对应的执业点工作时间")
+    @Transactional
+    public Long deletePracticePointByDoctorId(PracticeRequest params) {
+        Assert.isTrue(params.getDoctorId() != null && params.getTypeId() != null, "必须传递对应的id和客户端标识");
+        //删除执业时间
+        this.daoPracticeWorkTimeMapper.deleteByCondition(params);
+        //删除执业点
+        this.daoDoctorPracticePointMapper.deletePracticePointByCondition(params);
+        return params.getDoctorId();
+    }
+
+    /**
+     * 通过id查询获取执业点信息
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "通过id查询获取执业点信息")
+    public DoctorPracticePoint getPracticePointById(Long id) {
+        Assert.isTrue(id != null, "必须传递对应的id");
+        DoctorPracticePoint doctorPracticePoint = this.daoDoctorPracticePointMapper.selectByPrimaryKey(id);
+        return doctorPracticePoint;
+    }
+
+}

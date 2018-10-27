@@ -1,0 +1,334 @@
+package com.yier.platform.service;
+
+
+import com.yier.platform.common.model.Patient;
+import com.yier.platform.common.model.PatientPo;
+import com.yier.platform.common.po.IdCardClass;
+import com.yier.platform.common.requestParam.PatientRequest;
+import com.yier.platform.common.rongYun.RongYunTokenResult;
+import com.yier.platform.common.util.RandomUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.PatientMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
+
+/**
+ * 患者信息 service
+ */
+@ApiModel(value = "患者信息 service")
+@Service
+public class PatientService {
+    private final Logger logger = LoggerFactory.getLogger(PatientService.class);
+    @Autowired
+    private PatientMapper daoPatientMapper;
+    @Autowired
+    private RongCloudService serviceRongCloudService;
+    @Autowired
+    private CommonService commonService;
+    @Autowired
+    private Uploader uploader;
+    @Autowired
+    private SmsService smsService;
+    @Autowired
+    private JwtTokenService jwtTokenService;
+    @Autowired
+    private SignatureService signatureService;//签名方面的生成
+
+    @ApiOperation(value = "通过手机及验证码登录，获取token等基本信息")
+    public PatientPo loginByVerifyCode(PatientRequest params, String verifyCode, String osType) {
+        logger.info("目前验证码登录信息如此：osType:{} verifyCode：{} params:{}",osType,verifyCode,params);
+        List<Patient> list = this.verifyPhoneNumber(params.getPhoneNumber(), "1");
+        Patient model = list.get(0);
+        smsService.checkCode(model.getPhoneNumber(), 1L, verifyCode);//验证码验证
+        ToolShareService.statusException(model.getStatus(),model.getId().toString());//验证状态是否异常
+        updateImtoken(model, false);//如果没有token，将会更新token
+        PatientPo modelPo = new PatientPo(model);//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        modelPo.setToken(this.jwtTokenService.createToken("1",modelPo.getId().toString(),osType,modelPo.getPhoneNumber()));
+        modelPo.setNonce(RandomUtils.randomNumeric(4));
+        modelPo.setAppKey(this.signatureService.getAppKeyBy(1L,modelPo.getNonce()));
+        modelPo.setTimestamp(this.signatureService.getTimestamp());
+        modelPo.setSignature(this.signatureService.getSign(modelPo.getAppKey(),modelPo.getNonce(),modelPo.getTimestamp()));
+        return modelPo;
+    }
+
+    @ApiOperation(value = "通过手机及密码登录，登录并获取token等基本信息，若或验证只是返回个人信息")
+    public PatientPo loginOrVerifyPhoneNumberAndPassword(PatientRequest params, String password, String osType, boolean onlyVerify) {
+        logger.info("目前密码登录信息如此：osType:{} password：{} onlyVerify:{} params:{}",osType,password,onlyVerify,params);
+        List<Patient> list = this.verifyPhoneNumber(params.getPhoneNumber(), "1");
+        Patient model = list.get(0);
+        logger.info("原始密码:{} 味精盐:{} 加密的密码是:{} 库里面的密码是：{}",password,model.getPassSalt(),Utils.aesEncrypt(password,model.getPassSalt()),model.getPassword());
+        Assert.isTrue(StringUtils.equals(Utils.aesEncrypt(password,model.getPassSalt()), model.getPassword()), "密码无效，请重新输入");
+        //Assert.isTrue(StringUtils.equals(password, model.getPassword()), "密码无效，请重新输入");
+        ToolShareService.statusException(model.getStatus(),model.getId().toString());//验证状态是否异常
+        if(!onlyVerify) updateImtoken(model, false);
+        PatientPo modelPo = new PatientPo(model);//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        if(!onlyVerify) {
+            modelPo.setToken(this.jwtTokenService.createToken("1",modelPo.getId().toString(),osType,modelPo.getPhoneNumber()));
+            modelPo.setNonce(RandomUtils.randomNumeric(4));
+            modelPo.setAppKey(this.signatureService.getAppKeyBy(1L,modelPo.getNonce()));
+            modelPo.setTimestamp(this.signatureService.getTimestamp());
+            modelPo.setSignature(this.signatureService.getSign(modelPo.getAppKey(),modelPo.getNonce(),modelPo.getTimestamp()));
+        }
+        return modelPo;
+    }
+    /**
+     * 通过条件可分页查询患者
+     *
+     * @param params
+     * @return
+     */
+    public List<Patient> listPatient(PatientRequest params) {
+        return daoPatientMapper.listPatient(params);
+    }
+
+    public int listPatientCount(PatientRequest params) {
+        return daoPatientMapper.listPatientCount(params);
+    }
+
+    // 根据条件查询列表  详细信息
+    public List<Patient> list(Map<String, Object> params) {
+        return this.daoPatientMapper.list(params);
+    }
+
+    // 根据条件查询列表 总数
+    public int listCount(Map<String, Object> params) {
+        return this.daoPatientMapper.listCount(params);
+    }
+
+    //目前不需要事务处理@Transactional
+    public int deleteByPrimaryKey(Long id) {
+        return daoPatientMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insert(Patient record) {
+        return daoPatientMapper.insert(record);
+    }
+
+    @ApiOperation(value = "通过使用类型，验证手机号码是否有效")
+    public List<Patient> verifyPhoneNumber(String phoneNumber, String useType) {
+        Assert.isTrue(Utils.isValidMobileNumber(phoneNumber), "手机号格式错误");
+        PatientRequest params = new PatientRequest();
+        params.setPhoneNumber(phoneNumber);
+        List<Patient> list = this.listPatient(params);
+        if (list.size() > 1) {
+            Assert.isTrue(false, "重复存在该用户，请联系管理员处理");
+        }
+        if (StringUtils.equals("0", useType)) {
+            if (list.size() == 1) {
+                Assert.isTrue(false, "该手机号码已经存在，无法重新绑定");//系统存在该用户，无法注册
+            }
+        } else if (StringUtils.equals("1", useType)) {
+            if (list.size() == 0) {
+                Assert.isTrue(false, "该手机用户不存在");
+            }
+        }
+        return list;
+    }
+    @ApiOperation(value = "通过使用类型，验证手机号码是否有效")
+    public List<Patient> verifyIdCardNo(String idCardNo, String useType) {
+        Assert.isTrue(StringUtils.isNotBlank(idCardNo), "身份证号无效");
+        Assert.isTrue(idCardNo.trim().length() == 15 || idCardNo.trim().length() == 18, "身份证号长度无效");
+        PatientRequest params = new PatientRequest();
+        params.setIdCardNo(idCardNo);
+        List<Patient> list = this.listPatient(params);
+        if (list.size() > 1) {
+            Assert.isTrue(false, "重复存在该用户，请联系管理员处理");
+        }
+        if (StringUtils.equals("0", useType)) {
+            if (list.size() == 1) {
+                Assert.isTrue(false, "该身份证号码已经注册，无法重新绑定");//系统存在该用户，无法注册
+            }
+        } else if (StringUtils.equals("1", useType)) {
+            if (list.size() == 0) {
+                Assert.isTrue(false, "该身份证对应的用户不存在");
+            }
+        }
+        return list;
+    }
+
+    @ApiOperation(value = "修改用户头像图片")
+    public Patient adjustPatientInfo(MultipartFile file, Long id) {
+        Assert.isTrue(file != null, "头像无效，请重新传递");
+        Patient record = this.selectByPrimaryKey(id);
+        Assert.isTrue(record != null, "传递的ID无效，无法查询到对应的患者");
+        String url = uploader.upload(file);
+        record.setAvatarUrl(url);
+        record.setGmtModified(new Date());
+//        RongYunTokenResult ry = this.serviceRongCloudService.getToken(1L, record.getId(), record.getTrueName(), record.getAvatarUrl());
+//        if (ry == null) {
+//            Assert.isTrue(false, "获取第三方即时通讯工具token错误");
+//        } else {
+//            Assert.isTrue(ry.getCode() == 200, ry.getMsg());
+//        }
+//        record.setImtoken(ry.getToken());
+        this.updateByPrimaryKeySelective(record);
+        record.thinkField();//完事后的思考及隐蔽
+        return record;
+    }
+    @ApiOperation(value = "全新注册")
+    @Transactional
+    public PatientPo registerPatientSelective(Patient record, String osType) {
+        Assert.isTrue(Utils.isValidMobileNumber(record.getPhoneNumber()), "手机号格式错误");
+        Assert.isTrue(StringUtils.isNotBlank(record.getPassword()), "用户密码无效");
+        Assert.isTrue(record.getPassword().length()>5 && record.getPassword().length()<17, "密码长度无效");
+        this.verifyPhoneNumber(record.getPhoneNumber(), "0");
+        this.verifyIdCardNo(record.getIdCardNo(),"0");
+        //保证必须进行实名认证
+        Assert.isTrue(StringUtils.isNotBlank(record.getTrueName()), "没有输入真实姓名");
+        //真实姓名及密码的加密，让DB统一处理
+        String randomSalt = RandomUtils.randomAlphanumeric(8);//随机字母及数字
+        record.setPassSalt(randomSalt);//加盐数不加密，反向解密比较麻烦
+        record.setPassword(Utils.aesEncrypt(record.getPassword(),randomSalt));//  DigestUtils.md5Hex(record.getPassword()+randomSalt));//密码是加盐的aes_decrypt(unhex(t.password),t.pass_salt)解密 hex(aes_encrypt(t.password,t.pass_salt))加密
+        IdCardClass idCardClass = this.commonService.getIdCardClass(record.getIdCardNo());
+        String sex = idCardClass.getResult().getSex();
+        String area = idCardClass.getResult().getArea();
+        String birthday = idCardClass.getResult().getBirthday();
+        Date birthdayDate = Utils.parseDate(birthday, "yyyy年MM月dd日");
+        record.setSex(sex);
+        record.setRemarks(area);
+        record.setBirthday(birthdayDate);
+        logger.info(record.toJsonString());
+        daoPatientMapper.insertSelective(record);
+        updateImtoken(record, true);
+        PatientPo modelPo = new PatientPo(record);//继承new(m)会自动思考，目前直接映射手动处理特殊字段
+        modelPo.setToken(this.jwtTokenService.createToken("1",modelPo.getId().toString(),osType,modelPo.getPhoneNumber()));
+        modelPo.setNonce(RandomUtils.randomNumeric(4));
+        modelPo.setAppKey(this.signatureService.getAppKeyBy(1L,modelPo.getNonce()));
+        modelPo.setTimestamp(this.signatureService.getTimestamp());
+        modelPo.setSignature(this.signatureService.getSign(modelPo.getAppKey(),modelPo.getNonce(),modelPo.getTimestamp()));
+        return modelPo;
+    }
+
+    //如果没有token，将会获取token,isNeedToken 表示必须获取
+    public String updateImtoken(Patient record, boolean isNeedToken) {
+        String token = null;
+        if (StringUtils.isBlank(record.getImtoken()) || isNeedToken) {
+            RongYunTokenResult ry = this.serviceRongCloudService.getToken(1L, record.getId(), record.getTrueName(), record.getAvatarUrl());
+            if (ry == null) {
+                Assert.isTrue(false, "获取第三方即时通讯工具token错误");
+            } else {
+                Assert.isTrue(ry.getCode() == 200, ry.getMsg());
+            }
+            record.setImtoken(ry.getToken());
+            record.setGmtModified(new Date());
+            this.updateByPrimaryKeySelective(record);
+            token = record.getImtoken();
+        }
+        return token;
+    }
+
+
+    public Patient selectByPrimaryKey(Long id) {
+        return daoPatientMapper.selectByPrimaryKey(id);
+    }
+
+    @ApiOperation(value = "修改用户手机号码及密码，并上传审核图片")
+    public Patient adjustRegisterInfo(MultipartFile file, Long id, String phoneNumber, String password) {
+        Patient record = this.selectByPrimaryKey(id);
+        Assert.isTrue(record != null, "传递的ID无效，无法查询到对应的患者");
+        if(StringUtils.isNotBlank(password)) {
+            record.setPassword(Utils.aesEncrypt(password, record.getPassSalt()));//  record.setPassword(  DigestUtils.md5Hex(password));//修改保存密码
+        }
+        if(StringUtils.isNotBlank(phoneNumber)) {
+            this.verifyPhoneNumber(phoneNumber, "0");//新的手机号码不存在才更新 实际类似于库中无0
+            record.setPhoneNumber(phoneNumber);
+        }
+        if (file != null) {
+            String url = uploader.upload(file);
+            record.setCheckUrl(url);
+        }
+//        String randomSalt = RandomUtils.randomAlphanumeric(8);//随机字母及数字
+//        record.setPassSalt(randomSalt);//注入新盐新味道 加盐数不加密，反向解密比较麻烦
+        record.setGmtModified(new Date());
+        record.setStatus("A");//状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交
+        this.updateByPrimaryKeySelective(record);
+        record.thinkField();//完事后的思考及隐蔽
+        return record;
+    }
+    @ApiOperation(value = "用户实名输入身份证接口")
+    public int updatePatientBySelective(Patient record) {
+        Assert.isTrue(Utils.isValidMobileNumber(record.getPhoneNumber()), "手机号格式错误");
+        Patient patient = this.selectByPrimaryKey(record.getId());
+        Assert.isTrue(patient!=null, "指定用户Id没有找到对应的用户");
+        Assert.isTrue(StringUtils.equals(record.getPhoneNumber(), patient.getPhoneNumber()), "指定用户手机与实际号码不相符，不能试图修改用户手机号码");
+        IdCardClass idCardClass = this.commonService.getIdCardClass(record.getIdCardNo());
+        String sex = idCardClass.getResult().getSex();
+        String area = idCardClass.getResult().getArea();
+        String birthday = idCardClass.getResult().getBirthday();
+        Date birthdayDate = Utils.parseDate(birthday, "yyyy年MM月dd日");
+        record.setSex(sex);
+        record.setRemarks(area);
+        record.setBirthday(birthdayDate);
+        record.setGmtModified(new Date());
+        logger.info(record.toJsonString());
+        return this.updateByPrimaryKeySelective(record);
+    }
+    @ApiOperation(value = "验证手机号码跟验证码是否正确，然后直接更新手机号码")
+    public Patient updatePhoneNumberByVerifyCodeId(String phoneNumber, String verifyCode, long id) {
+        smsService.checkCode(phoneNumber, 1L, verifyCode);//验证码验证
+        this.verifyPhoneNumber(phoneNumber, "0");//保证手机没有被使用
+        Patient record = new Patient();
+        record.setId(id);
+        record.setPhoneNumber(phoneNumber);
+        record.setGmtModified(new Date());
+        record.setRemarks("用户更换手机号码");
+        this.updateByPrimaryKeySelective(record);
+        return record;
+    }
+    @ApiOperation(value = "用户通过Id进行调整信息的任何修改接口")
+    public Patient updatePasswordById(String passwordOld, String password, long id) {
+        Assert.isTrue(StringUtils.isNotBlank(passwordOld), "请输入旧的密码");
+        Assert.isTrue(StringUtils.isNotBlank(password)&&password.length()>5 && password.length()<17, "新登录密码长度无效");
+        Patient record = this.selectByPrimaryKey(id);
+        Assert.isTrue(record!=null, "指定用户Id没有找到对应的用户");
+        Assert.isTrue(StringUtils.equals(record.getPassword(),Utils.aesEncrypt(passwordOld,record.getPassSalt())), "原登录密码无效");
+        record.setPassword(Utils.aesEncrypt(password,record.getPassSalt()));
+        record.setGmtModified(new Date());
+        record.setRemarks("用户修改密码");
+        this.updateByPrimaryKeySelective(record);
+        record.thinkField();//完事后的思考及隐蔽
+        return record;
+    }
+    @ApiOperation(value = "用户通过Id进行调整信息的任何修改接口")
+    public int updateAnyInfoById(Patient record) {
+        Patient patient = this.selectByPrimaryKey(record.getId());
+        Assert.isTrue(patient!=null, "指定用户Id没有找到对应的用户");
+        if (StringUtils.isNotBlank(record.getPassword())) {
+            record.setPassword(Utils.aesEncrypt(record.getPassword(),patient.getPassSalt()));// record.setPassword(DigestUtils.md5Hex(record.getPassword()));
+        }
+        return this.updateByPrimaryKeySelective(record);
+    }
+    public int updateByPrimaryKeySelective(Patient record) {
+        return daoPatientMapper.updateByPrimaryKeySelective(record);
+    }
+
+    @ApiOperation(value = "输入实名信息，获取对应的ID")
+    public Long getIdByTrueInfo(String phoneNumber, String trueName, String idCardNo) {
+        Assert.isTrue(Utils.isValidMobileNumber(phoneNumber), "手机号格式错误");
+        Assert.isTrue(StringUtils.isNotBlank(trueName), "真实名字有误");
+        Assert.isTrue(idCardNo.trim().length() == 15 || idCardNo.trim().length() == 18, "身份证号长度无效");
+        PatientRequest params = new PatientRequest();
+        params.setPhoneNumber(phoneNumber);
+        params.setTrueName(trueName);
+        params.setIdCardNo(idCardNo);
+        List<Patient> list = this.listPatient(params);
+        Assert.isTrue(list.size() == 1, "该用户并不合法存在");
+        return list.get(0).getId();
+    }
+
+}

@@ -1,0 +1,203 @@
+package com.yier.platform.service.feign;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class Prescription {
+    //处方编号
+    private String prescriptionId = "";
+    //医疗机构代码
+    private String organizationId = "";
+    //医疗机构名称
+    private String organizationName = "";
+    //药房代码
+    private String pharmacyId = "";
+    //药房名称
+    private String pharmacyName = "";
+    //患者身份证号码
+    private String patientId = "";
+    //患者姓名
+    private String patientName = "";
+    //科室名称
+    private String departmentName = "";
+    //开方医生姓名
+    private String doctorName = "";
+    //审方药师姓名
+    private String pharmacistName = "";
+    //药品列表
+    private List<PrescribedDrug> drugList = new ArrayList<PrescribedDrug>();
+    //疾病代码
+    private List<String> icdCodes = new ArrayList<String>();
+    //医嘱说明
+    private String advice = "";
+    //处方金额，单位：分
+    private Integer cost = 0;
+    //有效天数
+    private Integer effectiveDays = 1;
+    //原始处方
+    private String original = "";
+    //开方时间
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Date createTime = new Date();
+    //处方状态
+    private Integer status = PrescriptionChainConfig.STATUS_NEW;
+    //审核意见
+    private String auditOpinion = "";
+
+    public Prescription() { }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public String getPharmacyId() {
+        return pharmacyId;
+    }
+
+    public void setPharmacyId(String pharmacyId) {
+        this.pharmacyId = pharmacyId;
+    }
+
+    public String getPharmacyName() {
+        return pharmacyName;
+    }
+
+    public void setPharmacyName(String pharmacyName) {
+        this.pharmacyName = pharmacyName;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public String getPharmacistName() {
+        return pharmacistName;
+    }
+
+    public void setPharmacistName(String pharmacistName) {
+        this.pharmacistName = pharmacistName;
+    }
+
+    public List<PrescribedDrug> getDrugList() {
+        return drugList;
+    }
+
+    public void setDrugList(List<PrescribedDrug> drugList) {
+        this.drugList = drugList;
+    }
+
+    public List<String> getIcdCodes() {
+        return icdCodes;
+    }
+
+    public void setIcdCodes(List<String> icdCodes) {
+        this.icdCodes = icdCodes;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
+    }
+
+    public Integer getCost() {
+        return cost;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Integer getEffectiveDays() {
+        return effectiveDays;
+    }
+
+    public void setEffectiveDays(Integer effectiveDays) {
+        this.effectiveDays = effectiveDays;
+    }
+
+    public String getOriginal() {
+        return original;
+    }
+
+    public void setOriginal(String original) {
+        this.original = original;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getAuditOpinion() {
+        return auditOpinion;
+    }
+
+    public void setAuditOpinion(String auditOpinion) {
+        this.auditOpinion = auditOpinion;
+    }
+}

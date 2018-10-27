@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.RoleMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Role">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="office_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="enname" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="role_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="data_scope" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="is_sys" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_by" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type, office_id, name, enname, role_type, data_scope, is_sys, create_by, status, 
+    gmt_create, gmt_modified, remarks
+  </sql>
+  
+  
+  
+
+    <select id="getRoleById" parameterType="java.lang.Long" resultType="com.yier.platform.common.model.Role">
+    SELECT t.id, t.office_id officeId, t.name, t.enname, t.role_type roleType, t.data_scope dataScope, t.is_sys isSys, t.create_by createBy, t.status,
+    t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_role t
+    where t.id = #{id,jdbcType=BIGINT}
+  </select>
+
+    <!-- 根据条件查询用户角色信息列表 -->
+    <select id="selectRoles" parameterType="com.yier.platform.common.requestParam.RoleRequest"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        from t_role t
+        <where>
+            <if test="roleId != null">
+                and t.id = #{roleId}
+            </if>
+            <if test="enname != null">
+                and t.enname = #{enname}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.id
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+
+    <!-- 根据条件查询用户角色信息列表 总和 -->
+    <select id="selectRolesCount" parameterType="com.yier.platform.common.requestParam.RoleRequest"
+            resultType="Integer">
+        select count(t.id) from t_role t
+        <where>
+            <if test="roleId != null">
+                and t.id = #{roleId}
+            </if>
+            <if test="enname != null">
+                and t.enname = #{enname}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_role
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_role
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.Role">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_role (type, office_id, name, 
+      enname, role_type, data_scope, 
+      is_sys, create_by, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{type,jdbcType=BIGINT}, #{officeId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{enname,jdbcType=VARCHAR}, #{roleType,jdbcType=VARCHAR}, #{dataScope,jdbcType=VARCHAR}, 
+      #{isSys,jdbcType=VARCHAR}, #{createBy,jdbcType=BIGINT}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.Role">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="type != null">
+        type,
+      </if>
+      <if test="officeId != null">
+        office_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="enname != null">
+        enname,
+      </if>
+      <if test="roleType != null">
+        role_type,
+      </if>
+      <if test="dataScope != null">
+        data_scope,
+      </if>
+      <if test="isSys != null">
+        is_sys,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="type != null">
+        #{type,jdbcType=BIGINT},
+      </if>
+      <if test="officeId != null">
+        #{officeId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="enname != null">
+        #{enname,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null">
+        #{roleType,jdbcType=VARCHAR},
+      </if>
+      <if test="dataScope != null">
+        #{dataScope,jdbcType=VARCHAR},
+      </if>
+      <if test="isSys != null">
+        #{isSys,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Role">
+    update t_role
+    <set>
+      <if test="type != null">
+        type = #{type,jdbcType=BIGINT},
+      </if>
+      <if test="officeId != null">
+        office_id = #{officeId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="enname != null">
+        enname = #{enname,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null">
+        role_type = #{roleType,jdbcType=VARCHAR},
+      </if>
+      <if test="dataScope != null">
+        data_scope = #{dataScope,jdbcType=VARCHAR},
+      </if>
+      <if test="isSys != null">
+        is_sys = #{isSys,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Role">
+    update t_role
+    set type = #{type,jdbcType=BIGINT},
+      office_id = #{officeId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      enname = #{enname,jdbcType=VARCHAR},
+      role_type = #{roleType,jdbcType=VARCHAR},
+      data_scope = #{dataScope,jdbcType=VARCHAR},
+      is_sys = #{isSys,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=BIGINT},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,269 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+public class DrugCall extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Long id;
+    @ApiModelProperty(value = "客户端标识。1-患者端，2-医生端，3-药师端")
+    private Long typeId;
+    @ApiModelProperty(value = "用户ID,关联t_doctor.id，t_patient.id,t_pharmacy.id")
+    private Long userId;
+    @ApiModelProperty(value = "药品ID")
+    private Long drugId;
+    @ApiModelProperty(value = "其他附加信息 药名 t_drug_call.drug_info")
+    private String drugInfo;
+    @ApiModelProperty(value = "每日服药次数")
+    private Integer countPreDay;
+    @ApiModelProperty(value = "每次服药数量")
+    private Integer eachHave;
+    @ApiModelProperty(value = "每次服药量单位")
+    private String eachHaveUnit;
+    @ApiModelProperty(value = "服药标题小时时间")
+    private Date captionTime;
+    @ApiModelProperty(value = "服药标题")
+    private String caption;
+    @ApiModelProperty(value = "服药开始时间")
+    private Date startDate;
+    @ApiModelProperty(value = "服药结束时间")
+    private Date endDate;
+    @ApiModelProperty(value = "提醒类型 0表示每天 1周几,3相隔")
+    private Long callType;
+    @ApiModelProperty(value = "提醒类型可能的值如: 10,30  1,3,5等表示")
+    private String callTypeValues;
+    @ApiModelProperty(value = "提前提醒的分钟数如: 0,10,30")
+    private String remindMinutes;
+    @ApiModelProperty(value = "提醒时间信息")
+    private String remindMinutesDisplay;
+    @ApiModelProperty(value = "备注描述")
+    private String description;
+    @ApiModelProperty(value = "显示顺序")
+    private Integer displayOrder;
+    @ApiModelProperty(value = "目前状态状态（0正常 1已经服药  2没有服药）")
+    private String currentStatus;
+    @ApiModelProperty(value = "状态（0正常 1删除 2停用）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+
+    public DrugCall(Long id, Long typeId, Long userId, Long drugId, String drugInfo, Integer countPreDay, Integer eachHave, String eachHaveUnit, Date captionTime, String caption, Date startDate, Date endDate, Long callType, String callTypeValues, String remindMinutes, String remindMinutesDisplay, String description, Integer displayOrder, String currentStatus, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.drugId = drugId;
+        this.drugInfo = drugInfo;
+        this.countPreDay = countPreDay;
+        this.eachHave = eachHave;
+        this.eachHaveUnit = eachHaveUnit;
+        this.captionTime = captionTime;
+        this.caption = caption;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.callType = callType;
+        this.callTypeValues = callTypeValues;
+        this.remindMinutes = remindMinutes;
+        this.remindMinutesDisplay = remindMinutesDisplay;
+        this.description = description;
+        this.displayOrder = displayOrder;
+        this.currentStatus = currentStatus;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public DrugCall() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getDrugId() {
+        return drugId;
+    }
+
+    public void setDrugId(Long drugId) {
+        this.drugId = drugId;
+    }
+
+    public String getDrugInfo() {
+        return drugInfo;
+    }
+
+    public void setDrugInfo(String drugInfo) {
+        this.drugInfo = drugInfo;
+    }
+
+    public Integer getCountPreDay() {
+        return countPreDay;
+    }
+
+    public void setCountPreDay(Integer countPreDay) {
+        this.countPreDay = countPreDay;
+    }
+
+    public Integer getEachHave() {
+        return eachHave;
+    }
+
+    public void setEachHave(Integer eachHave) {
+        this.eachHave = eachHave;
+    }
+
+    public String getEachHaveUnit() {
+        return eachHaveUnit;
+    }
+
+    public void setEachHaveUnit(String eachHaveUnit) {
+        this.eachHaveUnit = eachHaveUnit;
+    }
+
+    public Date getCaptionTime() {
+        return captionTime;
+    }
+
+    public void setCaptionTime(Date captionTime) {
+        this.captionTime = captionTime;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Long getCallType() {
+        return callType;
+    }
+
+    public void setCallType(Long callType) {
+        this.callType = callType;
+    }
+
+    public String getCallTypeValues() {
+        return callTypeValues;
+    }
+
+    public void setCallTypeValues(String callTypeValues) {
+        this.callTypeValues = callTypeValues;
+    }
+
+    public String getRemindMinutes() {
+        return remindMinutes;
+    }
+
+    public void setRemindMinutes(String remindMinutes) {
+        this.remindMinutes = remindMinutes;
+    }
+
+    public String getRemindMinutesDisplay() {
+        return remindMinutesDisplay;
+    }
+
+    public void setRemindMinutesDisplay(String remindMinutesDisplay) {
+        this.remindMinutesDisplay = remindMinutesDisplay;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public String getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(String currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

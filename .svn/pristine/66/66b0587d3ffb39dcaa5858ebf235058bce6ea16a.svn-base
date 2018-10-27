@@ -1,0 +1,52 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.model.Pharmacy;
+import com.yier.platform.dao.PharmacyMapper;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
+
+@Service
+public class PharmacyService {
+    private final Logger logger = LoggerFactory.getLogger(PharmacyService.class);
+    @Autowired
+    private PharmacyMapper daoPharmacyMapper;
+
+    @ApiOperation(value = "根据医院id查询药库信息")
+    public Pharmacy selectPharmacyByHospitalId(Long hospitalId) {
+        Assert.isTrue(hospitalId != null, "医院id不能为空！");
+        Pharmacy pharmacy = this.daoPharmacyMapper.selectPharmacyByHospitalId(hospitalId);
+        return pharmacy;
+    }
+
+
+    public int deleteByPrimaryKey(Long id) {
+        return daoPharmacyMapper.deleteByPrimaryKey(id);
+    }
+
+    int insert(Pharmacy record) {
+        return daoPharmacyMapper.insert(record);
+    }
+
+    public int insertSelective(Pharmacy record) {
+        return daoPharmacyMapper.insertSelective(record);
+    }
+
+    public Pharmacy selectByPrimaryKey(Long id) {
+        return daoPharmacyMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(Pharmacy record) {
+        return daoPharmacyMapper.updateByPrimaryKeySelective(record);
+    }
+
+    public int updateByPrimaryKey(Pharmacy record) {
+        return daoPharmacyMapper.updateByPrimaryKey(record);
+    }
+}

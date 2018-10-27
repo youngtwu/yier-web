@@ -1,0 +1,282 @@
+package com.yier.platform.service.medical;
+
+import com.github.yingzhuo.carnival.id.IdGenerator;
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.DrugSendOrderRequest;
+import com.yier.platform.common.requestParam.MedicalPrescriptionRequest;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.DrugSendOrderMapper;
+import com.yier.platform.dao.MedicalDateMapper;
+import com.yier.platform.service.PharmacyService;
+import com.yier.platform.service.feign.RemoteService;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+
+@Service
+public class DrugSendOrderService {
+    private final Logger logger = LoggerFactory.getLogger(DrugSendOrderService.class);
+    @Autowired
+    private DrugSendOrderMapper daoDrugSendOrderMapper;
+    @Autowired
+    private DrugAcceptOrderService drugAcceptOrderService;
+    @Autowired
+    private DrugAcceptPrescriptionService drugAcceptPrescriptionService;
+    @Autowired
+    private IdGenerator<Long> idGenerator;
+    @Autowired
+    private RemoteService remoteService;
+    @Autowired
+    private MedicalPrescriptionService medicalPrescriptionService;
+    @Autowired
+    private PharmacyService pharmacyService;
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+
+    @ApiOperation(value = "创建患者送药订单")
+    @Transactional
+    public void drugSendOrderCancel(DrugSendOrder record){
+        Assert.isTrue(record.getId() != null , "请传递参数取药订单 id");
+        Assert.isTrue(record.getSendOrderNo() != null , "请传递参数送药订单 sendOrderNo");
+        Assert.isTrue(record.getOrderNo() != null , "请传递参数对应的上门就诊订单编号 orderNo");
+//        Assert.isTrue(record.getPrescriptionId() != null , "请传递参数处方 prescriptionId");
+//        List<String> prescriptionIdList =Arrays.asList(record.getPrescriptionId().split(","));
+
+        Date currentDate = new Date();
+        DrugAcceptPrescription drugAcceptPrescription = new DrugAcceptPrescription();
+        drugAcceptPrescription.setSendOrderNo(record.getSendOrderNo());
+        drugAcceptPrescription.setGmtModified(currentDate);
+        drugAcceptPrescription.setRemarks("取消次送药订单");
+        drugAcceptPrescription.setStatus(ConstantAll.STATUS_1);//1表示删除，取消对应的操作
+        this.drugAcceptPrescriptionService.updateBatchByCondition(drugAcceptPrescription);
+
+        DrugAcceptOrder drugAcceptOrder = new DrugAcceptOrder();
+        drugAcceptOrder.setSendOrderNo(record.getSendOrderNo());
+        drugAcceptOrder.setAcceptStatus(ConstantAll.ACCEPT_ORDER_STATUS_PATIENT_CANCEL);
+        drugAcceptOrder.setGmtModified(currentDate);
+        drugAcceptOrder.setStatus(ConstantAll.STATUS_1);//1表示删除，取消对应的操作
+        drugAcceptOrderService.updateBatchByCondition(drugAcceptOrder);
+
+        MedicalOrder medicalOrder = new MedicalOrder();
+        medicalOrder.setOther(ConstantAll.STRING_NO_PAYMENT);
+        medicalOrder.setRemarks("患者取消送药订单");
+        medicalOrder.setGmtModified(currentDate);
+        medicalOrder.setOrderNoList(Arrays.asList(record.getOrderNo().split(",")));
+        medicalOrderService.updateBatchByCondition(medicalOrder);//可能更新对应的订单到“未付款”
+
+        record.setGmtModified(currentDate);
+        record.setRemarks("送药取消");
+        record.setSendStatus(ConstantAll.SEND_ORDER_STATUS_PATIENT_CANCEL);
+        this.updateByPrimaryKeySelective(record);
+    }
+    @ApiOperation(value = "创建患者送药订单支付成功")
+    @Transactional
+    public void drugSendOrderPaymentOk(DrugSendOrder record){
+        Assert.isTrue(record.getId() != null , "请传递参数送药订单 id");
+        Assert.isTrue(record.getSendOrderNo() != null , "请传递参数送药订单 sendOrderNo");
+
+        Date currentDate = new Date();
+        record.setGmtModified(currentDate);
+        record.setRemarks("送药付款成功");
+        record.setSendStatus(ConstantAll.SEND_ORDER_STATUS_PAYMENT);
+        this.updateByPrimaryKeySelective(record);
+
+        DrugAcceptOrder drugAcceptOrder = new DrugAcceptOrder();
+        drugAcceptOrder.setSendOrderNo(record.getSendOrderNo());//按照患者下订单为驱动更新
+        drugAcceptOrder.setAcceptStatus(ConstantAll.ACCEPT_ORDER_STATUS_PAYMENT);
+        drugAcceptOrder.setGmtModified(currentDate);
+        drugAcceptOrderService.updateBatchByCondition(drugAcceptOrder);
+    }
+    @ApiOperation(value = "创建患者送药订单")
+    @Transactional
+    public DrugSendOrder drugSendOrderCreate(DrugSendOrder record){
+        Assert.isTrue(record.getPrescriptionIdList()!=null,"请传递药品列表");
+        Assert.isTrue(record.getPatientId()!=null,"请传递patientId");
+        Assert.isTrue(record.getPatientAddress()!=null,"请传递patientAddress");
+        Assert.isTrue(record.getPatientAddressSummary()!=null,"请传递patientAddressSummary");
+        Assert.isTrue(record.getPatientContact()!=null,"请传递patientContact");
+        Assert.isTrue(record.getPatientName()!=null,"请传递patientName");
+        logger.info("目前传递过来的送药信息：{}",record);
+        MedicalPrescriptionRequest params = new MedicalPrescriptionRequest();
+        params.setPrescriptionIdList(record.getPrescriptionIdList());
+        List<MedicalPrescriptionPo> medicalPrescriptionPoList =  medicalPrescriptionService.listMedicalPrescriptionPo(params);
+        String sendOrderNo = idGenerator.nextId().toString();
+        record.setSendOrderNo(sendOrderNo);
+
+
+        int shipPayment = 2000;
+        List<String> orderNoList = Lists.newArrayList();
+        List<String> prescriptionIdList = Lists.newArrayList();
+        //left:药库Id，middle:同个药库下的处方,right:对应药品的价格
+        List<MutableTriple<String,List<MedicalPrescriptionPo>,Integer>> prescriptionIdListByPharmacyId = Lists.newArrayList();
+        medicalPrescriptionPoList.forEach(p->{
+            logger.info("处方信息：{}",p);
+            orderNoList.add(p.getOrderNo());
+            prescriptionIdList.add(p.getPrescriptionId());
+            MutableTriple<String,List<MedicalPrescriptionPo>,Integer> prescriptionIdByPharmacyId = prescriptionIdListByPharmacyId.stream().filter(pp->StringUtils.equalsIgnoreCase(pp.left,p.getPharmacyId())).findFirst().orElse(null);
+            logger.info("目前处方列表：{}",prescriptionIdByPharmacyId);
+            if(prescriptionIdByPharmacyId==null){
+                prescriptionIdByPharmacyId = new MutableTriple<String,List<MedicalPrescriptionPo>,Integer>();
+                prescriptionIdByPharmacyId.left = p.getPharmacyId();// prescriptionIdByPharmacyId.setLeft(p.getPharmacyId());
+                logger.info("两个信息：left:{} left。{}",p.getPharmacyId(),prescriptionIdByPharmacyId.left);
+                List<MedicalPrescriptionPo> prescriptionsGroupByPharmacyId = Lists.newArrayList();
+                prescriptionsGroupByPharmacyId.add(p);
+                prescriptionIdByPharmacyId.middle = prescriptionsGroupByPharmacyId;//  prescriptionIdByPharmacyId.setMiddle(prescriptionsGroupByPharmacyId);
+                final OrderDrugs orderDrugs =new OrderDrugs();
+                orderDrugs.setCostPrice(0);
+                p.getDrugList().forEach(d->{
+
+                    orderDrugs.setCostPrice(d.getCostPrice().intValue()*d.getDrugCount()+orderDrugs.getCostPrice().intValue());
+                });
+                prescriptionIdByPharmacyId.right = orderDrugs.getCostPrice();// prescriptionIdByPharmacyId.setRight(orderDrugs.getCostPrice());
+                prescriptionIdListByPharmacyId.add(prescriptionIdByPharmacyId);
+            }
+            else{
+                prescriptionIdByPharmacyId.middle.add(p);
+                final OrderDrugs orderDrugs =new OrderDrugs();
+                orderDrugs.setCostPrice(0);
+                p.getDrugList().forEach(d->{
+                    orderDrugs.setCostPrice(d.getCostPrice().intValue()*d.getDrugCount()+orderDrugs.getCostPrice());
+                });
+                prescriptionIdByPharmacyId.right += orderDrugs.getCostPrice().intValue();//  prescriptionIdByPharmacyId.setRight(prescriptionIdByPharmacyId.right.intValue() + orderDrugs.getCostPrice().intValue());
+            }
+            record.setPatientId(p.getPatientId());
+            record.setPatientIdCardNo(p.getPatientIdCardNo());
+            record.setPatientSex(p.getPatientSex());
+            record.setPatientYearOld(p.getPatientYearOld());
+        });
+        record.setOrderNo(StringUtils.join(orderNoList.toArray(),","));
+        record.setPrescriptionId(StringUtils.join(prescriptionIdList.toArray(),","));
+        record.setShipPayment(0);
+        record.setPayment(0);
+        Date currentDate = new Date();
+        Date compareDate = Utils.getDayTimeHHmmss(currentDate,12,0,0);
+        List<Pharmacy> listAllPharmacy  = pharmacyService.getListAllPharmacy();
+        logger.info("自己生产的列表 prescriptionIdListByPharmacyId:{}",prescriptionIdListByPharmacyId);
+        prescriptionIdListByPharmacyId.forEach(pGroupByPharmacyId->{
+            Pharmacy pharmacy = listAllPharmacy.stream().filter(t->t.getId().toString().equalsIgnoreCase(pGroupByPharmacyId.getLeft())).findFirst().orElse(null);
+            Assert.isTrue(pharmacy!=null,"您目前处方中的药房目前并不存在!");
+            DrugAcceptOrder drugAcceptOrder = new DrugAcceptOrder();
+            String acceptOrderNo = idGenerator.nextId().toString();
+            drugAcceptOrder.setAcceptOrderNo(acceptOrderNo);
+            drugAcceptOrder.setSendOrderNo(sendOrderNo);
+            drugAcceptOrder.setPharmacyId(pGroupByPharmacyId.left);
+            drugAcceptOrder.setPharmacyName(pharmacy.getName());
+            drugAcceptOrder.setPharmacyAddress(pharmacy.getAddress());
+            drugAcceptOrder.setPharmacyContact(pharmacy.getContact());
+            drugAcceptOrder.setPatientId(record.getPatientId());
+            drugAcceptOrder.setPatientAddressSummary(record.getPatientAddressSummary());
+            drugAcceptOrder.setPatientAddress(record.getPatientAddress());
+            drugAcceptOrder.setPatientContact(record.getPatientContact());
+            drugAcceptOrder.setPatientIdCardNo(record.getPatientIdCardNo());
+            drugAcceptOrder.setPatientName(record.getPatientName());
+            drugAcceptOrder.setPatientSex(record.getPatientSex());
+            drugAcceptOrder.setPatientYearOld(record.getPatientYearOld());
+            drugAcceptOrder.setPayment(pGroupByPharmacyId.right+shipPayment);
+            drugAcceptOrder.setShipPayment(shipPayment);
+            drugAcceptOrder.setAcceptStatus(ConstantAll.ACCEPT_ORDER_STATUS_APPPOINT);
+            drugAcceptOrder.setGmtModified(currentDate);
+            if(currentDate.getTime()-compareDate.getTime()>0){
+                drugAcceptOrder.setPlanTime(Utils.getDayTimeHHmmss(currentDate,20,0,0));
+            }
+            else{
+                drugAcceptOrder.setPlanTime(compareDate);
+            }
+            drugAcceptOrder.setRemarks("药师送药受理订单");
+            orderNoList.clear();
+            prescriptionIdList.clear();
+            pGroupByPharmacyId.middle.forEach(p->{
+                orderNoList.add(p.getOrderNo());
+                prescriptionIdList.add(p.getPrescriptionId());
+                DrugAcceptPrescription drugAcceptPrescription = new DrugAcceptPrescription();
+                drugAcceptPrescription.setPrescriptionId(p.getPrescriptionId());
+                drugAcceptPrescription.setOrderNo(p.getOrderNo());
+                drugAcceptPrescription.setSendOrderNo(sendOrderNo);
+                drugAcceptPrescription.setAcceptOrderNo(acceptOrderNo);
+                drugAcceptPrescription.setMedicalOrderId(p.getMedicalOrderId());
+                drugAcceptPrescription.setMedicalPrescriptionId(p.getId());
+                drugAcceptPrescription.setPatientId(record.getPatientId());
+                drugAcceptPrescription.setPatientIdCardNo(record.getPatientIdCardNo());
+                drugAcceptPrescription.setPatientName(record.getPatientName());
+                drugAcceptPrescription.setPharmacyId(pharmacy.getId().toString());
+                drugAcceptPrescription.setPharmacyName(pharmacy.getName());
+                drugAcceptPrescription.setPharmacyAddress(pharmacy.getAddress());
+                drugAcceptPrescription.setPharmacyContact(pharmacy.getContact());
+                drugAcceptPrescription.setGmtModified(currentDate);
+                drugAcceptPrescription.setRemarks("创建送药订单，药师送药受理单 与处方的关系");
+                this.drugAcceptPrescriptionService.insertSelective(drugAcceptPrescription);
+            });
+            drugAcceptOrder.setOrderNo(StringUtils.join(orderNoList.toArray(),","));
+            drugAcceptOrder.setPrescriptionId(StringUtils.join(prescriptionIdList.toArray(),","));
+            this.drugAcceptOrderService.insertSelective(drugAcceptOrder);
+
+            record.setPlanTime(drugAcceptOrder.getPlanTime());
+            record.setShipPayment(drugAcceptOrder.getShipPayment().intValue() + record.getShipPayment().intValue());
+            record.setPayment(drugAcceptOrder.getPayment().intValue()+record.getPayment().intValue());
+        });
+
+        MedicalOrder medicalOrder = new MedicalOrder();
+        medicalOrder.setOther(ConstantAll.STRING_WAIT_PAYMENT);
+        medicalOrder.setRemarks("患者预约送药单，等待支付");
+        medicalOrder.setGmtModified(new Date());
+        medicalOrder.setOrderNoList(orderNoList);
+        medicalOrderService.updateBatchByCondition(medicalOrder);//可能更新对应的订单到“未付款”
+
+        record.setSendStatus(ConstantAll.SEND_ORDER_STATUS_APPPOINT);
+        record.setRemarks("客户送药订单成功-同时药师送药接受单已经成功");
+        this.insertSelective(record);
+        record.setRemind(""+ConstantAll.VALUE_PAYMENT_LOCK);
+        logger.info("record:插入之后的结果：{}",record);
+        return record;
+    }
+    // 根据条件查询送药的列表
+    public List<DrugSendOrderPo> listDrugSendOrderPo(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrderPo(params);
+    }
+    // 根据条件查询送药的列表 总数
+    public int listDrugSendOrderPoCount(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrderCount(params);
+    }
+
+    public DrugSendOrderPo getDrugSendOrderPoById(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.getDrugSendOrderPoById(params);
+    }
+    // 根据条件查询列表
+    public List<DrugSendOrder> listDrugSendOrder(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrder(params);
+    }
+    // 根据条件查询列表 总数
+    public int listDrugSendOrderCount(DrugSendOrderRequest params){
+        return daoDrugSendOrderMapper.listDrugSendOrderCount(params);
+    }
+
+    public int deleteByPrimaryKey(Long id){
+        return daoDrugSendOrderMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insertSelective(DrugSendOrder record){
+        return daoDrugSendOrderMapper.insertSelective(record);
+    }
+
+    public DrugSendOrder selectByPrimaryKey(Long id){
+        return daoDrugSendOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(DrugSendOrder record){
+        return daoDrugSendOrderMapper.updateByPrimaryKeySelective(record);
+    }
+
+}

@@ -1,0 +1,266 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class OrderDrugs extends BaseJsonObject {
+    private Long id;
+
+    private String orderNo;
+
+    private String prescriptionId;
+
+    private String drugId;
+
+    private String drugCode;
+
+    private String drugName;
+
+    private String drugImage;
+
+    private Integer drugCount;
+
+    private String drugUnit;
+
+    private Integer costPrice;
+
+    private String drugSpec;
+
+    private String formCode;
+
+    private String totalDose;
+
+    private String routeCode;
+
+    private String dose;
+
+    private String doseUnit;
+
+    private String rate;
+
+    private String rateUnit;
+
+    private String exceedQuota;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public OrderDrugs(Long id, String orderNo, String prescriptionId, String drugId, String drugCode, String drugName, String drugImage, Integer drugCount, String drugUnit, Integer costPrice, String drugSpec, String formCode, String totalDose, String routeCode, String dose, String doseUnit, String rate, String rateUnit, String exceedQuota, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.orderNo = orderNo;
+        this.prescriptionId = prescriptionId;
+        this.drugId = drugId;
+        this.drugCode = drugCode;
+        this.drugName = drugName;
+        this.drugImage = drugImage;
+        this.drugCount = drugCount;
+        this.drugUnit = drugUnit;
+        this.costPrice = costPrice;
+        this.drugSpec = drugSpec;
+        this.formCode = formCode;
+        this.totalDose = totalDose;
+        this.routeCode = routeCode;
+        this.dose = dose;
+        this.doseUnit = doseUnit;
+        this.rate = rate;
+        this.rateUnit = rateUnit;
+        this.exceedQuota = exceedQuota;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public OrderDrugs() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getDrugId() {
+        return drugId;
+    }
+
+    public void setDrugId(String drugId) {
+        this.drugId = drugId;
+    }
+
+    public String getDrugCode() {
+        return drugCode;
+    }
+
+    public void setDrugCode(String drugCode) {
+        this.drugCode = drugCode;
+    }
+
+    public String getDrugName() {
+        return drugName;
+    }
+
+    public void setDrugName(String drugName) {
+        this.drugName = drugName;
+    }
+
+    public String getDrugImage() {
+        return drugImage;
+    }
+
+    public void setDrugImage(String drugImage) {
+        this.drugImage = drugImage;
+    }
+
+    public Integer getDrugCount() {
+        return drugCount;
+    }
+
+    public void setDrugCount(Integer drugCount) {
+        this.drugCount = drugCount;
+    }
+
+    public String getDrugUnit() {
+        return drugUnit;
+    }
+
+    public void setDrugUnit(String drugUnit) {
+        this.drugUnit = drugUnit;
+    }
+
+    public Integer getCostPrice() {
+        return costPrice;
+    }
+
+    public void setCostPrice(Integer costPrice) {
+        this.costPrice = costPrice;
+    }
+
+    public String getDrugSpec() {
+        return drugSpec;
+    }
+
+    public void setDrugSpec(String drugSpec) {
+        this.drugSpec = drugSpec;
+    }
+
+    public String getFormCode() {
+        return formCode;
+    }
+
+    public void setFormCode(String formCode) {
+        this.formCode = formCode;
+    }
+
+    public String getTotalDose() {
+        return totalDose;
+    }
+
+    public void setTotalDose(String totalDose) {
+        this.totalDose = totalDose;
+    }
+
+    public String getRouteCode() {
+        return routeCode;
+    }
+
+    public void setRouteCode(String routeCode) {
+        this.routeCode = routeCode;
+    }
+
+    public String getDose() {
+        return dose;
+    }
+
+    public void setDose(String dose) {
+        this.dose = dose;
+    }
+
+    public String getDoseUnit() {
+        return doseUnit;
+    }
+
+    public void setDoseUnit(String doseUnit) {
+        this.doseUnit = doseUnit;
+    }
+
+    public String getRate() {
+        return rate;
+    }
+
+    public void setRate(String rate) {
+        this.rate = rate;
+    }
+
+    public String getRateUnit() {
+        return rateUnit;
+    }
+
+    public void setRateUnit(String rateUnit) {
+        this.rateUnit = rateUnit;
+    }
+
+    public String getExceedQuota() {
+        return exceedQuota;
+    }
+
+    public void setExceedQuota(String exceedQuota) {
+        this.exceedQuota = exceedQuota;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

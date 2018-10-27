@@ -1,0 +1,576 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.HospitalRequest;
+import com.yier.platform.common.requestParam.PracticeRequest;
+import com.yier.platform.common.util.OrderIdUtils;
+import com.yier.platform.dao.*;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * 医院信息 service
+ */
+@ApiModel(value = "医院信息 service")
+@Service
+public class HospitalService {
+    @Autowired
+    private HospitalMapper daoHospitalMapper;
+    @Autowired
+    private DepartmentCatalogMapper daoDepartmentCatalogMapper;
+    @Autowired
+    private HospitalDepartmentMapper daoHospitalDepartmentMapper;
+    @Autowired
+    private HospitalLevelMapper daoHospitalLevelMapper;
+    @Autowired
+    private HospitalImagesMapper daoHospitalImagesMapper;
+    @Autowired
+    private Uploader uploader;
+    @Autowired
+    private AuditInfoService auditInfoService;
+    @Autowired
+    private UserService serviceUserService;
+    @Autowired()
+    private PharmacyService pharmacyService;
+
+    @ApiOperation(value = "根据医生Id查询医院对应的城市科室信息，好拼接执业点信息")
+    public HospitalPo getHospitalPoWithNameByIds(PracticeRequest params) {
+        return daoHospitalMapper.getHospitalPoWithNameByIds(params);
+    }
+
+    @ApiOperation(value = "根据条件查询医院列表")
+    public List<HospitalPo> listHospital(HospitalRequest params) {
+        if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "doctor")) {
+            return daoHospitalMapper.listHospitalForDoctor(params);
+        } else if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "pharmacist")) {
+            return daoHospitalMapper.listHospitalForPharmacist(params);
+        } else {
+            return daoHospitalMapper.listHospital(params);
+        }
+    }
+
+    @ApiOperation(value = "根据条件查询医院列表总数")
+    public int listHospitalCount(HospitalRequest params) {
+        if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "doctor")) {
+            return daoHospitalMapper.listHospitalForDoctorCount(params);
+        } else if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "pharmacist")) {
+            return daoHospitalMapper.listHospitalForPharmacistCount(params);
+        } else {
+            return daoHospitalMapper.listHospitalCount(params);
+        }
+    }
+
+    // 根据医院省份区域条件查询列表
+    public List<DoctorPo> listDoctorPoByArea(HospitalRequest params) {
+        return this.daoHospitalMapper.listDoctorPoByArea(params);
+    }
+
+    // 根据医院省份区域条件查询列表 总数
+    public int listDoctorPoByAreaCount(HospitalRequest params) {
+        return this.daoHospitalMapper.listDoctorPoByAreaCount(params);
+    }
+
+    // 根据医院省份区域条件查询列表
+    public List<PharmacistPo> listPharmacistPoByArea(HospitalRequest params) {
+        return this.daoHospitalMapper.listPharmacistPoByArea(params);
+    }
+
+    // 根据医院省份区域条件查询列表 总数
+    public int listPharmacistPoByAreaCount(HospitalRequest params) {
+        return this.daoHospitalMapper.listPharmacistPoByAreaCount(params);
+    }
+
+
+    @ApiOperation(value = "根据条件查询医院分类列表")
+    public List<DepartmentCatalog> listDepartmentCatalog(HospitalRequest params) {
+        if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "doctor")) {
+            return daoDepartmentCatalogMapper.listDepartmentCatalogForDoctor(params);
+        } else if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "pharmacist")) {
+            return daoDepartmentCatalogMapper.listDepartmentCatalogForPharmacist(params);
+        } else {
+            return daoDepartmentCatalogMapper.listDepartmentCatalog(params);
+        }
+    }
+
+    @ApiOperation(value = "根据条件查询医院列表总数")
+    public int listDepartmentCatalogCount(HospitalRequest params) {
+        if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "doctor")) {
+            return daoDepartmentCatalogMapper.listDepartmentCatalogForDoctorCount(params);
+        } else if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "pharmacist")) {
+            return daoDepartmentCatalogMapper.listDepartmentCatalogForPharmacistCount(params);
+        } else {
+            return daoDepartmentCatalogMapper.listDepartmentCatalogCount(params);
+        }
+    }
+
+    @ApiOperation(value = "根据条件查询医院列表")
+    public List<HospitalDepartment> listHospitalDepartment(HospitalRequest params) {
+        if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "doctor")) {
+            return daoHospitalDepartmentMapper.listHospitalDepartmentForDoctor(params);
+        } else if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "pharmacist")) {
+            return daoHospitalDepartmentMapper.listHospitalDepartmentForPharmacist(params);
+        } else {
+            return daoHospitalDepartmentMapper.listHospitalDepartment(params);
+        }
+    }
+
+    @ApiOperation(value = "根据条件查询医院列表总数")
+    public int listHospitalDepartmentCount(HospitalRequest params) {
+        if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "doctor")) {
+            return daoHospitalDepartmentMapper.listHospitalDepartmentForDoctorCount(params);
+        } else if (StringUtils.equalsIgnoreCase(params.getFilterShow(), "pharmacist")) {
+            return daoHospitalDepartmentMapper.listHospitalDepartmentForPharmacistCount(params);
+        } else {
+            return daoHospitalDepartmentMapper.listHospitalDepartmentCount(params);
+        }
+    }
+
+    @ApiOperation(value = "根据条件查询医院等级")
+    public List<HospitalLevel> listHospitalLevel(HospitalRequest params) {
+        return daoHospitalLevelMapper.listHospitalLevel(params);
+    }
+
+    @ApiOperation(value = "根据条件查询医院等级总数")
+    public int listHospitalLevelCount(HospitalRequest params) {
+        return daoHospitalLevelMapper.listHospitalLevelCount(params);
+    }
+
+    /**
+     * 通过id获取医院信息，包括图片信息及热点科目类
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据条件查询医院等级")
+    public HospitalPo getHospitalWithHotById(Long id) {
+        return daoHospitalMapper.getHospitalWithHotById(id);
+    }
+
+    /**
+     * 通过id获取医院信息，包括图片信息及热点科目类
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据条件查询医院等级")
+    public MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>> getHospitalById(Long id) {
+        HospitalRequest params = new HospitalRequest();
+        params.setHospitalId(id);
+        MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectHospitalAuditInfo(params);
+        return mutableTriple;
+    }
+
+    /**
+     * 新增医院信息的同时保存医院图片信息
+     *
+     * @param hospital
+     * @param files
+     * @return
+     */
+    @ApiOperation(value = "新增医院信息的同时保存医院图片信息")
+    @Transactional
+    public HospitalPo insertHospital(Hospital hospital, MultipartFile[] files, Long userId) {
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getName()), "医院名称不能为空！");
+        Assert.isTrue(hospital.getName().trim().length() <= 20, "医院名称请输入20个以内的字符！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getProvinceId()), "请选择省份！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getCityId()), "请选择城市！");
+        //Assert.isTrue(StringUtils.isNotBlank(hospital.getAreaId()), "请选择区域！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getAddress()), "医院地址不能为空！");
+        Assert.isTrue(hospital.getAddress().trim().length() <= 20, "医院地址请输入100个以内的字符！");
+        Assert.isTrue(hospital.getLevelId() != null, "请选择医院等级！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getBusinessType()), "请选择医院类型！");
+        //验证经纬度，正则表达式
+        Assert.isTrue(hospital.getLng() != null, "经度不能为空！");
+        Assert.isTrue(hospital.getLat() != null, "纬度不能为空！");
+//        String regJD = "/^[\\-\\+]?(0?\\d{1,2}\\.\\d{1,6}|1[0-7]?\\d{1}\\.\\d{1,6}|180\\.0{1,6})$/";
+//        String regWD = "/^[\\-\\+]?([0-8]?\\d{1}\\.\\d{1,6}|90\\.0{1,6})$/";
+//        Assert.isTrue(hospital.getLng().toString().matches(regJD), "经度格式不正确！");
+//        Assert.isTrue(hospital.getLng().toString().matches(regWD), "纬度格式不正确！");
+
+        hospital.setRemarks("新增医院信息");
+        hospital.setHospitalCodeNo(OrderIdUtils.genOrderIdWithUUID("H"));
+        this.insertSelective(hospital);//新增医院信息
+
+        List<HospitalImages> hospitalImagesList = new ArrayList<HospitalImages>();
+        if (files != null && files.length > 0) {
+            for (int i = 0; i < files.length; i++) {
+                MultipartFile file = files[i];
+                //上传医院图片到服务器
+                String hospitalImagesUrl = this.uploader.upload(file);
+                //新增医院图片信息
+                HospitalImages hospitalImages = new HospitalImages();
+                hospitalImages.setGmtCreate(new Date());
+                hospitalImages.setHospitalId(hospital.getId());
+                hospitalImages.setImageUrl(hospitalImagesUrl);
+                hospitalImages.setRemarks("插入医院图片");
+                this.daoHospitalImagesMapper.insertSelective(hospitalImages);
+                hospitalImagesList.add(hospitalImages);
+            }
+        }
+
+        //新增药库信息
+        Pharmacy pharmacy = convertPharmacy(hospital);//组装药库信息
+        pharmacy.setPharmacyCodeNo(OrderIdUtils.genOrderIdWithUUID("P"));
+        pharmacy.setRemarks("新增药库信息");
+        pharmacyService.insertSelective(pharmacy);
+
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setAuditType(1);
+        auditInfo.setTableId(hospital.getId());
+        auditInfo.setOperate(hospital.getStatus());
+        auditInfo.setRemarks(hospital.getRemarks());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.auditInfoService.insertAuditInfo(auditInfo);
+
+        HospitalPo hospitalPo = new HospitalPo(hospital);
+        hospitalPo.setImagesList(hospitalImagesList);
+        return new HospitalPo(hospital);
+    }
+
+    /**
+     * 更新医院信息的同时更新医院图片信息
+     *
+     * @param hospital
+     * @param files
+     * @return
+     */
+    @ApiOperation(value = "更新医院信息的同时更新医院图片信息")
+    @Transactional
+    public HospitalPo updateHospital(Hospital hospital, MultipartFile[] files, Long userId) {
+        //更新医院之前验证必填字段
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getName()), "医院名称不能为空！");
+        Assert.isTrue(hospital.getName().trim().length() <= 20, "医院名称请输入20个以内的字符！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getProvinceId()), "请选择省份！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getCityId()), "请选择城市！");
+        //Assert.isTrue(StringUtils.isNotBlank(hospital.getAreaId()), "请选择区域！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getAddress()), "医院地址不能为空！");
+        Assert.isTrue(hospital.getAddress().trim().length() <= 20, "医院地址请输入100个以内的字符！");
+        Assert.isTrue(hospital.getLevelId() != null, "请选择医院等级！");
+        Assert.isTrue(StringUtils.isNotBlank(hospital.getBusinessType()), "请选择医院类型！");
+        //验证经纬度，正则表达式
+        Assert.isTrue(hospital.getLng() != null, "经度不能为空！");
+        Assert.isTrue(hospital.getLat() != null, "纬度不能为空！");
+//        String regJD = "(-|\\+)?(180\\.0{0,6}|(\\d{1,2}|1([0-7]\\d))\\.\\d{0,6})";
+//        String regWD = "(-|\\+)?(90\\.0{0,6}|(\\d|[1-8]\\d)\\.\\d{0,6})";
+//        Assert.isTrue(hospital.getLng().toString().matches(regJD), "经度格式不正确！");
+//        Assert.isTrue(hospital.getLng().toString().matches(regWD), "纬度格式不正确！");
+
+        //更新医院信息
+        hospital.setGmtModified(new Date());
+        hospital.setRemarks("更新医院信息");
+        //hospital.setHospitalCodeNo(OrderIdUtils.genOrderIdWithUUID("H"));
+        this.updateByPrimaryKeySelective(hospital);
+
+        List<HospitalImages> hospitalImagesList = new ArrayList<HospitalImages>();
+        if (files != null && files.length > 0) {
+            //更新医院图片之前，先根据医院id删除原来的图片，然后重新插入
+            this.daoHospitalImagesMapper.deleteHospitalImagesByHospitalId(hospital.getId());
+            for (int i = 0; i < files.length; i++) {
+                MultipartFile file = files[i];
+                //上传医院图片到服务器
+                String hospitalImagesUrl = this.uploader.upload(file);
+                //新增医院图片信息
+                HospitalImages hospitalImages = new HospitalImages();
+                hospitalImages.setGmtCreate(new Date());
+                hospitalImages.setHospitalId(hospital.getId());
+                hospitalImages.setImageUrl(hospitalImagesUrl);
+                hospitalImages.setRemarks("插入医院图片");
+                this.daoHospitalImagesMapper.insertSelective(hospitalImages);
+                hospitalImagesList.add(hospitalImages);
+            }
+        }
+
+        //根据医院id查询药库信息
+        Pharmacy pharmacy = this.pharmacyService.selectPharmacyByHospitalId(hospital.getId());
+        //Assert.isTrue(pharmacy != null, "医院对应的药库信息不存在！");
+        if (pharmacy != null) {
+            //更新药库信息
+            Pharmacy convertPharmacy = convertPharmacy(hospital);//组装药库信息
+            convertPharmacy.setId(pharmacy.getId());
+            convertPharmacy.setGmtModified(new Date());
+            convertPharmacy.setRemarks("更新药库信息");
+            pharmacyService.updateByPrimaryKeySelective(convertPharmacy);
+        } else {
+            //新增药库信息
+            Pharmacy convertPharmacy = convertPharmacy(hospital);//组装药库信息
+            convertPharmacy.setPharmacyCodeNo(OrderIdUtils.genOrderIdWithUUID("P"));
+            convertPharmacy.setRemarks("新增药库信息");
+            pharmacyService.insertSelective(convertPharmacy);
+        }
+
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setAuditType(1);
+        auditInfo.setTableId(hospital.getId());
+        auditInfo.setOperate(hospital.getStatus());
+        auditInfo.setRemarks(hospital.getRemarks());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.auditInfoService.insertAuditInfo(auditInfo);
+
+        HospitalPo hospitalPo = new HospitalPo(hospital);
+        hospitalPo.setImagesList(hospitalImagesList);
+        return hospitalPo;
+    }
+
+    /**
+     * 根据医院id删除医院信息
+     *
+     * @param hospitalId
+     * @return
+     */
+    @ApiOperation(value = "根据医院id删除医院信息")
+    @Transactional
+    public Hospital deleteHospital(Long hospitalId) {
+        Assert.isTrue(StringUtils.isNotBlank(String.valueOf(hospitalId)), "医院id为空！");
+
+        Hospital hospital = new Hospital();
+        hospital.setStatus("1");
+        hospital.setId(hospitalId);
+        hospital.setGmtModified(new Date());
+        hospital.setRemarks("根据医院id删除医院信息");
+        this.daoHospitalDepartmentMapper.deleteHospitalDepartmentByHospitalId(hospitalId);//删除医院和大科室对应的小科室
+        this.daoDepartmentCatalogMapper.deleteDepartmentCatalogByHospitalId(hospitalId);//删除医院对应大科室
+        int count = this.updateByPrimaryKeySelective(hospital);//删除医院 逻辑删除
+        return hospital;
+    }
+
+    /**
+     * 启用/停用医院
+     *
+     * @param hospital
+     * @return
+     */
+    @ApiOperation(value = "启用/停用医院")
+    public Hospital enableOrDisabelHospital(Hospital hospital) {
+        hospital.setGmtModified(new Date());
+        hospital.setRemarks("启用/停用医院");
+        this.updateByPrimaryKeySelective(hospital);
+        return hospital;
+    }
+
+    /**
+     * 新增大科室
+     *
+     * @param departmentCatalog
+     * @return
+     */
+    @ApiOperation(value = "新增大科室")
+    //@Transactional
+    public DepartmentCatalog insertDepartmentCatalog(DepartmentCatalog departmentCatalog) {
+        Assert.isTrue(StringUtils.isNotBlank(departmentCatalog.getName()), "大科室名称不能为空！");
+        Assert.isTrue(departmentCatalog.getName().length() <= 10, "请输入10个以内的字符！");
+        Assert.isTrue(departmentCatalog.getHospitalId() != null, "医院id不能为空！");
+
+        HospitalRequest params = new HospitalRequest();
+        params.setHospitalId(departmentCatalog.getHospitalId());
+        params.setName(departmentCatalog.getName());
+        DepartmentCatalog queryDepartmentCatalog = this.daoDepartmentCatalogMapper.selectDepartmentCatalog(params);
+        Assert.isTrue(queryDepartmentCatalog == null, "大科室名称已经存在！");
+
+        departmentCatalog.setUseType(2);
+        departmentCatalog.setRemarks("新增大科室");
+        this.daoDepartmentCatalogMapper.insertSelective(departmentCatalog);
+        return departmentCatalog;
+    }
+
+    /**
+     * 根据id更新大科室
+     *
+     * @param departmentCatalog
+     * @return
+     */
+    @ApiOperation(value = "根据id更新大科室")
+    //@Transactional
+    public DepartmentCatalog updateDepartmentCatalog(DepartmentCatalog departmentCatalog) {
+        Assert.isTrue(StringUtils.isNotBlank(departmentCatalog.getName()), "大科室名称不能为空！");
+        Assert.isTrue(departmentCatalog.getName().length() <= 10, "请输入10个以内的字符！");
+        Assert.isTrue(departmentCatalog.getHospitalId() != null, "医院id不能为空！");
+
+        departmentCatalog.setGmtModified(new Date());
+        departmentCatalog.setRemarks("更新大科室");
+        this.daoDepartmentCatalogMapper.updateByPrimaryKeySelective(departmentCatalog);
+        return departmentCatalog;
+    }
+
+    /**
+     * 根据id删除大科室
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据id删除大科室")
+    //@Transactional
+    public Long deleteDepartmentCatalogById(Long id) {
+        Assert.isTrue(StringUtils.isNotBlank(String.valueOf(id)), "请选择大科室！");
+        this.daoDepartmentCatalogMapper.deleteByPrimaryKey(id);
+        return id;
+    }
+
+    /**
+     * 启用/停用大科室
+     *
+     * @param departmentCatalog
+     * @return
+     */
+    @ApiOperation(value = "启用/停用大科室")
+    public DepartmentCatalog enableOrDisableDepartmentCatalog(DepartmentCatalog departmentCatalog) {
+        departmentCatalog.setGmtModified(new Date());
+        departmentCatalog.setRemarks("启用/停用大科室");
+        this.daoDepartmentCatalogMapper.updateByPrimaryKeySelective(departmentCatalog);
+        return departmentCatalog;
+    }
+
+    /**
+     * 新增小科室
+     *
+     * @param hospitalDepartment
+     * @return
+     */
+    @ApiOperation(value = "新增小科室")
+    //@Transactional
+    public HospitalDepartment insertHospitalDepartment(HospitalDepartment hospitalDepartment) {
+        //新增之前先验证
+        Assert.isTrue(StringUtils.isNotBlank(String.valueOf(hospitalDepartment.getCatalogId())), "请选择大科室！");
+        Assert.isTrue(StringUtils.isNotBlank(hospitalDepartment.getName()), "小科室名称不能为空！");
+        Assert.isTrue(hospitalDepartment.getName().length() <= 10, "请输入10个以内的字符！");
+        Assert.isTrue(hospitalDepartment.getHospitalId() != null, "医院id不能为空！");
+
+        HospitalRequest params = new HospitalRequest();
+        params.setHospitalId(hospitalDepartment.getHospitalId());
+        params.setCatalogId(hospitalDepartment.getCatalogId());
+        params.setName(hospitalDepartment.getName());
+        HospitalDepartment queryHospitalDepartment = this.daoHospitalDepartmentMapper.selectHospitalDepartment(params);
+        Assert.isTrue(queryHospitalDepartment == null, "小科室名称已经存在！");
+
+        hospitalDepartment.setUseType(2);
+        hospitalDepartment.setRemarks("新增小科室");
+        this.daoHospitalDepartmentMapper.insertSelective(hospitalDepartment);
+        return hospitalDepartment;
+    }
+
+    /**
+     * 根据id更新小科室
+     *
+     * @param hospitalDepartment
+     * @return
+     */
+    @ApiOperation(value = "根据id更新小科室")
+    //@Transactional
+    public HospitalDepartment updateHospitalDepartment(HospitalDepartment hospitalDepartment) {
+        //更新之前先验证
+        Assert.isTrue(hospitalDepartment.getCatalogId() != null, "请选择大科室！");
+        Assert.isTrue(StringUtils.isNotBlank(hospitalDepartment.getName()), "小科室名称不能为空！");
+        Assert.isTrue(hospitalDepartment.getName().length() <= 10, "请输入10个以内的字符！");
+        Assert.isTrue(hospitalDepartment.getHospitalId() != null, "医院id不能为空！");
+
+        hospitalDepartment.setRemarks("更新小科室");
+        hospitalDepartment.setGmtModified(new Date());
+        this.daoHospitalDepartmentMapper.updateByPrimaryKeySelective(hospitalDepartment);
+        return hospitalDepartment;
+    }
+
+    /**
+     * 根据id删除小科室
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据id删除小科室")
+    //@Transactional
+    public Long deleteHospitalDepartmentById(Long id) {
+        Assert.isTrue(StringUtils.isNotBlank(String.valueOf(id)), "小科室id为空！");
+        this.daoHospitalDepartmentMapper.deleteByPrimaryKey(id);
+        return id;
+    }
+
+    /**
+     * 启用/停用小科室
+     *
+     * @param hospitalDepartment
+     * @return
+     */
+    @ApiOperation(value = "启用/停用小科室")
+    public HospitalDepartment enableOrDisableHospitalDepartment(HospitalDepartment hospitalDepartment) {
+        hospitalDepartment.setGmtModified(new Date());
+        hospitalDepartment.setRemarks("启用/停用小科室");
+        this.daoHospitalDepartmentMapper.updateByPrimaryKeySelective(hospitalDepartment);
+        return hospitalDepartment;
+    }
+
+    /**
+     * 组装药库信息
+     *
+     * @param hospital
+     * @return
+     */
+    private Pharmacy convertPharmacy(Hospital hospital) {
+        //新增药库信息
+        Pharmacy pharmacy = new Pharmacy();
+        pharmacy.setName(hospital.getName());
+        pharmacy.setHospitalCodeNo(hospital.getHospitalCodeNo());
+        pharmacy.setHospitalId(hospital.getId());
+        pharmacy.setHospitalName(hospital.getName());
+        pharmacy.setHospitalAddress(hospital.getAddress());
+        pharmacy.setWebSite(hospital.getWebSite());
+        pharmacy.setProvinceId(hospital.getProvinceId());
+        pharmacy.setCityId(hospital.getCityId());
+        pharmacy.setAreaId(hospital.getAreaId());
+        pharmacy.setAddress(hospital.getAddress());
+        pharmacy.setContact(hospital.getContact());
+        pharmacy.setProfile(hospital.getProfile());
+        pharmacy.setVisit(hospital.getVisit());
+        pharmacy.setLng(hospital.getLng());
+        pharmacy.setLat(hospital.getLat());
+        pharmacy.setOther(hospital.getOther());
+        return pharmacy;
+    }
+
+
+    public int deleteByPrimaryKey(Long id) {
+        return daoHospitalMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insert(Hospital record) {
+        return daoHospitalMapper.insert(record);
+    }
+
+    public int insertSelective(Hospital record) {
+        return daoHospitalMapper.insertSelective(record);
+    }
+
+    public Hospital selectByPrimaryKey(Long id) {
+        return daoHospitalMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(Hospital record) {
+        return daoHospitalMapper.updateByPrimaryKeySelective(record);
+    }
+
+    public int updateByPrimaryKeyWithBLOBs(Hospital record) {
+        return daoHospitalMapper.updateByPrimaryKeyWithBLOBs(record);
+    }
+
+    public int updateByPrimaryKey(Hospital record) {
+        return daoHospitalMapper.updateByPrimaryKey(record);
+    }
+}

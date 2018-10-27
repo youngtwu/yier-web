@@ -1,0 +1,82 @@
+package com.yier.platform.controller;
+
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.MedicalDate;
+import com.yier.platform.common.model.MedicalDatePo;
+import com.yier.platform.common.model.MedicalOrder;
+import com.yier.platform.common.model.Patient;
+import com.yier.platform.common.requestParam.BaseRequest;
+import com.yier.platform.common.requestParam.MedicalDateRequest;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import com.yier.platform.service.HospitalService;
+import com.yier.platform.service.MedicalDateService;
+import com.yier.platform.service.MedicalOrderService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "上门就诊相关的请求接口")
+@RestController
+@RequestMapping("/medicalOrder")
+@Slf4j
+public class MedicalOrderController {
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+    @Autowired
+    private MedicalDateService serviceMedicalDateService;
+
+    @ApiOperation(value = "获取上门就诊时间列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getMedicalDatePo.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MedicalDatePo> getMedicalDatePo(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "上门就诊时间请求接口类") @RequestBody MedicalDateRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<MedicalDatePo> res = new ListResponse<MedicalDatePo>();
+        List<MedicalDatePo> list = serviceMedicalDateService.listMedicalDatePo(params);
+        res.setData(list);
+        res.setTotal(serviceMedicalDateService.listMedicalDatePoCount(params));
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "插入上门就诊时间列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/insertMedicalDates.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalDatePo> insertMedicalDates(HttpServletRequest request, HttpServletResponse response,
+                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalDatePo record) {
+        CommonResponse<MedicalDatePo> result = new CommonResponse<MedicalDatePo>();
+        serviceMedicalDateService.insertMedicalDates(record);
+        result.setData(record);
+        return result;
+    }
+
+    @ApiOperation(value = "获取上门就诊列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getListMedicalOrder.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MedicalOrder> getListMedicalOrder(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "上门就诊请求接口类") @RequestBody MedicalOrderRequest params) {
+        ListResponse<MedicalOrder> res = new ListResponse<MedicalOrder>();
+        List<MedicalOrder> list = medicalOrderService.listMedicalOrder(params);
+        res.setData(list);
+        res.setTotal(list.size());
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "插入上门就诊信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/insertMedicalOrder.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> insertMedicalOrder(HttpServletRequest request, HttpServletResponse response,
+                                                                 @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.insertSelective(record);
+        result.setData(record);
+        return result;
+    }
+}

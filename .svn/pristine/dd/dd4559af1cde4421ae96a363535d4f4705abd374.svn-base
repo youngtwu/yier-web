@@ -1,0 +1,510 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.*;
+import com.yier.platform.dao.AuditInfoMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * 审核信息管理 service
+ */
+@ApiModel(value = "审核信息管理 service")
+@Service
+public class AuditInfoService {
+    @Autowired
+    private AuditInfoMapper auditInfoMapper;
+    @Autowired
+    private HospitalService serviceHospitalService;
+    @Autowired
+    private DoctorService serviceDoctorService;
+    @Autowired
+    private PharmacistService pharmacistService;
+    @Autowired
+    private UserService serviceUserService;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private NewsService newsService;
+    @Autowired
+    private PatientService patientService;
+
+    @ApiOperation(value = "查询医院审核信息")
+    public MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>> selectHospitalAuditInfo(HospitalRequest params) {
+        AuditInfoRequest requestParams = new AuditInfoRequest();
+        requestParams.setTableId(params.getHospitalId());
+        requestParams.setAuditType(1);
+        HospitalPo hospitalPo = this.serviceHospitalService.getHospitalWithHotById(params.getHospitalId());
+        List<AuditInfo> auditInfoList = this.auditInfoMapper.selectAuditInfoByTableId(requestParams);
+        MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>> mutableTriple = new MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>>();
+        mutableTriple.left = hospitalPo;
+        if(auditInfoList != null && auditInfoList.size() > 0){
+            mutableTriple.middle = auditInfoList.get(0);
+        }
+        mutableTriple.right = auditInfoList;
+        return mutableTriple;
+    }
+
+    @ApiOperation(value = "查询医生审核信息")
+    public MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>> selectDoctorAuditInfo(DoctorRequest params) {
+        AuditInfoRequest requestParams = new AuditInfoRequest();
+        requestParams.setTableId(params.getDoctorId());
+        requestParams.setAuditType(2);
+        DoctorPo doctorPo = this.serviceDoctorService.getDoctorPoById(params);
+        List<AuditInfo> auditInfoList = this.auditInfoMapper.selectAuditInfoByTableId(requestParams);
+        MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>> mutableTriple = new MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>>();
+        mutableTriple.left = doctorPo;
+        if(auditInfoList != null && auditInfoList.size() > 0){
+            mutableTriple.middle = auditInfoList.get(0);
+        }
+        mutableTriple.right = auditInfoList;
+        return mutableTriple;
+    }
+
+    @ApiOperation(value = "查询药师审核信息")
+    public MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>> selectPharmacistAuditInfo(PharmacistRequest params) {
+        AuditInfoRequest requestParams = new AuditInfoRequest();
+        requestParams.setTableId(params.getPharmacistId());
+        requestParams.setAuditType(3);
+        PharmacistPo pharmacistPo = this.pharmacistService.getPharmacistPoById(params);
+        List<AuditInfo> auditInfoList = this.auditInfoMapper.selectAuditInfoByTableId(requestParams);
+        MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>> mutableTriple = new MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>>();
+        mutableTriple.left = pharmacistPo;
+        if(auditInfoList != null && auditInfoList.size() > 0){
+            mutableTriple.middle = auditInfoList.get(0);
+        }
+        mutableTriple.right = auditInfoList;
+        return mutableTriple;
+    }
+
+    @ApiOperation(value = "查询公告审核信息")
+    public MutablePair<MessagesPo, AuditInfo> selectMessageAuditInfo(MessagesRequest params) {
+        AuditInfoRequest requestParams = new AuditInfoRequest();
+        requestParams.setTableId(params.getMessageId());
+        requestParams.setAuditType(5);
+        MessagesPo messagesPo = this.messageService.getMessagesById(params);
+        AuditInfo auditInfo = new AuditInfo();
+        if (messagesPo != null) {
+            List<AuditInfo> list = this.auditInfoMapper.selectAuditInfoByTableId(requestParams);
+            messagesPo.setAuditInfos(list);
+            if (list != null && list.size() > 0) {
+                auditInfo = list.get(0);//获取提交人等信息
+            }
+        }
+        MutablePair<MessagesPo, AuditInfo> mutablePair = new MutablePair<MessagesPo, AuditInfo>();
+        mutablePair.left = messagesPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "查询新闻资讯审核信息")
+    public MutablePair<NewsPo, AuditInfo> selectNewsAuditInfo(NewsRequest params) {
+        AuditInfoRequest requestParams = new AuditInfoRequest();
+        requestParams.setTableId(params.getNewId());
+        requestParams.setAuditType(4);
+        NewsPo newsPo = this.newsService.getNewsById(params);
+        AuditInfo auditInfo = new AuditInfo();
+        if (newsPo != null) {
+            List<AuditInfo> list = this.auditInfoMapper.selectAuditInfoByTableId(requestParams);
+            newsPo.setAuditInfos(list);
+            if (list != null && list.size() > 0) {
+                auditInfo = list.get(0);//获取提交人等信息
+            }
+        }
+        MutablePair<NewsPo, AuditInfo> mutablePair = new MutablePair<NewsPo, AuditInfo>();
+        mutablePair.left = newsPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "根据用户id和端口类型获取用户手机号审核信息")
+    public MutableTriple<UserPo, AuditInfo, List<AuditInfo>> selectAuditInfoByUserIdAndClientType(UserRequest params) {
+        Assert.isTrue(params.getClientType() != null, "端口类型(用户所属端口类型:1.医生，2.药师，3.患者)不能为空！");
+        Assert.isTrue(params.getUserId() != null, "用户id不能为空！");
+        AuditInfoRequest requestParams = new AuditInfoRequest();
+        requestParams.setTableId(params.getUserId());
+        requestParams.setAuditType(6);
+        List<AuditInfo> auditInfoList = this.auditInfoMapper.selectAuditInfoByTableId(requestParams);
+        MutableTriple<UserPo, AuditInfo, List<AuditInfo>> mutableTriple = new MutableTriple<UserPo, AuditInfo, List<AuditInfo>>();
+        UserPo userPo = new UserPo();
+        if ("1".equals(params.getClientType())) {
+            Doctor doctor = this.serviceDoctorService.selectByPrimaryKey(params.getUserId());
+            userPo.setId(doctor.getId());
+            userPo.setClientType(params.getClientType());
+            userPo.setTrueName(doctor.getTrueName());
+            userPo.setPhoneNumber(doctor.getPhoneNumber());
+            userPo.setIdCardNo(doctor.getIdCardNo());
+            userPo.setRemarks(doctor.getRemarks());
+            userPo.setStatus(doctor.getStatus());
+        }
+        if ("2".equals(params.getClientType())) {
+            Pharmacist pharmacist = this.pharmacistService.selectByPrimaryKey(params.getUserId());
+            userPo.setId(pharmacist.getId());
+            userPo.setClientType(params.getClientType());
+            userPo.setTrueName(pharmacist.getTrueName());
+            userPo.setPhoneNumber(pharmacist.getPhoneNumber());
+            userPo.setIdCardNo(pharmacist.getIdCardNo());
+            userPo.setRemarks(pharmacist.getRemarks());
+            userPo.setStatus(pharmacist.getStatus());
+        }
+        if ("3".equals(params.getClientType())) {
+            Patient patient = this.patientService.selectByPrimaryKey(params.getUserId());
+            userPo.setId(patient.getId());
+            userPo.setClientType(params.getClientType());
+            userPo.setTrueName(patient.getTrueName());
+            userPo.setPhoneNumber(patient.getPhoneNumber());
+            userPo.setIdCardNo(patient.getIdCardNo());
+            userPo.setRemarks(patient.getRemarks());
+            userPo.setStatus(patient.getStatus());
+        }
+        mutableTriple.left = userPo;
+        if(auditInfoList != null && auditInfoList.size() > 0){
+            mutableTriple.middle = auditInfoList.get(0);
+        }
+        mutableTriple.right = auditInfoList;
+        return mutableTriple;
+    }
+
+    @ApiOperation(value = "审核医院信息")
+    @Transactional
+    public MutablePair<HospitalPo, AuditInfo> auditHospital(Hospital hospital, Long userId, String content) {
+        Assert.isTrue(hospital.getId() != null, "医院id不能为空！");
+        //先更新医院审核状态
+        Hospital queryHospital = this.serviceHospitalService.selectByPrimaryKey(hospital.getId());
+        if (queryHospital != null && StringUtils.isNotBlank(queryHospital.getStatus())) {
+            Assert.isTrue(!"2".equals(queryHospital.getStatus()), "未提交，不能审核！");
+            if ("5".equals(queryHospital.getStatus())) {
+                hospital.setStatus("B");
+                hospital.setRemarks("复审中");
+            }
+        }
+        hospital.setGmtModified(new Date());
+        this.serviceHospitalService.updateByPrimaryKeySelective(hospital);//修改医院审核状态
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setOperate(hospital.getStatus());
+        if(hospital.getRemarks() == null || "".equals(hospital.getRemarks())){
+            auditInfo.setRemarks("审核医院信息");
+        } else{
+            auditInfo.setRemarks(hospital.getRemarks());
+        }
+        auditInfo.setContent(content);
+        auditInfo.setAuditType(1);///审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+        auditInfo.setTableId(hospital.getId());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.insertAuditInfo(auditInfo);//新增审核信息表
+        MutablePair<HospitalPo, AuditInfo> mutablePair = new MutablePair<HospitalPo, AuditInfo>();
+        HospitalPo hospitalPo = new HospitalPo(hospital);
+        mutablePair.left = hospitalPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "审核医生信息")
+    @Transactional
+    public MutablePair<DoctorPo, AuditInfo> auditDoctor(Doctor doctor, Long userId, String content) {
+        Assert.isTrue(doctor.getId() != null, "医生id不能为空！");
+        //先更新医生审核状态
+        Doctor queryDoctor = this.serviceDoctorService.selectByPrimaryKey(doctor.getId());
+        if (queryDoctor != null && StringUtils.isNotBlank(queryDoctor.getStatus())) {
+            Assert.isTrue(!"2".equals(queryDoctor.getStatus()), "未提交，不能审核！");
+            if ("5".equals(queryDoctor.getStatus())) {
+                doctor.setStatus("B");
+                doctor.setRemarks("复审中");
+            }
+        }
+        doctor.setGmtModified(new Date());
+        this.serviceDoctorService.updateDoctorSelective(doctor);//修改医生审核状态
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setOperate(doctor.getStatus());
+        if(doctor.getRemarks() == null || "".equals(doctor.getRemarks())){
+            auditInfo.setRemarks("审核医生信息");
+        } else{
+            auditInfo.setRemarks(doctor.getRemarks());
+        }
+        auditInfo.setContent(content);
+        auditInfo.setAuditType(2);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+        auditInfo.setTableId(doctor.getId());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.insertAuditInfo(auditInfo);//新增审核信息表
+        MutablePair<DoctorPo, AuditInfo> mutablePair = new MutablePair<DoctorPo, AuditInfo>();
+        DoctorPo doctorPo = new DoctorPo(doctor);
+        mutablePair.left = doctorPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "审核药师信息")
+    @Transactional
+    public MutablePair<PharmacistPo, AuditInfo> auditPharmacist(Pharmacist pharmacist, Long userId, String content) {
+        Assert.isTrue(pharmacist.getId() != null, "药师id不能为空！");
+        //先更新药师审核状态
+        Pharmacist queryPharmacist = this.pharmacistService.selectByPrimaryKey(pharmacist.getId());
+        if (queryPharmacist != null && StringUtils.isNotBlank(queryPharmacist.getStatus())) {
+            Assert.isTrue(!"2".equals(queryPharmacist.getStatus()), "未提交，不能审核！");
+            if ("5".equals(queryPharmacist.getStatus())) {
+                pharmacist.setStatus("B");
+                pharmacist.setRemarks("复审中");
+            }
+        }
+        pharmacist.setGmtModified(new Date());
+        this.pharmacistService.updateByPrimaryKeySelective(pharmacist);//修改药师审核状态
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setOperate(pharmacist.getStatus());
+        if(pharmacist.getRemarks() == null || "".equals(pharmacist.getRemarks())){
+            auditInfo.setRemarks("审核医生信息");
+        } else{
+            auditInfo.setRemarks(pharmacist.getRemarks());
+        }
+        auditInfo.setContent(content);
+        auditInfo.setAuditType(3);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+        auditInfo.setTableId(pharmacist.getId());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.insertAuditInfo(auditInfo);//新增审核信息表
+        MutablePair<PharmacistPo, AuditInfo> mutablePair = new MutablePair<PharmacistPo, AuditInfo>();
+        PharmacistPo pharmacistPo = new PharmacistPo(pharmacist);
+        mutablePair.left = pharmacistPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "审核公告信息")
+    @Transactional
+    public MutablePair<MessagesPo, AuditInfo> auditMessages(Messages messages, Long userId, String content) {
+        Assert.isTrue(messages.getId() != null, "公告信息id不能为空！");
+        //先更新公告信息审核状态
+        MessagesRequest params = new MessagesRequest();
+        params.setMessageId(messages.getId());
+        Messages queryMessages = this.messageService.getMessagesById(params);
+        if (queryMessages != null && StringUtils.isNotBlank(queryMessages.getStatus())) {
+            Assert.isTrue(!"2".equals(queryMessages.getStatus()), "未提交，不能审核！");
+            if ("5".equals(queryMessages.getStatus())) {
+                messages.setStatus("B");
+                messages.setRemarks("复审中");
+            }
+        }
+        messages.setGmtModified(new Date());
+        this.messageService.updateByPrimaryKeySelective(messages);
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setOperate(messages.getStatus());
+        if(messages.getRemarks() == null || "".equals(messages.getRemarks())){
+            auditInfo.setRemarks("审核公告信息");
+        } else{
+            auditInfo.setRemarks(messages.getRemarks());
+        }
+        auditInfo.setContent(content);
+        auditInfo.setAuditType(5);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+        auditInfo.setTableId(messages.getId());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.insertAuditInfo(auditInfo);//新增审核信息表
+        MutablePair<MessagesPo, AuditInfo> mutablePair = new MutablePair<MessagesPo, AuditInfo>();
+        MessagesPo messagesPo = new MessagesPo(messages);
+        mutablePair.left = messagesPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "审核新闻资讯信息")
+    @Transactional
+    public MutablePair<NewsPo, AuditInfo> auditNews(News news, Long userId, String content) {
+        Assert.isTrue(news.getId() != null, "新闻资讯信息id不能为空！");
+        //先更新新闻资讯信息审核状态
+        NewsRequest params = new NewsRequest();
+        params.setNewId(news.getId());
+        News queryNews = this.newsService.getNewsById(params);
+        if (queryNews != null && StringUtils.isNotBlank(queryNews.getStatus())) {
+            Assert.isTrue(!"2".equals(queryNews.getStatus()), "未提交，不能审核！");
+            if ("5".equals(queryNews.getStatus())) {
+                news.setStatus("B");
+                news.setRemarks("复审中");
+            }
+        }
+        news.setGmtModified(new Date());
+        this.newsService.updateByPrimaryKeySelective(news);
+        //新增审核信息表
+        AuditInfo auditInfo = new AuditInfo();
+        auditInfo.setOperate(news.getStatus());
+        if(news.getRemarks() == null || "".equals(news.getRemarks())){
+            auditInfo.setRemarks("审核公告信息");
+        } else{
+            auditInfo.setRemarks(news.getRemarks());
+        }
+        auditInfo.setContent(content);
+        auditInfo.setAuditType(4);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+        auditInfo.setTableId(news.getId());
+        User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+        if (user != null) {
+            auditInfo.setUserId(user.getId());
+            auditInfo.setUserName(user.getTrueName());
+        }
+        this.insertAuditInfo(auditInfo);//新增审核信息表
+        MutablePair<NewsPo, AuditInfo> mutablePair = new MutablePair<NewsPo, AuditInfo>();
+        NewsPo newsPo = new NewsPo(news);
+        mutablePair.left = newsPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+    @ApiOperation(value = "审核用户手机号信息")
+    @Transactional
+    public MutablePair<UserPo, AuditInfo> auditMobilePhoneNumber(UserRequest params, Long userId, String content) {
+        Assert.isTrue(params.getClientType() != null, "clientType端口类型不能为空！");
+        Assert.isTrue(params.getUserId() != null, "用户id不能为空！");
+        Assert.isTrue(params.getTrueName() != null, "姓名不能为空！");
+        Assert.isTrue(params.getPhoneNumber() != null, "手机号不能为空！");
+        Assert.isTrue(params.getIdCardNo() != null, "身份证号码不能为空！");
+        //先更新用户手机号信息审核状态
+        Long id = params.getUserId();
+        MutablePair<UserPo, AuditInfo> mutablePair = new MutablePair<UserPo, AuditInfo>();
+        AuditInfo auditInfo = new AuditInfo();
+        UserPo userPo = new UserPo();
+        if ("1".equals(params.getClientType())) {
+            Doctor doctor = this.serviceDoctorService.selectByPrimaryKey(id);
+            if (doctor != null && StringUtils.isNotBlank(doctor.getStatus())) {
+                Assert.isTrue(!"2".equals(doctor.getStatus()), "未提交，不能审核！");
+                if ("5".equals(doctor.getStatus())) {
+                    doctor.setStatus("B");
+                    doctor.setRemarks("复审中");
+                }
+            }
+            doctor.setGmtModified(new Date());
+            this.serviceDoctorService.updateDoctorSelective(doctor);
+
+            //新增审核信息表
+            auditInfo.setOperate(doctor.getStatus());
+            if(doctor.getRemarks() == null || "".equals(doctor.getRemarks())){
+                auditInfo.setRemarks("审核医生手机号");
+            } else{
+                auditInfo.setRemarks(doctor.getRemarks());
+            }
+            auditInfo.setContent(content);
+            auditInfo.setAuditType(6);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+            auditInfo.setTableId(doctor.getId());
+            User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+            if (user != null) {
+                auditInfo.setUserId(user.getId());
+                auditInfo.setUserName(user.getTrueName());
+            }
+            this.insertAuditInfo(auditInfo);//新增审核信息表
+
+            userPo.setId(doctor.getId());
+            userPo.setClientType(params.getClientType());
+            userPo.setTrueName(doctor.getTrueName());
+            userPo.setPhoneNumber(doctor.getPhoneNumber());
+            userPo.setIdCardNo(doctor.getIdCardNo());
+            userPo.setRemarks(doctor.getRemarks());
+            userPo.setStatus(doctor.getStatus());
+        }
+        if ("2".equals(params.getClientType())) {
+            Pharmacist pharmacist = this.pharmacistService.selectByPrimaryKey(id);
+            if (pharmacist != null && StringUtils.isNotBlank(pharmacist.getStatus())) {
+                Assert.isTrue(!"2".equals(pharmacist.getStatus()), "未提交，不能审核！");
+                if ("5".equals(pharmacist.getStatus())) {
+                    pharmacist.setStatus("B");
+                    pharmacist.setRemarks("复审中");
+                }
+            }
+            pharmacist.setGmtModified(new Date());
+            this.pharmacistService.updateByPrimaryKeySelective(pharmacist);
+
+            //新增审核信息表
+            auditInfo.setOperate(pharmacist.getStatus());
+            if(pharmacist.getRemarks() == null || "".equals(pharmacist.getRemarks())){
+                auditInfo.setRemarks("审核药师手机号");
+            } else{
+                auditInfo.setRemarks(pharmacist.getRemarks());
+            }
+            auditInfo.setContent(content);
+            auditInfo.setAuditType(6);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+            auditInfo.setTableId(pharmacist.getId());
+            User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+            if (user != null) {
+                auditInfo.setUserId(user.getId());
+                auditInfo.setUserName(user.getTrueName());
+            }
+            this.insertAuditInfo(auditInfo);//新增审核信息表
+
+            userPo.setId(pharmacist.getId());
+            userPo.setClientType(params.getClientType());
+            userPo.setTrueName(pharmacist.getTrueName());
+            userPo.setPhoneNumber(pharmacist.getPhoneNumber());
+            userPo.setIdCardNo(pharmacist.getIdCardNo());
+            userPo.setRemarks(pharmacist.getRemarks());
+            userPo.setStatus(pharmacist.getStatus());
+        }
+        if ("3".equals(params.getClientType())) {
+            Patient patient = this.patientService.selectByPrimaryKey(id);
+            if (patient != null && StringUtils.isNotBlank(patient.getStatus())) {
+                Assert.isTrue(!"2".equals(patient.getStatus()), "未提交，不能审核！");
+                if ("5".equals(patient.getStatus())) {
+                    patient.setStatus("B");
+                    patient.setRemarks("复审中");
+                }
+            }
+            patient.setGmtModified(new Date());
+            this.patientService.updateByPrimaryKeySelective(patient);
+
+            //新增审核信息表
+            auditInfo.setOperate(patient.getStatus());
+            if(patient.getRemarks() == null || "".equals(patient.getRemarks())){
+                auditInfo.setRemarks("审核患者手机号");
+            } else{
+                auditInfo.setRemarks(patient.getRemarks());
+            }
+            auditInfo.setContent(content);
+            auditInfo.setAuditType(6);//审核类型,1医院, 2医生，3药师，4新闻资讯，5通知，6手机号停用
+            auditInfo.setTableId(patient.getId());
+            User user = this.serviceUserService.selectByPrimaryKey(userId);//根据userid获取当前操作人的信息
+            if (user != null) {
+                auditInfo.setUserId(user.getId());
+                auditInfo.setUserName(user.getTrueName());
+            }
+            this.insertAuditInfo(auditInfo);//新增审核信息表
+
+            userPo.setId(patient.getId());
+            userPo.setClientType(params.getClientType());
+            userPo.setTrueName(patient.getTrueName());
+            userPo.setPhoneNumber(patient.getPhoneNumber());
+            userPo.setIdCardNo(patient.getIdCardNo());
+            userPo.setRemarks(patient.getRemarks());
+            userPo.setStatus(patient.getStatus());
+        }
+        mutablePair.left = userPo;
+        mutablePair.right = auditInfo;
+        return mutablePair;
+    }
+
+
+    public int insertAuditInfo(AuditInfo info) {
+        return this.auditInfoMapper.insertSelective(info);
+    }
+}

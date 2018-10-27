@@ -1,0 +1,109 @@
+package com.yier.platform.service;
+
+
+import com.yier.platform.common.model.Doctor;
+import com.yier.platform.common.model.Patient;
+import com.yier.platform.common.model.Pharmacist;
+import com.yier.platform.common.rongYun.RongYunTokenResult;
+import com.yier.platform.common.util.RandomUtils;
+import com.yier.platform.conf.ApplicationConfig;
+import io.rong.RongCloud;
+import io.rong.methods.user.User;
+import io.rong.models.response.TokenResult;
+import io.rong.models.user.UserModel;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@ApiModel(value = "融云服务信息 service")
+@Service
+public class RongCloudService {
+    private static final Logger logger = LoggerFactory.getLogger(RongCloudService.class);
+    @Autowired
+    private ApplicationConfig applicationConfig;//来自于可配置的外部属性文件
+    @Autowired
+    private DoctorService serviceDoctorService;
+    @Autowired
+    private PatientService servicePatientService;
+    @Autowired
+    private PharmacistService servicePharmacistService;
+    @Autowired
+    private ToolShareService toolShareService;//集成通用或公用的分享处理
+
+    @ApiOperation(value = "根据融云的用户Id获取对应的用户名")
+    public String getUserInfoByUserId(String userId) {
+        logger.info("根据融云的用户Id获取对应的用户名");
+        String userName = "";
+        if (StringUtils.contains(userId, "patient")) {
+            String id = StringUtils.replace(userId, "patient", "");
+            logger.info("userId:{}-->id:{}", userId, id);
+            Patient patient = this.servicePatientService.selectByPrimaryKey(Long.parseLong(id));
+            if (patient != null) {
+                userName = patient.getTrueName();
+            }
+        } else if (StringUtils.contains(userId, "doctor")) {
+            String id = StringUtils.replace(userId, "doctor", "");
+            logger.info("userId:{}-->id:{}", userId, id);
+            Doctor doctor = this.serviceDoctorService.selectByPrimaryKey(Long.parseLong(id));
+            if (doctor != null) {
+                userName = doctor.getTrueName();
+            }
+        }
+        else if (StringUtils.contains(userId, "pharmacist")) {
+            String id = StringUtils.replace(userId, "pharmacist", "");
+            logger.info("userId:{}-->id:{}", userId, id);
+            Pharmacist pharmacist = this.servicePharmacistService.selectByPrimaryKey(Long.parseLong(id));
+            if (pharmacist != null) {
+                userName = pharmacist.getTrueName();
+            }
+        }
+        return userName;
+    }
+
+    @ApiOperation(value = "注册融云并获取对应的token")
+    public RongYunTokenResult getToken(Long typeId, Long idInfo, String displayName, String portraitUri) {
+        String userType = toolShareService.getAppInfoByTypeId(typeId);
+        String id = idInfo.toString();
+        RongYunTokenResult result = null;
+        String userId = userType + id;
+//        String appKey = "e5t4ouvpe6vpa";
+//        String appSecret = "bW4zwHU6Rq";
+        RongCloud rongCloud = RongCloud.getInstance(applicationConfig.getRongcloud().getAppKey(), applicationConfig.getRongcloud().getAppSecret());
+        User User = rongCloud.user;
+        //注册用户，生成用户在融云的唯一身份标识 Token
+        if (StringUtils.isBlank(displayName)) {
+            displayName = "随便起个名字" + RandomUtils.randomAlphanumeric(5);//userId
+        }
+        if (StringUtils.isBlank(portraitUri)) {
+            portraitUri = applicationConfig.getRongcloud().getDefaultPortraitUri();// "http://img.zcool.cn/community/01460b57e4a6fa0000012e7ed75e83.png";
+        }
+        logger.info("融云添加Id:{}显示名字：{} 头像：{}", userId, displayName, portraitUri);
+        UserModel user = new UserModel()
+                .setId(userId)
+                .setName(displayName)
+                .setPortrait(portraitUri);
+        //TokenResult resultUTokent = new TokenResult();
+        try {
+            //刷新用户信息Result refreshResult = User.update(user);
+            TokenResult resultTokent = User.register(user);
+            if (resultTokent != null) {
+                //System.out.println(" 注册用户，生成用户在融云的唯一身份标识 Token getToken:  " + resultTokent.getToken());
+                logger.info(" 注册用户，生成用户在融云的唯一身份标识 code:" + resultTokent.getCode());
+                logger.info(" 注册用户，生成用户在融云的唯一身份标识 Token:" + resultTokent.getToken());
+                logger.info(" 注册用户，生成用户在融云的唯一身份标识 msg:" + resultTokent.getMsg());
+                //this.tokenRongYun = resultTokent.getToken();
+                //logger.info("this.tokenRongYun:"+ this.tokenRongYun);
+                result = new RongYunTokenResult(resultTokent);
+            }
+        } catch (Exception ex) {
+
+        }
+        return result;
+    }
+
+
+}

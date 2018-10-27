@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.PharmacyMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.Pharmacy">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="pharmacy_code_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="hospital_code_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="web_site" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="visit" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.yier.platform.common.model.Pharmacy">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="pharmacy_code_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="hospital_code_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="web_site" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="visit" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="profile" javaType="java.lang.String" jdbcType="LONGVARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, pharmacy_code_no, name, hospital_id, hospital_code_no, hospital_name, hospital_address, 
+    web_site, province_id, city_id, area_id, address, contact, visit, lng, lat, other, 
+    status, gmt_create, gmt_modified, remarks
+  </sql>
+  <sql id="Blob_Column_List">
+    profile
+  </sql>
+
+  <select id="selectPharmacyByHospitalId" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_pharmacy
+    where hospital_id = #{hospitalId,jdbcType=BIGINT}
+  </select>
+
+
+
+
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_pharmacy
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_pharmacy
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.Pharmacy">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_pharmacy (pharmacy_code_no, name, hospital_id, 
+      hospital_code_no, hospital_name, hospital_address, 
+      web_site, province_id, city_id, 
+      area_id, address, contact, 
+      visit, lng, lat, other, 
+      status, gmt_create, gmt_modified, 
+      remarks, profile)
+    values (#{pharmacyCodeNo,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{hospitalId,jdbcType=BIGINT}, 
+      #{hospitalCodeNo,jdbcType=VARCHAR}, #{hospitalName,jdbcType=VARCHAR}, #{hospitalAddress,jdbcType=VARCHAR}, 
+      #{webSite,jdbcType=VARCHAR}, #{provinceId,jdbcType=VARCHAR}, #{cityId,jdbcType=VARCHAR}, 
+      #{areaId,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{contact,jdbcType=VARCHAR}, 
+      #{visit,jdbcType=INTEGER}, #{lng,jdbcType=DECIMAL}, #{lat,jdbcType=DECIMAL}, #{other,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR}, #{profile,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.Pharmacy">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_pharmacy
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pharmacyCodeNo != null">
+        pharmacy_code_no,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="hospitalCodeNo != null">
+        hospital_code_no,
+      </if>
+      <if test="hospitalName != null">
+        hospital_name,
+      </if>
+      <if test="hospitalAddress != null">
+        hospital_address,
+      </if>
+      <if test="webSite != null">
+        web_site,
+      </if>
+      <if test="provinceId != null">
+        province_id,
+      </if>
+      <if test="cityId != null">
+        city_id,
+      </if>
+      <if test="areaId != null">
+        area_id,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="contact != null">
+        contact,
+      </if>
+      <if test="visit != null">
+        visit,
+      </if>
+      <if test="lng != null">
+        lng,
+      </if>
+      <if test="lat != null">
+        lat,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+      <if test="profile != null">
+        profile,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pharmacyCodeNo != null">
+        #{pharmacyCodeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="hospitalCodeNo != null">
+        #{hospitalCodeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalName != null">
+        #{hospitalName,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalAddress != null">
+        #{hospitalAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="webSite != null">
+        #{webSite,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceId != null">
+        #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null">
+        #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null">
+        #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="visit != null">
+        #{visit,jdbcType=INTEGER},
+      </if>
+      <if test="lng != null">
+        #{lng,jdbcType=DECIMAL},
+      </if>
+      <if test="lat != null">
+        #{lat,jdbcType=DECIMAL},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="profile != null">
+        #{profile,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.Pharmacy">
+    update t_pharmacy
+    <set>
+      <if test="pharmacyCodeNo != null">
+        pharmacy_code_no = #{pharmacyCodeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        hospital_id = #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="hospitalCodeNo != null">
+        hospital_code_no = #{hospitalCodeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalName != null">
+        hospital_name = #{hospitalName,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalAddress != null">
+        hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="webSite != null">
+        web_site = #{webSite,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceId != null">
+        province_id = #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        city_id = #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null">
+        area_id = #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null">
+        contact = #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="visit != null">
+        visit = #{visit,jdbcType=INTEGER},
+      </if>
+      <if test="lng != null">
+        lng = #{lng,jdbcType=DECIMAL},
+      </if>
+      <if test="lat != null">
+        lat = #{lat,jdbcType=DECIMAL},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="profile != null">
+        profile = #{profile,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yier.platform.common.model.Pharmacy">
+    update t_pharmacy
+    set pharmacy_code_no = #{pharmacyCodeNo,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      hospital_code_no = #{hospitalCodeNo,jdbcType=VARCHAR},
+      hospital_name = #{hospitalName,jdbcType=VARCHAR},
+      hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      web_site = #{webSite,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=INTEGER},
+      lng = #{lng,jdbcType=DECIMAL},
+      lat = #{lat,jdbcType=DECIMAL},
+      other = #{other,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      profile = #{profile,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.Pharmacy">
+    update t_pharmacy
+    set pharmacy_code_no = #{pharmacyCodeNo,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      hospital_code_no = #{hospitalCodeNo,jdbcType=VARCHAR},
+      hospital_name = #{hospitalName,jdbcType=VARCHAR},
+      hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      web_site = #{webSite,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      visit = #{visit,jdbcType=INTEGER},
+      lng = #{lng,jdbcType=DECIMAL},
+      lat = #{lat,jdbcType=DECIMAL},
+      other = #{other,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

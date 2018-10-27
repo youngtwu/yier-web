@@ -1,0 +1,101 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class RedisLog extends BaseJsonObject {
+    private Long id;
+
+    private Long redisType;
+
+    private String redisKey;
+
+    private String redisValue;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public RedisLog(Long id, Long redisType, String redisKey, String redisValue, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.redisType = redisType;
+        this.redisKey = redisKey;
+        this.redisValue = redisValue;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public RedisLog() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getRedisType() {
+        return redisType;
+    }
+
+    public void setRedisType(Long redisType) {
+        this.redisType = redisType;
+    }
+
+    public String getRedisKey() {
+        return redisKey;
+    }
+
+    public void setRedisKey(String redisKey) {
+        this.redisKey = redisKey;
+    }
+
+    public String getRedisValue() {
+        return redisValue;
+    }
+
+    public void setRedisValue(String redisValue) {
+        this.redisValue = redisValue;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

@@ -1,0 +1,47 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModelProperty;
+
+public class Provinces extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Integer id;
+    @ApiModelProperty(value = "省市ID")
+    private String provinceId;
+    @ApiModelProperty(value = "省/市")
+    private String province;
+
+    public Provinces(Integer id, String provinceId, String province) {
+        this.id = id;
+        this.provinceId = provinceId;
+        this.province = province;
+    }
+
+    public Provinces() {
+        super();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(String provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+}

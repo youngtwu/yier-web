@@ -1,0 +1,145 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class UserWallet extends BaseJsonObject {
+    private Long id;
+
+    private Long typeId;
+
+    private Long userId;
+
+    private Integer amount;
+
+    private Integer obtianAmount;
+
+    private Integer deductAmount;
+
+    private Integer frozenAmount;
+
+    private Integer thawyAmount;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public UserWallet(Long id, Long typeId, Long userId, Integer amount, Integer obtianAmount, Integer deductAmount, Integer frozenAmount, Integer thawyAmount, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.amount = amount;
+        this.obtianAmount = obtianAmount;
+        this.deductAmount = deductAmount;
+        this.frozenAmount = frozenAmount;
+        this.thawyAmount = thawyAmount;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public UserWallet() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
+
+    public Integer getObtianAmount() {
+        return obtianAmount;
+    }
+
+    public void setObtianAmount(Integer obtianAmount) {
+        this.obtianAmount = obtianAmount;
+    }
+
+    public Integer getDeductAmount() {
+        return deductAmount;
+    }
+
+    public void setDeductAmount(Integer deductAmount) {
+        this.deductAmount = deductAmount;
+    }
+
+    public Integer getFrozenAmount() {
+        return frozenAmount;
+    }
+
+    public void setFrozenAmount(Integer frozenAmount) {
+        this.frozenAmount = frozenAmount;
+    }
+
+    public Integer getThawyAmount() {
+        return thawyAmount;
+    }
+
+    public void setThawyAmount(Integer thawyAmount) {
+        this.thawyAmount = thawyAmount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

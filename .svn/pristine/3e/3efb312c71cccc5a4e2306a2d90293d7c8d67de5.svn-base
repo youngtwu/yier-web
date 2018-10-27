@@ -1,0 +1,212 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+
+import java.util.Date;
+
+public class Images extends BaseJsonObject {
+    private Long id;
+
+    private Long typeId;
+
+    private Long markId;
+
+    private Long databaseId;
+
+    private String osType;
+
+    private String title;
+
+    private String name;
+
+    private Integer width;
+
+    private Integer height;
+
+    private String description;
+
+    private String url;
+
+    private String otherUrl;
+
+    private String contentUrl;
+
+    private Integer displayOrder;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public Images(Long id, Long typeId, Long markId, Long databaseId, String osType, String title, String name, Integer width, Integer height, String description, String url, String otherUrl, String contentUrl, Integer displayOrder, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.markId = markId;
+        this.databaseId = databaseId;
+        this.osType = osType;
+        this.title = title;
+        this.name = name;
+        this.width = width;
+        this.height = height;
+        this.description = description;
+        this.url = url;
+        this.otherUrl = otherUrl;
+        this.contentUrl = contentUrl;
+        this.displayOrder = displayOrder;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public Images() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getMarkId() {
+        return markId;
+    }
+
+    public void setMarkId(Long markId) {
+        this.markId = markId;
+    }
+
+    public Long getDatabaseId() {
+        return databaseId;
+    }
+
+    public void setDatabaseId(Long databaseId) {
+        this.databaseId = databaseId;
+    }
+
+    public String getOsType() {
+        return osType;
+    }
+
+    public void setOsType(String osType) {
+        this.osType = osType;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getOtherUrl() {
+        return otherUrl;
+    }
+
+    public void setOtherUrl(String otherUrl) {
+        this.otherUrl = otherUrl;
+    }
+
+    public String getContentUrl() {
+        return contentUrl;
+    }
+
+    public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

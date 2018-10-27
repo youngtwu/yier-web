@@ -1,0 +1,131 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.model.AppConfig;
+import com.yier.platform.common.model.AppConfigPo;
+import com.yier.platform.common.requestParam.AppConfigRequest;
+import com.yier.platform.dao.AppConfigMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * APP配置信息 service
+ */
+@ApiModel(value = "APP配置信息 service")
+@Service
+@Slf4j
+public class AppConfigService {
+    private static final Logger logger = LoggerFactory.getLogger(AppConfigService.class);
+
+    @Autowired
+    private AppConfigMapper appConfigMapper;
+
+//    @ApiOperation(value = "根据id获取APP配置信息，目前用不到")
+//    public AppConfig getAppConfigById(Long id) {
+//        return this.selectByPrimaryKey(id);
+//    }
+
+    @ApiOperation(value = "根据typeId查询APP配置信息")
+    public List<AppConfig> getAppConfigByTypeId(AppConfigRequest params) {
+        Assert.isTrue(params.getTypeId() != null, "typeId不能为空");
+        return this.appConfigMapper.getAppConfigByTypeId(params);
+    }
+
+    @ApiOperation(value = "获取APP配置信息列表")
+    public List<AppConfigPo> getAppConfigList(AppConfigRequest params) {
+        List<AppConfigPo> appConfigPoList = new ArrayList<AppConfigPo>();
+        List<AppConfig> list = this.appConfigMapper.getAppConfigList(params);
+        for (int typeId = 1; typeId < 6; typeId++) {
+            String nameKey = "APP_CONFIG_TYPE_ID_" + typeId + "_NAME";
+            String descriptionKey = "APP_CONFIG_TYPE_ID_" + typeId + "_DISCRIPTION";
+            String bannerWidthKey = "APP_CONFIG_TYPE_ID_" + typeId + "_BANNER_WIDTH";
+            String bannerHeightKey = "APP_CONFIG_TYPE_ID_" + typeId + "_BANNER_HEIGHT";
+            String startupWidthKey = "APP_CONFIG_TYPE_ID_" + typeId + "_STARTUP_WIDTH";
+            String startupHeightKey = "APP_CONFIG_TYPE_ID_" + typeId + "_STARTUP_HEIGHT";
+            if (list.stream().filter(t -> t.getPkey().equals(nameKey)).count() > 0) {
+                AppConfigPo appConfigPo = new AppConfigPo();
+                appConfigPo.setPkey(list.stream().filter(t -> t.getPkey().equals(nameKey)).findFirst().orElse(new AppConfig()).getPvalue());
+                appConfigPo.setStatus(list.stream().filter(t -> t.getPkey().equals(nameKey)).findFirst().orElse(new AppConfig()).getStatus());
+                appConfigPo.setTypeId(list.stream().filter(t -> t.getPkey().equals(nameKey)).findFirst().orElse(new AppConfig()).getTypeId());
+                appConfigPo.setDescription(list.stream().filter(t -> t.getPkey().equals(descriptionKey)).findFirst().orElse(new AppConfig()).getPvalue());
+                appConfigPo.setBannerWidth(list.stream().filter(t -> t.getPkey().equals(bannerWidthKey)).findFirst().orElse(new AppConfig()).getPvalue());
+                appConfigPo.setBannerHeight(list.stream().filter(t -> t.getPkey().equals(bannerHeightKey)).findFirst().orElse(new AppConfig()).getPvalue());
+                appConfigPo.setStartupWidth(list.stream().filter(t -> t.getPkey().equals(startupWidthKey)).findFirst().orElse(new AppConfig()).getPvalue());
+                appConfigPo.setStartupHeight(list.stream().filter(t -> t.getPkey().equals(startupHeightKey)).findFirst().orElse(new AppConfig()).getPvalue());
+                appConfigPo.setRemarks(list.get(0).getRemarks());
+                appConfigPoList.add(appConfigPo);
+            }
+        }
+        return appConfigPoList;
+    }
+
+    @ApiOperation(value = "获取APP配置信息总数")
+    public int getAppConfigListCount(AppConfigRequest params) {
+        return this.appConfigMapper.getAppConfigListCount(params);
+    }
+
+    @ApiOperation(value = "新增APP配置信息")
+    @Transactional
+    public List<AppConfig> insertAppConfig(Map<String, String> map, Long typeId) {
+        List<AppConfig> appConfigList = new ArrayList<AppConfig>();
+        if (map != null && map.size() > 0) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                logger.info("pkey-pvalue: {}, {}", entry.getKey(), entry.getValue());
+                String pkey = entry.getKey();
+                String pvalue = entry.getValue();
+                pkey = pkey.replace("REG", typeId.toString());
+                AppConfigRequest params = new AppConfigRequest();
+                params.setTypeId(typeId);
+                params.setPkey(pkey);
+                AppConfig appConfig = this.appConfigMapper.getAppConfigByPkey(params);
+                if (appConfig != null) {
+                    appConfig.setPvalue(pvalue);
+                    appConfig.setRemarks("修改APP配置信息");
+                    appConfig.setPkey(pkey);
+                    appConfig.setGmtModified(new Date());
+                    this.updateByPrimaryKeySelective(appConfig);
+                    appConfigList.add(appConfig);
+                } else {
+                    AppConfig aconfig = new AppConfig();
+                    aconfig.setTypeId(typeId);
+                    aconfig.setPvalue(pvalue);
+                    aconfig.setRemarks("新增APP配置信息");
+                    aconfig.setPkey(pkey);
+                    aconfig.setDescription(pkey);
+                    this.insertSelective(aconfig);
+                    appConfigList.add(aconfig);
+                }
+            }
+        }
+        return appConfigList;
+    }
+
+
+    public AppConfig selectByPrimaryKey(Long id) {
+        return this.appConfigMapper.selectByPrimaryKey(id);
+    }
+
+    public int insertSelective(AppConfig appConfig) {
+        return this.appConfigMapper.insertSelective(appConfig);
+    }
+
+    public int updateByPrimaryKeySelective(AppConfig appConfig) {
+        return this.appConfigMapper.updateByPrimaryKeySelective(appConfig);
+    }
+
+    public int deleteAppConfigByTypeId(Long typeId) {
+        return this.appConfigMapper.deleteAppConfigByTypeId(typeId);
+    }
+}

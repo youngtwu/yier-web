@@ -1,0 +1,37 @@
+package com.yier.platform.controller;
+
+import com.yier.platform.TestBase;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Doctor;
+import com.yier.platform.common.requestParam.DoctorRequest;
+import com.yier.platform.service.DoctorService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
+@ApiModel(value = "医生相关的请求接口测试类")
+public class DoctorManagerControllerTest extends TestBase {
+    private static final Logger logger = LoggerFactory.getLogger(DoctorManagerControllerTest.class);
+
+    @Autowired
+    private DoctorService serviceDoctorService;
+
+    @ApiOperation(value = "获取医生称信息列表")
+    @Test
+    public void getDoctorList() {
+        DoctorRequest params = new DoctorRequest();
+        params.doWithSortOrStart();
+        logger.info("获取医生称信息列表, 目前分页条件如下：" + params.toJsonString());
+        ListResponse<Doctor> res = new ListResponse<Doctor>();
+        List<Doctor> doctorList = serviceDoctorService.listDoctor(params);
+        int doctorListCount = serviceDoctorService.listDoctorCount(params);
+        res.setData(doctorList);
+        res.setTotal(doctorListCount);
+        logger.info("更新城市信息, 测试结果：res==={}", res.toJsonString());
+    }
+}

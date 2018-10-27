@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DrugSendOrderMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DrugSendOrder">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="send_order_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="order_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="prescription_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="medical_prescription_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="patient_id_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_address_summary" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_sex" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="patient_year_old" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="plan_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="payment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="ship_payment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="remind" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="over_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="over_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="send_status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, send_order_no, order_no, prescription_id, medical_prescription_id, patient_id, 
+    patient_id_card_no, patient_name, patient_contact, patient_address_summary, patient_address, 
+    patient_sex, patient_year_old, plan_time, payment, ship_payment, remind, other, over_time, 
+    over_type, send_status, status, gmt_create, gmt_modified, remarks
+  </sql>
+
+  <sql id="Base_Po_Column_List">
+    t.id, t.send_order_no sendOrderNo, t.order_no orderNo, t.prescription_id prescriptionId,t.medical_prescription_id medicalPrescriptionId,  t.patient_id patientId, t.patient_id_card_no patientIdCardNo, t.patient_name patientName,
+    t.patient_contact patientContact, t.patient_address_summary patientAddressSummary, t.patient_address patientAddress, t.patient_sex patientSex, t.patient_year_old patientYearOld,
+    t.plan_time planTime, t.payment, t.ship_payment shipPayment, t.remind, t.other, t.over_time overTime, t.over_type overType, t.send_status sendStatus,
+    t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+  </sql>
+
+
+
+
+
+
+  <!-- 定义处方数据库字段与实体对象的映射关系  -->
+  <resultMap type="com.yier.platform.common.model.DrugSendOrderPo" id="DrugSendOrderPoMap">
+    <id column="id" property="id" />
+    <result column="sendOrderNo" property="sendOrderNo" />
+    <result column="orderNo" property="orderNo" />
+    <result column="prescriptionId" property="prescriptionId" />
+    <result column="medicalPrescriptionId" property="medicalPrescriptionId" />
+    <result column="patientId" property="patientId" />
+    <result column="patientIdCardNo" property="patientIdCardNo" />
+    <result column="patientName" property="patientName" />
+    <result column="patientContact" property="patientContact" />
+    <result column="patientAddressSummary" property="patientAddressSummary" />
+    <result column="patientAddress" property="patientAddress" />
+    <result column="patientSex" property="patientSex" />
+    <result column="patientYearOld" property="patientYearOld" />
+    <result column="pharmacistId" property="pharmacistId" />
+    <result column="planTime" property="planTime" />
+    <result column="payment" property="payment" />
+    <result column="shipPayment" property="shipPayment" />
+    <result column="remind" property="remind" />
+    <result column="other" property="other" />
+    <result column="overTime" property="overTime" />
+    <result column="overType" property="overType" />
+    <result column="sendStatus" property="sendStatus" />
+    <result column="status" property="status" />
+    <result column="gmtCreate" property="gmtCreate" />
+    <result column="gmtModified" property="gmtModified" />
+    <result column="remarks" property="remarks" />
+    <!-- 一对一的关系 -->
+    <!-- property: 指的是属性的值, javaType：指的是元素的类型 -->
+    <!--<association property="medicalOrder" column="medicalOrderId" javaType="com.yier.platform.common.model.MedicalOrderPo"  select="getMedicalOrderPoById"/>-->
+    <!--<collection property="drugList" column="prescriptionId" javaType="ArrayList" ofType="com.yier.platform.common.model.OrderDrugs" select="getDrugListByPrescriptionId"/>-->
+  </resultMap>
+  <!-- 根据条件Id查询订单信息 -->
+  <select id="getMedicalOrderPoById" parameterType="java.lang.Long" resultType="com.yier.platform.common.model.MedicalOrderPo">
+    SELECT     t.id, t.order_no orderNo, t.hospital_id hospitalId, t.hospital_name hospitalName, t.hospital_address hospitalAddress, t.hospital_contact hospitalContact, t.catalog_id catalogId,
+      t.department_id departmentId, t.department_name departmentName, t.patient_id patientId, t.patient_name patientName, t.patient_id_card_no patientIdCardNo, t.patient_address_summary patientAddressSummary, t.patient_address patientAddress,
+      t.patient_contact patientContact, t.patient_sex patientSex,t.patient_avatar_url patientAvatarUrl, t.patient_year_old patientYearOld, t.patient_lng patientLng, t.patient_lat patientLat,  t.doctor_id doctorId,
+      t.doctor_name doctorName, t.doctor_title doctorTitle, t.doctor_signature doctorSignature, t.doctor_lng doctorLng, t.doctor_lat doctorLat, t.medical_case medicalCase,
+      t.medical_info medicalInfo, t.medical_pictures medicalPictures, t.medical_date_id medicalDateId, t.plan_time planTime,
+      t.work_time workTime,t.work_from workFrom, t.work_to workTo, t.doctor_leave_lng doctorLeaveLng, t.doctor_leave_lat doctorLeaveLat, t.payment, t.remind,
+      t.other, t.home_picture homePicture, t.pharmacy_id pharmacyId,  t.pharmacy_name pharmacyName,  t.pharmacy_address pharmacyAddress, t.pharmacy_contact pharmacyContact, t.over_time overTime, t.over_type overType,t.status, t.status_detail statusDetail, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_medical_order t
+    where t.id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="getDrugListByPrescriptionId" resultType="com.yier.platform.common.model.OrderDrugs" parameterType="java.lang.String">
+    select     t.id, t.order_no orderNo, t.prescription_id prescriptionId, t.drug_id drugId, t.drug_code drugCode, t.drug_name drugName, t.drug_image drugImage, t.drug_count drugCount,
+      t.drug_unit drugUnit, t.cost_price costPrice, t.drug_spec drugSpec, t.form_code formCode, t.total_dose totalDose, t.route_code routeCode, t.dose, t.dose_unit doseUnit,
+      t.rate, t.rate_unit rateUnit, t.exceed_quota exceedQuota, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_order_drugs t
+    where t.prescription_id = #{id}
+    ORDER BY t.id ASC
+</select>
+
+
+
+
+  <select id="getDrugSendOrderPoById" parameterType="com.yier.platform.common.requestParam.DrugSendOrderRequest" resultMap="DrugSendOrderPoMap">
+    select <include refid="Base_Po_Column_List" />
+    from t_drug_send_order t
+    <where>
+      <if test="drugSendOrderId != null">
+        and t.id = #{drugSendOrderId}
+      </if>
+      <if test="sendOrderNo != null">
+        and t.send_order_no = #{sendOrderNo}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="sendStatus != null">
+        and t.send_status = #{sendStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    limit 1
+  </select>
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDrugSendOrderPo" parameterType="com.yier.platform.common.requestParam.DrugSendOrderRequest" resultMap="DrugSendOrderPoMap">
+    select <include refid="Base_Po_Column_List" />
+    from t_drug_send_order t
+    <where>
+      <if test="drugSendOrderId != null">
+        and t.id = #{drugSendOrderId}
+      </if>
+      <if test="sendOrderNo != null">
+        and t.send_order_no = #{sendOrderNo}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="sendStatus != null">
+        and t.send_status = #{sendStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDrugSendOrderPoCount" parameterType="com.yier.platform.common.requestParam.DrugSendOrderRequest" resultType="Integer">
+    select count(t.id) from t_drug_send_order t
+    <where>
+      <if test="drugSendOrderId != null">
+        and t.id = #{drugSendOrderId}
+      </if>
+      <if test="sendOrderNo != null">
+        and t.send_order_no = #{sendOrderNo}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="sendStatus != null">
+        and t.send_status = #{sendStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDrugSendOrder" parameterType="com.yier.platform.common.requestParam.DrugSendOrderRequest" resultMap="BaseResultMap">
+    select t.* from t_drug_send_order t
+    <where>
+      <if test="drugSendOrderId != null">
+        and t.id = #{drugSendOrderId}
+      </if>
+      <if test="sendOrderNo != null">
+        and t.send_order_no = #{sendOrderNo}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="sendStatus != null">
+        and t.send_status = #{sendStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDrugSendOrderCount" parameterType="com.yier.platform.common.requestParam.DrugSendOrderRequest" resultType="Integer">
+    select count(t.id) from t_drug_send_order t
+    <where>
+      <if test="drugSendOrderId != null">
+        and t.id = #{drugSendOrderId}
+      </if>
+      <if test="sendOrderNo != null">
+        and t.send_order_no = #{sendOrderNo}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="sendStatus != null">
+        and t.send_status = #{sendStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+  <update id="updateBatchByCondition" parameterType="com.yier.platform.common.model.DrugSendOrder">
+    update t_drug_send_order
+    <set>
+      <if test="sendOrderNo != null">
+        send_order_no = #{sendOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalPrescriptionId != null">
+        medical_prescription_id = #{medicalPrescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        patient_id = #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null">
+        patient_name = #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        patient_contact = #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddressSummary != null">
+        patient_address_summary = #{patientAddressSummary,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        patient_address = #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null">
+        patient_sex = #{patientSex,jdbcType=CHAR},
+      </if>
+      <if test="patientYearOld != null">
+        patient_year_old = #{patientYearOld,jdbcType=VARCHAR},
+      </if>
+      <if test="planTime != null">
+        plan_time = #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payment != null">
+        payment = #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="shipPayment != null">
+        ship_payment = #{shipPayment,jdbcType=INTEGER},
+      </if>
+      <if test="remind != null">
+        remind = #{remind,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="overTime != null">
+        over_time = #{overTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="overType != null">
+        over_type = #{overType,jdbcType=VARCHAR},
+      </if>
+      <if test="sendStatus != null">
+        send_status = #{sendStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <where>
+      <if test="drugSendOrderId != null">
+        and id = #{drugSendOrderId}
+      </if>
+      <if test="sendOrderNo != null">
+        and send_order_no = #{sendOrderNo}
+      </if>
+      <if test="patientId != null">
+        and patient_id = #{patientId}
+      </if>
+      <if test="pharmacyId != null">
+        and pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="sendStatusChanging != null">
+        and send_status = #{sendStatusChanging}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (`medical_prescription_id` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </update>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_drug_send_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_drug_send_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DrugSendOrder">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_drug_send_order (send_order_no, order_no, prescription_id, 
+      medical_prescription_id, patient_id, patient_id_card_no, 
+      patient_name, patient_contact, patient_address_summary, 
+      patient_address, patient_sex, patient_year_old, 
+      plan_time, payment, ship_payment, 
+      remind, other, over_time, 
+      over_type, send_status, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{sendOrderNo,jdbcType=VARCHAR}, #{orderNo,jdbcType=VARCHAR}, #{prescriptionId,jdbcType=VARCHAR}, 
+      #{medicalPrescriptionId,jdbcType=VARCHAR}, #{patientId,jdbcType=BIGINT}, #{patientIdCardNo,jdbcType=VARCHAR}, 
+      #{patientName,jdbcType=VARCHAR}, #{patientContact,jdbcType=VARCHAR}, #{patientAddressSummary,jdbcType=VARCHAR}, 
+      #{patientAddress,jdbcType=VARCHAR}, #{patientSex,jdbcType=CHAR}, #{patientYearOld,jdbcType=VARCHAR}, 
+      #{planTime,jdbcType=TIMESTAMP}, #{payment,jdbcType=INTEGER}, #{shipPayment,jdbcType=INTEGER}, 
+      #{remind,jdbcType=VARCHAR}, #{other,jdbcType=VARCHAR}, #{overTime,jdbcType=TIMESTAMP}, 
+      #{overType,jdbcType=VARCHAR}, #{sendStatus,jdbcType=CHAR}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DrugSendOrder">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_drug_send_order
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="sendOrderNo != null">
+        send_order_no,
+      </if>
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id,
+      </if>
+      <if test="medicalPrescriptionId != null">
+        medical_prescription_id,
+      </if>
+      <if test="patientId != null">
+        patient_id,
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no,
+      </if>
+      <if test="patientName != null">
+        patient_name,
+      </if>
+      <if test="patientContact != null">
+        patient_contact,
+      </if>
+      <if test="patientAddressSummary != null">
+        patient_address_summary,
+      </if>
+      <if test="patientAddress != null">
+        patient_address,
+      </if>
+      <if test="patientSex != null">
+        patient_sex,
+      </if>
+      <if test="patientYearOld != null">
+        patient_year_old,
+      </if>
+      <if test="planTime != null">
+        plan_time,
+      </if>
+      <if test="payment != null">
+        payment,
+      </if>
+      <if test="shipPayment != null">
+        ship_payment,
+      </if>
+      <if test="remind != null">
+        remind,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="overTime != null">
+        over_time,
+      </if>
+      <if test="overType != null">
+        over_type,
+      </if>
+      <if test="sendStatus != null">
+        send_status,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="sendOrderNo != null">
+        #{sendOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionId != null">
+        #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalPrescriptionId != null">
+        #{medicalPrescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientIdCardNo != null">
+        #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null">
+        #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddressSummary != null">
+        #{patientAddressSummary,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null">
+        #{patientSex,jdbcType=CHAR},
+      </if>
+      <if test="patientYearOld != null">
+        #{patientYearOld,jdbcType=VARCHAR},
+      </if>
+      <if test="planTime != null">
+        #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payment != null">
+        #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="shipPayment != null">
+        #{shipPayment,jdbcType=INTEGER},
+      </if>
+      <if test="remind != null">
+        #{remind,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="overTime != null">
+        #{overTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="overType != null">
+        #{overType,jdbcType=VARCHAR},
+      </if>
+      <if test="sendStatus != null">
+        #{sendStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DrugSendOrder">
+    update t_drug_send_order
+    <set>
+      <if test="sendOrderNo != null">
+        send_order_no = #{sendOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="medicalPrescriptionId != null">
+        medical_prescription_id = #{medicalPrescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        patient_id = #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null">
+        patient_name = #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        patient_contact = #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddressSummary != null">
+        patient_address_summary = #{patientAddressSummary,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        patient_address = #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null">
+        patient_sex = #{patientSex,jdbcType=CHAR},
+      </if>
+      <if test="patientYearOld != null">
+        patient_year_old = #{patientYearOld,jdbcType=VARCHAR},
+      </if>
+      <if test="planTime != null">
+        plan_time = #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payment != null">
+        payment = #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="shipPayment != null">
+        ship_payment = #{shipPayment,jdbcType=INTEGER},
+      </if>
+      <if test="remind != null">
+        remind = #{remind,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="overTime != null">
+        over_time = #{overTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="overType != null">
+        over_type = #{overType,jdbcType=VARCHAR},
+      </if>
+      <if test="sendStatus != null">
+        send_status = #{sendStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DrugSendOrder">
+    update t_drug_send_order
+    set send_order_no = #{sendOrderNo,jdbcType=VARCHAR},
+      order_no = #{orderNo,jdbcType=VARCHAR},
+      prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      medical_prescription_id = #{medicalPrescriptionId,jdbcType=VARCHAR},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      patient_name = #{patientName,jdbcType=VARCHAR},
+      patient_contact = #{patientContact,jdbcType=VARCHAR},
+      patient_address_summary = #{patientAddressSummary,jdbcType=VARCHAR},
+      patient_address = #{patientAddress,jdbcType=VARCHAR},
+      patient_sex = #{patientSex,jdbcType=CHAR},
+      patient_year_old = #{patientYearOld,jdbcType=VARCHAR},
+      plan_time = #{planTime,jdbcType=TIMESTAMP},
+      payment = #{payment,jdbcType=INTEGER},
+      ship_payment = #{shipPayment,jdbcType=INTEGER},
+      remind = #{remind,jdbcType=VARCHAR},
+      other = #{other,jdbcType=VARCHAR},
+      over_time = #{overTime,jdbcType=TIMESTAMP},
+      over_type = #{overType,jdbcType=VARCHAR},
+      send_status = #{sendStatus,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

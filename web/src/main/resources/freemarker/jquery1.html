@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
+
+    <script type="text/javascript">
+        //初始加载页面时
+        $(document).ready(function(){
+            console.log("加载..............");
+
+            $.ajax({
+                url: 'getUserList.json',
+                datatype: "json",
+                type: 'post',
+                data : JSON.stringify({"searchKey":"","status":"0","type":0,"page":1,"size":1,"sort":"id","order":"desc"}), //需要将当前的对象转换为json字符串,
+                contentType : 'application/json',
+                success: function (data) {
+                    //成功后回调
+                    console.log("0回调函数成功了");
+                    if(data.status ==0){
+                        console.log("信息内容为:"+data.data.length+" 总条目数："+data.total);
+                        $.each(data.data,function(i,item){
+                            console.log("名字："+item.trueName+" 昵称："+item.userName+" 手机："+item.phoneNumber);
+                        });
+
+                    }
+                    else{
+                        console.log("信息："+data.error)
+                    }
+                },
+                error: function(e){
+                    //失败后回调
+                    console.log("服务器请求失败");
+                },
+                beforeSend: function(){
+                    //发送请求前调用，可以放一些"正在加载"之类额话
+                    console.log("正在加载");
+                }});
+
+
+
+/*
+            $.ajax({
+                url: 'getUserList.json',
+                datatype: "json",
+                type: 'post',
+                success: function (data) {
+                    //成功后回调
+                    console.log("0回调函数成功了");
+                    if(data.status ==0){
+                        console.log("信息内容为:"+data.data.length+" 总条目数："+data.total);
+                        $.each(data.data,function(i,item){
+                            console.log("名字："+item.trueName+" 昵称："+item.userName+" 手机："+item.phoneNumber);
+                        });
+
+                    }
+                    else{
+                        console.log("信息："+data.error)
+                    }
+                },
+                error: function(e){
+                    //失败后回调
+                    console.log("服务器请求失败");
+                },
+                beforeSend: function(){
+                    //发送请求前调用，可以放一些"正在加载"之类额话
+                    console.log("正在加载");
+                }});
+*/
+
+
+/*            $.ajax({
+                url: 'jquery.json',
+                datatype: "json",
+                type: 'get',
+                success: function (data) {
+                    //成功后回调
+                    console.log("0回调函数成功了");
+                    if(data.status ==0){
+                        console.log("信息内容为:"+data.data);
+                    }
+                    else{
+                        console.log("信息："+data.error)
+                    }
+                },
+                error: function(e){
+                    //失败后回调
+                    console.log("服务器请求失败");
+                },
+                beforeSend: function(){
+                    //发送请求前调用，可以放一些"正在加载"之类额话
+                    console.log("正在加载");
+                }});*/
+
+
+/*            $.getJSON("jquery.json",function(data){
+                //通过循环取出data里面的值
+                console.log("1返回信息..............");
+                if(data.status ==0){
+                    console.log("信息内容为:"+data.data);
+                }
+                else{
+                    console.log("信息："+data.error)
+                }
+            });*/
+
+/*            $.getJSON("restControllerJson.json",function(data){
+                //通过循环取出data里面的值
+                console.log("2返回信息..............");
+                if(data.status ==0){
+                    console.log("信息内容为:"+data.data);
+                }
+                else{
+                    console.log("信息："+data.error)
+                }
+            });*/
+
+        });
+    </script>
+
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.MedicalDateMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.MedicalDate">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="user_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="plan_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="week_info" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_time" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="payment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="appointment" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="lock_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, user_id, plan_time, week_info, work_time, payment, num, appointment, 
+    lock_num, status, gmt_create, gmt_modified, remarks
+  </sql>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  <!-- 定义医生数据库字段与实体对象的映射关系  -->
+  <resultMap type="com.yier.platform.common.model.MedicalDatePo" id="MedicalDatePoMap">
+    <id column="id" property="id" />
+    <result column="type_id" property="typeId" />
+    <result column="user_id" property="userId" />
+    <result column="plan_time" property="planTime" />
+    <result column="week_info" property="weekInfo" />
+    <result column="work_time" property="workTime" />
+    <result column="payment" property="payment" />
+    <result column="num" property="num" />
+    <result column="appointment" property="appointment" />
+    <result column="lock_num" property="lockNum" />
+    <result column="appointmentNum" property="appointmentNum" />
+    <result column="status" property="status" />
+    <result column="gmt_create" property="gmtCreate" />
+    <result column="gmt_modified" property="gmtModified" />
+    <result column="remarks" property="remarks" />
+  </resultMap>
+
+  <!-- 根据条件查询用户角色信息列表 -->
+  <select id="listMedicalDatePo" parameterType="com.yier.platform.common.requestParam.MedicalDateRequest"
+          resultMap="MedicalDatePoMap">
+    SELECT t.* , (t.num - t.appointment - t.lock_num) appointmentNum
+    from t_medical_date t
+    <where>
+      <if test="medicalDateId != null">
+        and t.id = #{medicalDateId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="planTime != null">
+        and t.plan_time = #{planTime}
+      </if>
+      <if test="planTimeBegin!=null">
+        <![CDATA[	 and t.plan_time >= #{planTimeBegin} ]]>
+      </if>
+      <if test="planTimeEnd!=null">
+        <![CDATA[	 and t.plan_time <= #{planTimeEnd} ]]>
+      </if>
+      <if test="weekInfo != null">
+        and t.week_info = #{weekInfo}
+      </if>
+      <if test="workTime != null">
+        and t.work_time = #{workTime}
+      </if>
+      <if test="appointmentNum != null">
+        <![CDATA[	 and t.num >=  t.appointment + t.lock_num + #{appointmentNum} ]]>
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询用户角色信息列表 总和 -->
+  <select id="listMedicalDateGroupCount" parameterType="com.yier.platform.common.requestParam.MedicalDateRequest"
+          resultType="Integer">
+    select count(t.plan_time) from(
+      SELECT gmd.type_id,gmd.user_id, gmd.plan_time ,SUM(gmd.num - gmd.appointment - gmd.lock_num) num,MAX(gmd.`status`) status from t_medical_date gmd
+      WHERE gmd.`status` = '0'
+      GROUP BY gmd.type_id,gmd.user_id, gmd.plan_time
+    ) t
+    <where>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="planTime != null">
+        and t.plan_time = #{planTime}
+      </if>
+      <if test="planTimeBegin!=null">
+        <![CDATA[	 and t.plan_time >= #{planTimeBegin} ]]>
+      </if>
+      <if test="planTimeEnd!=null">
+        <![CDATA[	 and t.plan_time <= #{planTimeEnd} ]]>
+      </if>
+      <if test="appointmentNum != null">
+        <![CDATA[	 and t.num >=  #{appointmentNum} ]]>
+      </if>
+    </where>
+  </select>
+
+  <!-- 根据条件查询用户角色信息列表 总和 -->
+  <select id="listMedicalDatePoCount" parameterType="com.yier.platform.common.requestParam.MedicalDateRequest"
+          resultType="Integer">
+    select count(t.id) from t_medical_date t
+    <where>
+      <if test="medicalDateId != null">
+        and t.id = #{medicalDateId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="planTime != null">
+        and t.plan_time = #{planTime}
+      </if>
+      <if test="planTimeBegin!=null">
+        <![CDATA[	 and t.plan_time >= #{planTimeBegin} ]]>
+      </if>
+      <if test="planTimeEnd!=null">
+        <![CDATA[	 and t.plan_time <= #{planTimeEnd} ]]>
+      </if>
+      <if test="weekInfo != null">
+        and t.week_info = #{weekInfo}
+      </if>
+      <if test="workTime != null">
+        and t.work_time = #{workTime}
+      </if>
+      <if test="appointmentNum != null">
+        <![CDATA[	 and t.num >=  t.appointment + t.lock_num + #{appointmentNum} ]]>
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+
+  <!-- 根据条件查询用户角色信息列表 -->
+  <select id="listMedicalDate" parameterType="com.yier.platform.common.requestParam.MedicalDateRequest"
+          resultMap="BaseResultMap">
+    SELECT t.*
+    from t_medical_date t
+    <where>
+      <if test="medicalDateId != null">
+        and t.id = #{medicalDateId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="planTime != null">
+        and t.plan_time = #{planTime}
+      </if>
+      <if test="planTimeBegin!=null">
+        <![CDATA[	 and t.plan_time >= #{planTimeBegin} ]]>
+      </if>
+      <if test="planTimeEnd!=null">
+        <![CDATA[	 and t.plan_time <= #{planTimeEnd} ]]>
+      </if>
+      <if test="weekInfo != null">
+        and t.week_info = #{weekInfo}
+      </if>
+      <if test="workTime != null">
+        and t.work_time = #{workTime}
+      </if>
+      <if test="appointmentNum != null">
+        <![CDATA[	 and t.num >=  t.appointment + t.lock_num + #{appointmentNum} ]]>
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询用户角色信息列表 总和 -->
+  <select id="listMedicalDateCount" parameterType="com.yier.platform.common.requestParam.MedicalDateRequest"
+          resultType="Integer">
+    select count(t.id) from t_medical_date t
+    <where>
+      <if test="medicalDateId != null">
+        and t.id = #{medicalDateId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="planTime != null">
+        and t.plan_time = #{planTime}
+      </if>
+      <if test="planTimeBegin!=null">
+        <![CDATA[	 and t.plan_time >= #{planTimeBegin} ]]>
+      </if>
+      <if test="planTimeEnd!=null">
+        <![CDATA[	 and t.plan_time <= #{planTimeEnd} ]]>
+      </if>
+      <if test="weekInfo != null">
+        and t.week_info = #{weekInfo}
+      </if>
+      <if test="workTime != null">
+        and t.work_time = #{workTime}
+      </if>
+      <if test="appointmentNum != null">
+        <![CDATA[	 and t.num >=  t.appointment + t.lock_num + #{appointmentNum} ]]>
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+  <!-- 更新锁定预约数 -->
+  <update id="updateLockNumSelective" parameterType="com.yier.platform.common.model.MedicalDate">
+    update t_medical_date
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="planTime != null">
+        plan_time = #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="weekInfo != null">
+        week_info = #{weekInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="workTime != null">
+        work_time = #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null">
+        payment = #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="appointment != null">
+        appointment = appointment + #{appointment,jdbcType=INTEGER},
+      </if>
+      <if test="lockNum != null">
+        lock_num = lock_num + #{lockNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_medical_date
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_medical_date
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.MedicalDate">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_medical_date (type_id, user_id, plan_time, 
+      week_info, work_time, payment, 
+      num, appointment, lock_num, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{typeId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{planTime,jdbcType=TIMESTAMP}, 
+      #{weekInfo,jdbcType=VARCHAR}, #{workTime,jdbcType=VARCHAR}, #{payment,jdbcType=INTEGER}, 
+      #{num,jdbcType=INTEGER}, #{appointment,jdbcType=INTEGER}, #{lockNum,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.MedicalDate">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_medical_date
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="planTime != null">
+        plan_time,
+      </if>
+      <if test="weekInfo != null">
+        week_info,
+      </if>
+      <if test="workTime != null">
+        work_time,
+      </if>
+      <if test="payment != null">
+        payment,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="appointment != null">
+        appointment,
+      </if>
+      <if test="lockNum != null">
+        lock_num,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="planTime != null">
+        #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="weekInfo != null">
+        #{weekInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="workTime != null">
+        #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null">
+        #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="appointment != null">
+        #{appointment,jdbcType=INTEGER},
+      </if>
+      <if test="lockNum != null">
+        #{lockNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.MedicalDate">
+    update t_medical_date
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="planTime != null">
+        plan_time = #{planTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="weekInfo != null">
+        week_info = #{weekInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="workTime != null">
+        work_time = #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="payment != null">
+        payment = #{payment,jdbcType=INTEGER},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="appointment != null">
+        appointment = #{appointment,jdbcType=INTEGER},
+      </if>
+      <if test="lockNum != null">
+        lock_num = #{lockNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.MedicalDate">
+    update t_medical_date
+    set type_id = #{typeId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      plan_time = #{planTime,jdbcType=TIMESTAMP},
+      week_info = #{weekInfo,jdbcType=VARCHAR},
+      work_time = #{workTime,jdbcType=VARCHAR},
+      payment = #{payment,jdbcType=INTEGER},
+      num = #{num,jdbcType=INTEGER},
+      appointment = #{appointment,jdbcType=INTEGER},
+      lock_num = #{lockNum,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

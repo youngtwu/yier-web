@@ -1,0 +1,516 @@
+package com.yier.platform.controller;
+
+import com.google.common.collect.Lists;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.po.VerificationInfo;
+import com.yier.platform.common.requestParam.*;
+import com.yier.platform.common.typeEnum.SystemParameterKey;
+import com.yier.platform.common.util.IPUtils;
+import com.yier.platform.conf.ApplicationConfig;
+import com.yier.platform.service.*;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "公用的请求接口")
+@RestController
+@RequestMapping("/common")
+@Slf4j
+public class CommonController {
+    @Autowired
+    private ImagesService serviceImagesService;
+    @Autowired
+    private SystemParametersService serviceSystemParametersService;
+    @Autowired
+    private CommonService serviceCommonService;
+    @Autowired
+    private ApplicationConfig applicationConfig;//来自于可配置的外部属性文件
+    @Autowired
+    private PracticePointTimeService servicePracticePointTimeService;
+    @Autowired
+    private ContentDetailService serviceContentDetailService;
+    @Autowired
+    private UserAddressService serviceUserAddressService;
+
+    /*************************地址信息********************************/
+    @ApiOperation(value = "获取用户及号码对应的匹配地址")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/userAddressMatch.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<UserAddress> userAddressMatch(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户地址请求接口类") @RequestBody(required = true) UserAddressRequest params) {
+        CommonResponse<UserAddress> result = new CommonResponse<UserAddress>();
+        result.setData(serviceUserAddressService.getFirstUserAddress(params));
+        return result;
+    }
+    @ApiOperation(value = "通过查询获取地址信息列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/userAddressList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<UserAddress> userAddressList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户地址请求接口类") @RequestBody(required = true) UserAddressRequest params) {
+        params.doWithSortOrStart();
+        log.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<UserAddress> res = new ListResponse<UserAddress>();
+        List<UserAddress> list = serviceUserAddressService.listUserAddress(params);
+        int count = serviceUserAddressService.listUserAddressCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "删除地址信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/userAddressDelete.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<UserAddress> userAddressDelete(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户地址请求接口类") @RequestBody(required = true) UserAddress record) {
+        CommonResponse<UserAddress> result = new CommonResponse<UserAddress>();
+        serviceUserAddressService.deleteByPrimaryKey(record.getId());
+        result.setData(record);
+        return result;
+    }
+    @ApiOperation(value = "编辑地址信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/userAddressEdit.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<UserAddress> userAddressEdit(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户地址请求接口类") @RequestBody(required = true) UserAddress record) {
+        CommonResponse<UserAddress> result = new CommonResponse<UserAddress>();
+        result.setData(serviceUserAddressService.editUserAddress(record));
+        return result;
+    }
+    @ApiOperation(value = "新增地址信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/userAddressInsert.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<UserAddress> userAddressInsert(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用户地址请求接口类") @RequestBody(required = true) UserAddress record) {
+        CommonResponse<UserAddress> result = new CommonResponse<UserAddress>();
+        result.setData(serviceUserAddressService.addNewUserAddress(record));
+        return result;
+    }
+
+/*********************************************************/
+
+    @ApiOperation(value = "通过条件获取消息新闻对应的详情内容")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getContentDetailById.json", method = {RequestMethod.POST})
+    public CommonResponse<ContentDetail> getContentDetailById(@RequestBody ContentDetailRequest params, HttpServletRequest request, HttpServletResponse response) {
+        log.info("目前对应的查询参数情况：{}", params);
+        CommonResponse<ContentDetail> result = new CommonResponse<ContentDetail>();
+        ContentDetail contentDetail = this.serviceContentDetailService.getContentDetailById(params);
+        Assert.isTrue(contentDetail != null, "正常情况，只是目前对应的详情暂无配置，请联系后台配置");
+        result.setData(contentDetail);
+        return result;
+    }
+
+    @ApiOperation(value = "调整执业点工作时间")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/adjustPracticePointTime.json", method = {RequestMethod.POST})
+    public CommonResponse<Integer> adjustPracticePointTime(@RequestBody DoctorPracticePoint record, HttpServletRequest request, HttpServletResponse response) {
+        CommonResponse<Integer> result = new CommonResponse<Integer>();
+        this.servicePracticePointTimeService.updateWorkTimeList(record.getId(), record.getTypeId(), record.getDoctorId(), record.getSelectWorkTimeList(), false);
+        result.setData(record.getId().intValue());
+        return result;
+    }
+
+    @ApiOperation(value = "删除执业点")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/deletePracticePoint.json", method = {RequestMethod.POST})
+    public CommonResponse<Integer> deletePracticePoint(@RequestBody DoctorPracticePoint record, HttpServletRequest request, HttpServletResponse response) {
+        CommonResponse<Integer> result = new CommonResponse<Integer>();
+        result.setData(this.servicePracticePointTimeService.deletePracticePointByPrimaryKey(record.getId()));
+        return result;
+    }
+
+    @ApiOperation(value = "新增执业点")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/addPracticePoint.json", method = {RequestMethod.POST})
+    public CommonResponse<MutablePair<String, List<PracticePointPo>>> addPracticePoint(@RequestBody DoctorPracticePoint record, HttpServletRequest request, HttpServletResponse response) {
+        this.servicePracticePointTimeService.insertPracticePoint(record, false);
+        CommonResponse<MutablePair<String, List<PracticePointPo>>> result = new CommonResponse<MutablePair<String, List<PracticePointPo>>>();
+        MutablePair<String, List<PracticePointPo>> mutable = new MutablePair<String, List<PracticePointPo>>();
+        mutable.left = "practicePointList";
+        PracticeRequest params = new PracticeRequest();
+        params.setTypeId(record.getTypeId());
+        params.setDoctorId(record.getDoctorId());
+        mutable.right = this.servicePracticePointTimeService.listPracticePointPo(params);
+        result.setData(mutable);
+        return result;
+    }
+
+    @ApiOperation(value = "修改执业点")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/updatePracticePoint.json", method = {RequestMethod.POST})
+    public CommonResponse<MutablePair<String, List<PracticePointPo>>> updatePracticePoint(@RequestBody DoctorPracticePoint record, HttpServletRequest request, HttpServletResponse response) {
+        CommonResponse<MutablePair<String, List<PracticePointPo>>> result = new CommonResponse<MutablePair<String, List<PracticePointPo>>>();
+        result.setData(this.servicePracticePointTimeService.updatePracticePoint(record));
+        return result;
+    }
+
+    @ApiOperation(value = "通过条件查询获取医生或医师执业点时间情况[5_11:星期五 全天;5_10:星期五 上午;5_01:星期五 下午; 说明：left表示别人选中的列表，right表示自己选中的类别 ] 新增practicePointId传递为0")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getWorkTimeCaseList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<MutableTriple<List<String>, String, List<String>>> getWorkTimeCaseList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "医生请求接口类") @RequestBody PracticeRequest params) {
+        CommonResponse<MutableTriple<List<String>, String, List<String>>> res = new CommonResponse<MutableTriple<List<String>, String, List<String>>>();
+        MutableTriple<List<String>, String, List<String>> mutable = new MutableTriple<List<String>, String, List<String>>();
+        res.setData(servicePracticePointTimeService.getWorkTimeCaseList(params));
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "上传设备异常信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/uploadDeviceInfoException.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<DeviceInfoException> uploadDeviceInfoException(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "file", required = true) MultipartFile file,
+                                                                         @ApiParam(value = "用户Id") @RequestParam(value = "userId", required = false) Long userId,
+                                                                         @ApiParam(value = "用户端Id") @RequestParam(value = "typeId", required = false) Long typeId,
+                                                                         @ApiParam(value = "OS类型 UNKNOWN, ANDROID,IOS,WINDOWSPHONE,HTML5,WEIXIN,PARTNER") @RequestParam(value = "osType", required = false) String osType,
+                                                                         @ApiParam(value = "APP版本号") @RequestParam(value = "versionCode", required = false) Integer versionCode,
+                                                                         @ApiParam(value = "SDK版本") @RequestParam(value = "sdkInt", required = false) Integer sdkInt,
+                                                                         @ApiParam(value = "设备品牌") @RequestParam(value = "brand", required = false) String brand,
+                                                                         @ApiParam(value = "设备型号") @RequestParam(value = "model", required = false) String model,
+                                                                         @ApiParam(value = "版本号") @RequestParam(value = "versionRelease", required = false) String versionRelease,
+                                                                         @ApiParam(value = "硬件型号(CPU)") @RequestParam(value = "hardware", required = false) String hardware,
+                                                                         @ApiParam(value = "ABI信息") @RequestParam(value = "cpuAbi", required = false) String cpuAbi,
+                                                                         @ApiParam(value = "ABI2信息") @RequestParam(value = "cpuAbi2", required = false) String cpuAbi2,
+                                                                         @ApiParam(value = "硬件序列号") @RequestParam(value = "serial", required = false) String serial,
+                                                                         @ApiParam(value = "备注信息") @RequestParam(value = "remarks", required = false) String remarks
+    ) {
+        CommonResponse<DeviceInfoException> res = new CommonResponse<DeviceInfoException>();
+        DeviceInfoException record = new DeviceInfoException();
+        record.setUserId(userId);
+        record.setTypeId(typeId);
+        record.setOsType(osType);
+        record.setVersionCode(versionCode);
+        record.setSdkInt(sdkInt);
+        record.setBrand(brand);
+        record.setModel(model);
+        record.setVersionRelease(versionRelease);
+        record.setHardware(hardware);
+        record.setCpuAbi(cpuAbi);
+        record.setCpuAbi2(cpuAbi2);
+        record.setSerial(serial);
+        record.setRemarks(remarks);
+        this.serviceCommonService.insertDeviceInfoException(record, file);
+        res.setData(record);
+        log.info("上传设备异常信息:{}", res);
+        return res;
+    }
+
+    @ApiOperation(value = "通过查询获取省份信息列表[post,get请求都支持]")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getProvincesList.json", method = {RequestMethod.POST,RequestMethod.GET}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Provinces> getProvincesList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "通用请求接口类") @RequestBody(required = false) BaseRequest params) {
+        if (params == null) {
+            params = new BaseRequest();
+        }
+
+        params.doWithSortOrStart();
+        log.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<Provinces> res = new ListResponse<Provinces>();
+        List<Provinces> list = serviceCommonService.listProvinces(params);
+        Provinces country = new Provinces();
+        country.setId(0);
+        country.setProvinceId("");
+        country.setProvince("热门地区");
+        list.add(0, country);
+        int count = serviceCommonService.listProvincesCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "通过查询获取省份信息列表(不包含热门城市)")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getProvincesNoHotList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Provinces> getProvincesNoHotList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "通用请求接口类") @RequestBody(required = false) BaseRequest params) {
+        if (params == null) {
+            params = new BaseRequest();
+        }
+        params.doWithSortOrStart();
+        log.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<Provinces> res = new ListResponse<Provinces>();
+        List<Provinces> list = serviceCommonService.listProvinces(params);
+        int count = serviceCommonService.listProvincesCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "通过查询获取地区信息列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getAreasList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Areas> getAreasList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "通用请求接口类") @RequestBody(required = false) BaseRequest params) {
+        if (params == null) {
+            params = new BaseRequest();
+        }
+        params.doWithSortOrStart();
+        log.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<Areas> res = new ListResponse<Areas>();
+        List<Areas> list = serviceCommonService.listAreas(params);
+        int count = serviceCommonService.listAreasCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "通过查询获取城市信息列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getCitiesNoEmptyList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Cities> getCitiesNoEmptyList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "通用请求接口类") @RequestBody(required = false) BaseRequest params) {
+        if (params == null) {
+            params = new BaseRequest();
+        }
+        params.doWithSortOrStart();
+        log.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<Cities> res = new ListResponse<Cities>();
+        List<Cities> list = serviceCommonService.listCities(params);
+        int count = serviceCommonService.listCitiesCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "通过查询获取城市信息列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getCitiesList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Cities> getCitiesList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "通用请求接口类") @RequestBody(required = false) BaseRequest params) {
+        if (params == null) {
+            params = new BaseRequest();
+        }
+        params.doWithSortOrStart();
+        log.info("目前分页条件如下：" + params.toJsonString());
+        ListResponse<Cities> res = new ListResponse<Cities>();
+        if (StringUtils.isBlank(params.getSearchKey())) {
+            List<Cities> list = Lists.newArrayList();
+            Cities cities = new Cities();
+            cities.setStatus("0");
+            cities.setCity("北京市");
+            cities.setCityId("");
+            cities.setId(0);
+            cities.setProvinceId("110000");
+            cities.setGrade(1);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("天津市");
+            cities.setCityId("");
+            cities.setId(0);
+            cities.setProvinceId("120000");
+            cities.setGrade(1);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("上海市");
+            cities.setCityId("");
+            cities.setId(0);
+            cities.setProvinceId("310000");
+            cities.setGrade(1);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("重庆市");
+            cities.setCityId("");
+            cities.setId(0);
+            cities.setProvinceId("500000");
+            cities.setGrade(1);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("广州市");
+            cities.setCityId("440100");
+            cities.setId(0);
+            cities.setProvinceId("440100");
+            cities.setGrade(2);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("长沙市");
+            cities.setCityId("430100");
+            cities.setId(0);
+            cities.setProvinceId("430000");
+            cities.setGrade(2);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("深圳市");
+            cities.setCityId("440300");
+            cities.setId(0);
+            cities.setProvinceId("440000");
+            cities.setGrade(2);
+            list.add(cities);
+            cities = new Cities();
+            cities.setCity("全国");
+            cities.setCityId("");
+            cities.setId(0);
+            cities.setProvinceId("");
+            cities.setGrade(1);
+            list.add(cities);
+            res.setData(list);
+            res.setTotal(list.size());
+        } else {
+            List<Cities> list = serviceCommonService.listCities(params);
+            Cities cities = new Cities();
+            cities.setCity("不限");
+            cities.setCityId("");
+            cities.setId(0);
+            cities.setStatus("0");
+            cities.setProvinceId(params.getSearchKey());
+            list.add(0, cities);
+            int count = serviceCommonService.listCitiesCount(params);
+            res.setData(list);
+            res.setTotal(count);
+        }
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "APP患者端通栏头号标题信息列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getAppBannerInfo.json", method = {RequestMethod.GET})
+    public CommonResponse<MutablePair<String, List<Images>>> getAppBannerInfo(HttpServletRequest request, HttpServletResponse response) {
+        String typeId = IPUtils.getHeaderValueByKey(request, "typeId", null);
+        Assert.isTrue(StringUtils.isNotBlank(typeId), "请传递有效的应用端口typeId(1表示患者端2表示医生端3表示药师端)");
+        String osType = IPUtils.getHeaderValueByKey(request, "osType", null);
+        Assert.isTrue(StringUtils.isNotBlank(osType), "请传递有效的应用操作类型osType(IOS，ANDROID)");
+        CommonResponse<MutablePair<String, List<Images>>> result = new CommonResponse<MutablePair<String, List<Images>>>();
+
+        MutablePair<String, List<Images>> mutablePair = new MutablePair<String, List<Images>>();
+        mutablePair.left = "imagesList";
+        ImagesRequest params = new ImagesRequest();
+        params.setTypeId(Long.parseLong(typeId));
+        params.setMarkId(4L);
+        params.setStatus("0");
+        params.setOsType(osType);
+        String key = "getAppBannerInfo_" + osType + "_" + typeId;
+        mutablePair.right = this.serviceImagesService.getRedisListImagesByKey(key, params);
+        result.setData(mutablePair);
+        return result;
+    }
+
+
+    @ApiOperation(value = "APP端用户手册信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getUserRuler.json", method = {RequestMethod.GET})
+    public CommonResponse<String> getUserRuler(HttpServletRequest request, HttpServletResponse response) {
+        String typeId = IPUtils.getHeaderValueByKey(request, "typeId", null);
+        log.info("目前的端口id是：" + typeId);
+        Assert.isTrue(StringUtils.isNotBlank(typeId), "请传递有效的应用端口typeId(1表示患者端 2表示医生端 3表示药师端 4表示客服端)");
+        CommonResponse<String> result = new CommonResponse<String>();
+        String info = "";
+        if (StringUtils.equalsIgnoreCase(typeId, "1")) {//患者端广告图
+            info = serviceSystemParametersService.getParameter(SystemParameterKey.APP_PATIENT_USER_RULER);
+        } else if (StringUtils.equalsIgnoreCase(typeId, "2")) {//医生端广告图
+            info = serviceSystemParametersService.getParameter(SystemParameterKey.APP_DOCTOR_USER_RULER);
+        } else if (StringUtils.equalsIgnoreCase(typeId, "3")) {//药师端广告图
+            info = serviceSystemParametersService.getParameter(SystemParameterKey.APP_PHARMACIST_USER_RULER);
+        }
+        result.setData(info);
+        return result;
+    }
+
+    @ApiOperation(value = "验证并获取应用端APP信息，目前可以获取广告信息列表,验证目前安卓的版本号，返回是否是登录用户")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getAppInfo.json", method = {RequestMethod.GET})
+    public CommonResponse<VerificationInfo> getAppADInfo(HttpServletRequest request, HttpServletResponse response,
+//                                                         @ApiParam(value = "应用key") @RequestParam(value = "appKey", required = false) String appKey,
+//                                                         @ApiParam(value = "随机数") @RequestParam(value = "nonce", required = false) String nonce,
+//                                                         @ApiParam(value = "时间戳") @RequestParam(value = "timestamp", required = false) String timestamp,
+//                                                         @ApiParam(value = "签名") @RequestParam(value = "signature", required = false) String signature,
+//                                                         @ApiParam(value = "端口类型") @RequestParam(value = "typeId",defaultValue = "0",required = true) long typeId,
+//                                                         @ApiParam(value = "操作来源") @RequestParam(value = "osType", required = true) String osType,
+                                                         @ApiParam(value = "目前版本号") @RequestParam(value = "version", defaultValue = "0", required = true) String version) {
+        log.debug("目前版本version:---------->{}", version);
+        long versionLong = Long.parseLong(version);
+        String appKey = request.getHeader("appKey");
+        if (StringUtils.isBlank(appKey)) {
+            appKey = request.getParameter("appKey");
+        }
+        String nonce = request.getHeader("nonce");
+        if (StringUtils.isBlank(nonce)) {
+            nonce = request.getParameter("nonce");
+        }
+        String timestamp = request.getHeader("timestamp");
+        if (StringUtils.isBlank(timestamp)) {
+            timestamp = request.getParameter("timestamp");
+        }
+        String signature = request.getHeader("signature");
+        if (StringUtils.isBlank(signature)) {
+            signature = request.getParameter("signature");
+        }
+        String typeIdString = IPUtils.getHeaderValueByKey(request, "typeId", null);
+        Assert.isTrue(StringUtils.isNotBlank(typeIdString), "请传递有效的应用端口typeId(1表示患者端2表示医生端3表示药师端)");
+        long typeId = Long.parseLong(typeIdString);
+        String osType = IPUtils.getHeaderValueByKey(request, "osType", null);
+        Assert.isTrue(StringUtils.isNotBlank(osType), "请传递有效的操作类型osType");
+
+        log.info("验证及传递的信息是：appKey - {} - nonce - {} - timestamp - {} - signature - {} - typeId - {} - osType - {} - version - {}", appKey, nonce, timestamp, signature, typeId, osType, version);
+        CommonResponse<VerificationInfo> result = new CommonResponse<VerificationInfo>();
+        VerificationInfo verificationInfo = new VerificationInfo();
+        String info = null;
+        if (typeId == 1) {//患者端广告图
+            //info = serviceSystemParametersService.getParameter(SystemParameterKey.APP_PATIENT_AD_IMAGES_JSON);
+            if (StringUtils.equalsIgnoreCase(osType, "Android")) {
+                if (versionLong < applicationConfig.getAndroid().getVersionForPatient()) {
+                    String path = applicationConfig.getAndroid().getVersionPathForPatient();
+                    verificationInfo.setNewVersionPath(path);
+                }
+            }
+        } else if (typeId == 2) {//医生端广告图
+            //info = serviceSystemParametersService.getParameter(SystemParameterKey.APP_DOCTOR_AD_IMAGES_JSON);
+            if (StringUtils.equalsIgnoreCase(osType, "Android")) {
+                if (versionLong < applicationConfig.getAndroid().getVersionForDoctor()) {
+                    String path = applicationConfig.getAndroid().getVersionPathForDoctor();
+                    verificationInfo.setNewVersionPath(path);
+                }
+            }
+        } else if (typeId == 3) {//药师端广告图
+            //info = serviceSystemParametersService.getParameter(SystemParameterKey.APP_PHARMACIST_AD_IMAGES_JSON);
+            if (StringUtils.equalsIgnoreCase(osType, "Android")) {
+                if (versionLong < applicationConfig.getAndroid().getVersionForPharmacist()) {
+                    String path = applicationConfig.getAndroid().getVersionPathForPharmacist();
+                    verificationInfo.setNewVersionPath(path);
+                }
+            }
+        }
+        ImagesRequest params = new ImagesRequest();
+        params.setTypeId(typeId);
+        params.setMarkId(5L);
+        params.setStatus("0");
+        String key = "getAppInfo_" + typeId;//+ osType+"_"
+        verificationInfo.setImagesList(this.serviceImagesService.getRedisListImagesByKey(key, params));
+        if (StringUtils.isBlank(appKey) || StringUtils.isBlank(nonce) || StringUtils.isBlank(timestamp) || StringUtils.isBlank(signature)) {
+            verificationInfo.setLoginInfo("loginFail");
+        } else {
+            verificationInfo.setLoginInfo("loginSuccess");
+        }
+        result.setData(verificationInfo);
+        log.info("验证并获取应用端APP信息是：{}", verificationInfo.toJsonString());
+        return result;
+    }
+
+    @ApiOperation(value = "验证身份证号码是否有效")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/validateIdCard.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Boolean> validateIdCard(HttpServletRequest request, HttpServletResponse response,
+                                                  @ApiParam(value = "真实名字") @RequestParam(value = "trueName", required = true) String trueName,
+                                                  @ApiParam(value = "身份证号") @RequestParam(value = "idCard", required = true) String idCard,
+                                                  @ApiParam(value = "使用方向:0表示注册 1表示验证库里已存在") @RequestParam(value = "useType", required = false, defaultValue = "0") String useType) {
+        log.info("验证身份证号码是否有效");
+        String typeId = request.getHeader("typeId");
+        if (StringUtils.isBlank(typeId)) {
+            typeId = request.getParameter("typeId");//端口
+        }
+        CommonResponse<Boolean> res = new CommonResponse<Boolean>();
+        res.setData(this.serviceCommonService.validateIdCard(trueName, idCard, typeId, useType));
+        log.info(res.toJsonString());
+        return res;
+    }
+
+}

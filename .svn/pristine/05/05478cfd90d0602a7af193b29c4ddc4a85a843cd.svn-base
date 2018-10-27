@@ -1,0 +1,62 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.exception.Constants;
+import com.yier.platform.common.exception.StatusException;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+/**
+ * 工具共享功能处理 service
+ */
+@ApiModel(value = "工具共享功能处理 service")
+@Service
+public class ToolShareService {
+
+
+    @ApiOperation(value = "状态有异常将会显示")
+    public static void statusException(String status,String other) {//other 可以传递其他信息
+        //状态（0正常有效 审核通过 1删除 2未提交 点击保存 4无效 5未通过 A审核中 未审核  B未复审 复审中 未通过的提交）
+        if (StringUtils.equals(status, "0")) {
+
+        } else if (StringUtils.equals(status, "1")) {
+            throw new StatusException(Constants.ERROR_STATE_1_EXCEPTION, "该用户状态是删除", other);
+        } else if (StringUtils.equals(status, "2")) {
+            throw new StatusException(Constants.ERROR_STATE_2_EXCEPTION, "该用户状态未提交", other);
+        } else if (StringUtils.equals(status, "3")) {
+            throw new StatusException(Constants.ERROR_STATE_3_EXCEPTION, "该用户状态是冻结", other);
+        } else if (StringUtils.equals(status, "A")) {
+            throw new StatusException(Constants.ERROR_STATE_4_EXCEPTION, "审核中，请等待...", other);
+        } else if (StringUtils.equals(status, "5")) {
+            throw new StatusException(Constants.ERROR_STATE_5_EXCEPTION, "手持身份证本人正面照片", other);
+        } else if (StringUtils.equals(status, "B")) {
+            throw new StatusException(Constants.ERROR_STATE_4_EXCEPTION, "复审中，请等待...", other);
+        }
+    }
+
+    @ApiOperation(value = "根据端口类型获取对应的应用类型信息")
+    public String getAppInfoByTypeId(Long typeId) {
+        String userType = "doctor";
+        if (typeId.longValue() == 1) {
+            userType = "patient";//患者端：
+        } else if (typeId.longValue() == 2) {
+            userType = "doctor";//医生端
+        } else if (typeId.longValue() == 3) {
+            userType = "pharmacist";//药师端：
+        }else if (typeId.longValue() == 4) {
+            userType = "user";//亿尔APP后台管理端：根据角色有客服
+        }
+        else if (typeId.longValue() == 5) {
+            userType = "nurse";//护士：
+        }
+        else if (typeId.longValue() == 6) {
+            userType = "drug";//医药信息后台管理端：
+        }
+        return userType;
+    }
+    public String getAppInfoByTypeId(String typeId) {
+        Long typeIdLong = Long.parseLong(typeId);
+        return this.getAppInfoByTypeId(typeIdLong);
+    }
+}

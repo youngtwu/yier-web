@@ -1,0 +1,189 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class MedicalLog extends BaseJsonObject {
+    private Long id;
+
+    private String typeId;
+
+    private String userId;
+
+    private String userName;
+
+    private String orderType;
+
+    private String orderNo;
+
+    private String otherOrderId;
+
+    private String stage;
+
+    private String stageStatus;
+
+    private String description;
+
+    private String serialType;
+
+    private Integer money;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public MedicalLog(Long id, String typeId, String userId, String userName, String orderType, String orderNo, String otherOrderId, String stage, String stageStatus, String description, String serialType, Integer money, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.userName = userName;
+        this.orderType = orderType;
+        this.orderNo = orderNo;
+        this.otherOrderId = otherOrderId;
+        this.stage = stage;
+        this.stageStatus = stageStatus;
+        this.description = description;
+        this.serialType = serialType;
+        this.money = money;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public MedicalLog() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getOtherOrderId() {
+        return otherOrderId;
+    }
+
+    public void setOtherOrderId(String otherOrderId) {
+        this.otherOrderId = otherOrderId;
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
+    public String getStageStatus() {
+        return stageStatus;
+    }
+
+    public void setStageStatus(String stageStatus) {
+        this.stageStatus = stageStatus;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSerialType() {
+        return serialType;
+    }
+
+    public void setSerialType(String serialType) {
+        this.serialType = serialType;
+    }
+
+    public Integer getMoney() {
+        return money;
+    }
+
+    public void setMoney(Integer money) {
+        this.money = money;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

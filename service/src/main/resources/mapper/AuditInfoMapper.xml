@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.AuditInfoMapper">
+    <resultMap id="BaseResultMap" type="com.yier.platform.common.model.AuditInfo">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="audit_type" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <arg column="table_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="user_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="content" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="operate" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, audit_type, table_id, user_id, user_name, content, operate, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+
+    <!--根据类型和表主键查询审核信息-->
+    <select id="selectAuditInfoByTableId" parameterType="com.yier.platform.common.model.AuditInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_audit_info
+        where table_id = #{tableId,jdbcType=BIGINT} and audit_type = #{auditType,jdbcType=INTEGER} order by id
+    </select>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_audit_info
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_audit_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yier.platform.common.model.AuditInfo">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_audit_info (audit_type, table_id, user_id,
+        user_name, content, operate,
+        status, gmt_create, gmt_modified,
+        remarks)
+        values (#{auditType,jdbcType=INTEGER}, #{tableId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
+        #{userName,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{operate,jdbcType=VARCHAR},
+        #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},
+        #{remarks,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yier.platform.common.model.AuditInfo">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_audit_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="auditType != null">
+                audit_type,
+            </if>
+            <if test="tableId != null">
+                table_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="operate != null">
+                operate,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="auditType != null">
+                #{auditType,jdbcType=INTEGER},
+            </if>
+            <if test="tableId != null">
+                #{tableId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="operate != null">
+                #{operate,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.AuditInfo">
+        update t_audit_info
+        <set>
+            <if test="auditType != null">
+                audit_type = #{auditType,jdbcType=INTEGER},
+            </if>
+            <if test="tableId != null">
+                table_id = #{tableId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="operate != null">
+                operate = #{operate,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.AuditInfo">
+    update t_audit_info
+    set audit_type = #{auditType,jdbcType=INTEGER},
+      table_id = #{tableId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      user_name = #{userName,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      operate = #{operate,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

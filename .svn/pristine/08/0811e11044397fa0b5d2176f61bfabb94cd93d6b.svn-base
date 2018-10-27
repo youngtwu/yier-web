@@ -1,0 +1,131 @@
+package com.yier.platform.controller;
+
+import cc.ccae.yry.service.drug.query.sdk.model.Drug;
+import cc.ccae.yry.service.drug.query.sdk.model.DrugFeedback;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Feedback;
+import com.yier.platform.common.po.DiseasePo;
+import com.yier.platform.common.requestParam.DiseaseRequest;
+import com.yier.platform.common.requestParam.DrugFeedbackRequest;
+import com.yier.platform.common.requestParam.DrugRequest;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.controller.feign.DrugDiseaseService;
+import com.yier.platform.controller.feign.DrugFeedbackPo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "药品疾病相关的请求接口")
+@RestController
+@RequestMapping("/drugDisease")
+public class DrugDiseaseController {
+    private static final Logger logger = LoggerFactory.getLogger(DrugDiseaseController.class);
+    @Autowired
+    private DrugDiseaseService drugDiseaseService;
+
+    @ApiOperation(value = "通过药品ID获取 药品反馈列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/findByDrugId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DrugFeedbackPo> findByDrugId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用药反馈请求接口类") @RequestBody DrugFeedbackRequest params) {
+        return drugDiseaseService.findByDrugId(params);
+    }
+    @ApiOperation(value = "通过患者ID,药名,评分等获取 药品反馈列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/findByPatientId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DrugFeedbackPo> findByPatientId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "用药反馈请求接口类") @RequestBody DrugFeedbackRequest params) {
+        return drugDiseaseService.findByPatientId(params);
+    }
+
+    @ApiOperation(value = "插入用药反馈")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/createDrugFeedback.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public  CommonResponse<MutablePair<String,DrugFeedback>> createDrugFeedback(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DrugFeedback record) {
+        logger.info("插入用药反馈 对应的数据情况：{} 其中开始时间{}--------结束时间{}", record,Utils.formatDate(record.getStartDate(),"yyyy-MM-dd HH:mm:ss.SSS"),Utils.formatDate(record.getEndDate(),"yyyy-MM-dd HH:mm:ss.SSS"));
+        return drugDiseaseService.createDrugFeedback(record);
+    }
+
+
+    @ApiOperation(value = "通过药名 分页查询药品信息列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/findDrugsByName.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Drug> findDrugsByName(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DrugRequest params) {
+        logger.info("通过药名条件查询药品信息列表,目前分页条件如下：{}", params);
+        return drugDiseaseService.findDrugsByName(params);
+    }
+
+    @ApiOperation(value = "通过疾病Id 分页查询药品信息列表")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDrugsByDiseaseId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Drug> findDrugsByDiseaseId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DrugRequest params) {
+        logger.info("通过疾病Id条件查询药品信息列表,目前分页条件如下：{}", params);
+        return drugDiseaseService.findDrugsByDiseaseId(params);
+    }
+
+    @ApiOperation(value = "通过首字母 分页查询疾病信息列表")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDiseasesByInitial.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DiseasePo> findDiseasesByInitial(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DiseaseRequest params) {
+        logger.info("通过首字母查询疾病信息分页列表,目前分页条件如下：{}", params);
+        return drugDiseaseService.findDiseasesByInitial(params);
+    }
+
+    @ApiOperation(value = "通过首字母查询疾病信息全部列表")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDiseasesAllByInitial.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<MutableTriple<String,Integer, List<DiseasePo>>> findDiseasesAllByInitial(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DiseaseRequest params) {
+        logger.info("通过首字母查询疾病信息全部列表 param:{}", params);
+        return drugDiseaseService.findDiseasesAllByInitial(params);
+    }
+
+    @ApiOperation(value = "查询疾病信息列表 所有的首字母")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDiseasesAllInitial.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MutableTriple<String,Integer, String>> findDiseasesInitial(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DiseaseRequest params) {
+        logger.info("查询疾病信息列表 所有的首字母 param:{}", params);
+        return drugDiseaseService.findDiseasesInitial(params);
+    }
+
+    @ApiOperation(value = "查询疾病信息全部列表")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDiseasesAll.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MutableTriple<String,Integer, List<DiseasePo>>> findDiseasesAll(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DiseaseRequest params) {
+        logger.info("查询疾病信息全部列表 参数:{}", params);
+        return drugDiseaseService.findDiseasesAll(params);
+    }
+
+
+    @ApiOperation(value = "通过科室ID查询对应的疾病分页列表")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDiseasesByDepartmentId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DiseasePo> findDiseasesByDepartmentId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DiseaseRequest params) {
+        logger.info("通过首字母查询疾病信息分页列表,目前分页条件如下：{}", params);
+        return drugDiseaseService.findDiseasesByDepartmentId(params);
+    }
+    @ApiOperation(value = "查询疾病所有的有效科室部门 :left 表示科室名字,right 表科室Id,middle表示 疾病数量")
+    @ApiCheck(check = true)
+    @RequestMapping(value = "/findDiseasesDepartment.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MutableTriple<String,Integer, Long>> findDiseasesDepartment(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "基本请求接口类") @RequestBody DiseaseRequest params) {
+        logger.info("查询疾病信息列表 所有的首字母 param:{}", params);
+        ListResponse<MutableTriple<String,Integer, Long>> result = new ListResponse<>();
+        List<MutableTriple<String,Integer, Long>>  list = drugDiseaseService.findDiseasesDepartment(params);
+        result.setData(list);
+        result.setTotal(list.size());
+        return result;
+    }
+}

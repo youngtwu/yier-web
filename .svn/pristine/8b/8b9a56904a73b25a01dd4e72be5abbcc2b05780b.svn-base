@@ -1,0 +1,107 @@
+package com.yier.platform.web;
+
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Images;
+import com.yier.platform.common.requestParam.ImagesRequest;
+import com.yier.platform.service.ImagesService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+
+@ApiModel(value = "APP信息管理相关的请求接口")
+@RestController
+@RequestMapping("/appImagesManager")
+@Slf4j
+public class AppImagesManagerController {
+    private static final Logger logger = LoggerFactory.getLogger(AppImagesManagerController.class);
+
+    @Autowired
+    private ImagesService imagesService;
+
+    @ApiOperation(value = "获取APP信息信息列表")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequestMapping(value = "/getAppImagesList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> getAppImagesList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody ImagesRequest params) {
+        params.doWithSortOrStart();
+        log.info("获取APP信息信息列表, 请求参数：{}", params);
+        ListResponse<Images> res = new ListResponse<Images>();
+        List<Images> hospitalPoList = this.imagesService.listImages(params);
+        int count = this.imagesService.listImagesCount(params);
+        res.setData(hospitalPoList);
+        res.setTotal(count);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据id获取APP信息信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequestMapping(value = "/getAppImagesById.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> getAppImagesById(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody Long imageId) {
+        log.info("根据id获取APP信息信息, 请求参数：{}", imageId);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        Images images = this.imagesService.getAppImagesById(imageId);
+        res.setData(images);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据typeId和markId联合查询APP信息信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequestMapping(value = "/getAppImagesByTypeIdAndMarkId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> getAppImagesByTypeIdAndMarkId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody ImagesRequest params) {
+        log.info("根据typeId和markId联合查询APP信息信息, 请求参数：{}", params);
+        ListResponse<Images> res = new ListResponse<Images>();
+        List<Images> images = this.imagesService.getAppImagesByTypeIdAndMarkId(params);
+        res.setData(images);
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增APP信息信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequestMapping(value = "/insertAppImage.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> insertAppImage(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody Images images) {
+        log.info("新增APP信息信息, 请求参数：{}", images);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        this.imagesService.insertAppImage(images);
+        res.setData(images);
+        log.debug(res.toJsonString());
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "更新APP信息信息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequestMapping(value = "/updateAppImage.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> updateAppImage(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody Images images) {
+        log.info("更新APP信息信息, 请求参数：{}", images);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        this.imagesService.updateAppImage(images);
+        res.setData(images);
+        log.debug(res.toJsonString());
+        log.debug(res.toJsonString());
+        return res;
+    }
+}

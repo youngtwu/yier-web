@@ -1,0 +1,234 @@
+package com.yier.platform.common.model;
+
+import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+public class PharmacistPo extends Pharmacist {
+    private static final Logger logger = LoggerFactory.getLogger(PharmacistPo.class);
+    @ApiModelProperty(value = "药师职称描述")
+    private String doctorTitle = "";
+    @ApiModelProperty(value = "职业点描述")
+    private List<PracticePointPo> practicePointList = Lists.newArrayList();
+    @ApiModelProperty(value = "药师访问量显示")
+    private String visitDisplay = "";
+    @ApiModelProperty(value = "对应的科室医院信息")
+    private HospitalDepartmentPo hospitalDepartmentPo;
+    @ApiModelProperty(value = "药师评价类型列表:{'left':'2','middle':'问诊','right':'支持多选 8'} left放置类型id，middle：放置名称，right:放置统计数量")
+    private List<MutableTriple<String, String, String>> evaluationTypeList = Lists.newArrayList();
+
+    @ApiModelProperty(value = "亿尔云平台分配的Access Key")
+    private String appKey ="" ;
+
+    @ApiModelProperty(value = "Nonce 随机数，长度8位")
+    private String nonce ="" ;
+
+    @ApiModelProperty(value = "Timestamp 时间戳，从1970年1月1日0点0分0秒开始到现在的毫秒数")
+    private String timestamp ="" ;
+
+    @ApiModelProperty(value = "Signature 数据签名")
+    private String signature ="" ;
+    @ApiModelProperty(value = "关注数")
+    private Integer attention = 0;//关注
+
+    @ApiModelProperty(value = "关注总数数")
+    private Integer attentionTotal = 0;//关注
+
+    @ApiModelProperty(value = "来自患者的评价总数")
+    private Integer patientEvaluationTotal = 0;//来自患者的评价总数
+
+    @ApiModelProperty(value = "登录token")
+    private String token = "";
+
+    @ApiModelProperty(value = "分享标题")
+    private String shareTitle ="分享标题";
+    @ApiModelProperty(value = "分享简介")
+    private String shareSummary = "分享简介";
+    @ApiModelProperty(value = "分享图片")
+    private String shareImageUrl = "http://www.ccae.cc/upload/201801/1514960822.jpg";
+    @ApiModelProperty(value = "分享URL地址")
+    private String shareUrl = "http://www.ccae.cc/";
+
+
+    @ApiModelProperty(value = "显示聊天状态W:wait等待 R:replay回复 空表示未知")
+    private String chatState = "";
+
+    @ApiModelProperty(value = "审核信息")
+    List<AuditInfo> auditInfos;
+
+    public List<AuditInfo> getAuditInfos() {
+        return auditInfos;
+    }
+
+    public void setAuditInfos(List<AuditInfo> auditInfos) {
+        this.auditInfos = auditInfos;
+    }
+
+    public String getChatState() {
+        return chatState;
+    }
+
+    public void setChatState(String chatState) {
+        this.chatState = chatState;
+    }
+
+    public PharmacistPo(){
+
+    }
+    public PharmacistPo(Pharmacist info){
+        super(info);
+        thinkField();
+    }
+
+    public void thinkField(){
+        super.thinkField();
+        this.setPassSalt("秘钥不暴露");//秘钥使命完成
+        logger.debug("药师信息思考完毕，秘钥清空不暴露");
+    }
+
+    public Integer getAttentionTotal() {
+        return attentionTotal;
+    }
+
+    public void setAttentionTotal(Integer attentionTotal) {
+        this.attentionTotal = attentionTotal;
+    }
+
+    public Integer getPatientEvaluationTotal() {
+        return patientEvaluationTotal;
+    }
+
+    public void setPatientEvaluationTotal(Integer patientEvaluationTotal) {
+        this.patientEvaluationTotal = patientEvaluationTotal;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getDoctorTitle() {
+        return doctorTitle;
+    }
+
+    public void setDoctorTitle(String doctorTitle) {
+        this.doctorTitle = doctorTitle;
+    }
+
+    public String getVisitDisplay() {
+        if(this.getVisit() == null || this.getVisit().doubleValue() == 0){
+            this.visitDisplay = "0";
+        }
+        else{
+            this.visitDisplay =  this.getVisit().longValue() + "";
+        }
+        return visitDisplay;
+    }
+
+    public void setVisitDisplay(String visitDisplay) {
+        this.visitDisplay = visitDisplay;
+    }
+
+    public List<PracticePointPo> getPracticePointList() {
+        return practicePointList;
+    }
+
+    public void setPracticePointList(List<PracticePointPo> practicePointList) {
+        this.practicePointList = practicePointList;
+    }
+
+    public HospitalDepartmentPo getHospitalDepartmentPo() {
+        return hospitalDepartmentPo;
+    }
+
+    public void setHospitalDepartmentPo(HospitalDepartmentPo hospitalDepartmentPo) {
+        this.hospitalDepartmentPo = hospitalDepartmentPo;
+    }
+
+    public List<MutableTriple<String, String, String>> getEvaluationTypeList() {
+        return evaluationTypeList;
+    }
+
+    public void setEvaluationTypeList(List<MutableTriple<String, String, String>> evaluationTypeList) {
+        this.evaluationTypeList = evaluationTypeList;
+    }
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public Integer getAttention() {
+        return attention;
+    }
+
+    public void setAttention(Integer attention) {
+        this.attention = attention;
+    }
+
+
+    public String getShareTitle() {
+        return shareTitle;
+    }
+
+    public void setShareTitle(String shareTitle) {
+        this.shareTitle = shareTitle;
+    }
+
+    public String getShareSummary() {
+        return shareSummary;
+    }
+
+    public void setShareSummary(String shareSummary) {
+        this.shareSummary = shareSummary;
+    }
+
+    public String getShareImageUrl() {
+        return shareImageUrl;
+    }
+
+    public void setShareImageUrl(String shareImageUrl) {
+        this.shareImageUrl = shareImageUrl;
+    }
+
+    public String getShareUrl() {
+        return shareUrl;
+    }
+
+    public void setShareUrl(String shareUrl) {
+        this.shareUrl = shareUrl;
+    }
+}

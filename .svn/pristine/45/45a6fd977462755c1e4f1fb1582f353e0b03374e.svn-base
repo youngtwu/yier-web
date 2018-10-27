@@ -1,0 +1,184 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+public class MedicalDate extends BaseJsonObject {
+    private Long id;
+
+    private String typeId;
+
+    private String userId;
+    @ApiModelProperty(value = "出诊日期")
+    private Date planTime;
+
+    private String weekInfo;
+
+    private String workTime;
+
+    private Integer payment;
+    @ApiModelProperty(value = "计划出诊人数")
+    private Integer num;
+
+    private Integer appointment;
+
+    private Integer lockNum;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public MedicalDate(Long id, String typeId, String userId, Date planTime, String weekInfo, String workTime, Integer payment, Integer num, Integer appointment, Integer lockNum, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.planTime = planTime;
+        this.weekInfo = weekInfo;
+        this.workTime = workTime;
+        this.payment = payment;
+        this.num = num;
+        this.appointment = appointment;
+        this.lockNum = lockNum;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+    public MedicalDate(MedicalDate record) {
+        this.id = record.id;
+        this.typeId = record.typeId;
+        this.userId = record.userId;
+        this.planTime = record.planTime;
+        this.weekInfo = record.weekInfo;
+        this.workTime = record.workTime;
+        this.payment = record.payment;
+        this.num = record.num;
+        this.appointment = record.appointment;
+        this.lockNum = record.lockNum;
+        this.status = record.status;
+        this.gmtCreate = record.gmtCreate;
+        this.gmtModified = record.gmtModified;
+        this.remarks = record.remarks;
+    }
+    public MedicalDate() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Date getPlanTime() {
+        return planTime;
+    }
+
+    public void setPlanTime(Date planTime) {
+        this.planTime = planTime;
+    }
+
+    public String getWeekInfo() {
+        return weekInfo;
+    }
+
+    public void setWeekInfo(String weekInfo) {
+        this.weekInfo = weekInfo;
+    }
+
+    public String getWorkTime() {
+        return workTime;
+    }
+
+    public void setWorkTime(String workTime) {
+        this.workTime = workTime;
+    }
+
+    public Integer getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Integer payment) {
+        this.payment = payment;
+    }
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(Integer num) {
+        this.num = num;
+    }
+
+    public Integer getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(Integer appointment) {
+        this.appointment = appointment;
+    }
+
+    public Integer getLockNum() {
+        return lockNum;
+    }
+
+    public void setLockNum(Integer lockNum) {
+        this.lockNum = lockNum;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

@@ -1,0 +1,58 @@
+package com.yier.platform.service.medical;
+
+import com.yier.platform.common.model.DrugTakeOrder;
+import com.yier.platform.common.model.DrugTakeOrderPo;
+import com.yier.platform.common.requestParam.DrugTakeOrderRequest;
+import com.yier.platform.dao.DrugSendOrderMapper;
+import com.yier.platform.dao.DrugTakeOrderMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class DrugTakeOrderService {
+    private final Logger logger = LoggerFactory.getLogger(DrugSendOrderService.class);
+    @Autowired
+    private DrugTakeOrderMapper daoDrugTakeOrderMapper;
+    // 根据条件查询处方带有药品的列表
+    public List<DrugTakeOrderPo> listDrugTakeOrderPo(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrderPo(params);
+    }
+    // 根据条件查询处方带有药品的列表 总数
+    public int listDrugTakeOrderPoCount(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrderPoCount(params);
+    }
+
+    public DrugTakeOrderPo getDrugTakeOrderPoById(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.getDrugTakeOrderPoById(params);
+    }
+    // 根据条件查询列表
+    public List<DrugTakeOrder> listDrugTakeOrder(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrder(params);
+    }
+    // 根据条件查询列表 总数
+    public int listDrugTakeOrderCount(DrugTakeOrderRequest params){
+        return daoDrugTakeOrderMapper.listDrugTakeOrderCount(params);
+    }
+
+
+    public int deleteByPrimaryKey(Long id){
+        return daoDrugTakeOrderMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insertSelective(DrugTakeOrder record){
+        return daoDrugTakeOrderMapper.insertSelective(record);
+    }
+
+    public DrugTakeOrder selectByPrimaryKey(Long id){
+        return daoDrugTakeOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(DrugTakeOrder record){
+        return daoDrugTakeOrderMapper.updateByPrimaryKeySelective(record);
+    }
+
+}

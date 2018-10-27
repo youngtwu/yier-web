@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DoctorPracticePointMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DoctorPracticePoint">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="catalog_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="doctor_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="default_point" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, province_id, city_id, area_id, hospital_id, catalog_id, department_id, type_id, 
+    doctor_id, address, default_point, status, gmt_create, gmt_modified, remarks
+  </sql>
+
+
+  <!-- 根据条件查询执业点列表 -->
+  <select id="listPracticePointPo" parameterType="com.yier.platform.common.requestParam.PracticeRequest" resultType="com.yier.platform.common.model.PracticePointPo">
+    SELECT p.province provinceName,t.province_id provinceId,c.city cityName,t.city_id cityId,if(a.area IS NULL, '' , a.area) areaName,t.area_id areaId, h.`name` hospitalName,t.hospital_id hospitalId,
+    dc.`name` catalogName,t.catalog_id catalogId,hd.`name` hospitalDepartmentName,t.department_id departmentId,d.true_name doctorName,t.doctor_id doctorId,
+    t.id,t.type_id typeId,h.address,t.default_point defaultPoint,t.`status`, t.gmt_create gmtCreate,t.gmt_modified gmtModified,t.remarks
+    from t_practice_point t
+    LEFT JOIN t_provinces p ON t.province_id = p.province_id
+    LEFT JOIN t_cities c ON t.city_id = c.city_id
+    LEFT JOIN t_areas a ON t.area_id = a.area_id
+    LEFT JOIN t_hospital h ON t.hospital_id = h.id
+    LEFT JOIN t_department_catalog dc ON t.catalog_id = dc.id
+    LEFT JOIN t_hospital_department hd ON t.department_id = hd.id
+    LEFT JOIN t_doctor d on t.doctor_id = d.id
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`address` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="practicePointId != null">
+        and t.id = #{practicePointId}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.default_point DESC,t.id ASC
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询执业点列表 总和 -->
+  <select id="listPracticePointPoCount" parameterType="com.yier.platform.common.requestParam.PracticeRequest" resultType="Integer">
+    select count(t.id)
+    from t_practice_point t
+    LEFT JOIN t_provinces p ON t.province_id = p.province_id
+    LEFT JOIN t_cities c ON t.city_id = c.city_id
+    LEFT JOIN t_areas a ON t.area_id = a.area_id
+    LEFT JOIN t_hospital h ON t.hospital_id = h.id
+    LEFT JOIN t_department_catalog dc ON t.catalog_id = dc.id
+    LEFT JOIN t_hospital_department hd ON t.department_id = hd.id
+    LEFT JOIN t_doctor d on t.doctor_id = d.id
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`address` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="practicePointId != null">
+        and t.id = #{practicePointId}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listPracticePoint" parameterType="com.yier.platform.common.requestParam.PracticeRequest" resultMap="BaseResultMap">
+    select t.*  from t_practice_point t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`address` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="practicePointId != null">
+        and t.id = #{practicePointId}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.default_point DESC,t.id ASC
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listPracticePointCount" parameterType="com.yier.platform.common.requestParam.PracticeRequest" resultType="Integer">
+    select count(t.id) from t_practice_point t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`address` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="practicePointId != null">
+        and t.id = #{practicePointId}
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+  <!-- 根据条件删除 -->
+  <delete id="deletePracticePointByCondition" parameterType="com.yier.platform.common.requestParam.PracticeRequest">
+    delete from t_practice_point
+    <where>
+      <if test="hospitalId != null">
+        and hospital_id = #{hospitalId}
+      </if>
+      <if test="typeId != null">
+        and type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and doctor_id = #{doctorId}
+      </if>
+      <if test="catalogId != null">
+        and catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and department_id = #{hospitalDepartmentId}
+      </if>
+    </where>
+  </delete>
+
+
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_practice_point
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_practice_point
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DoctorPracticePoint">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_practice_point (province_id, city_id, area_id, 
+      hospital_id, catalog_id, department_id, 
+      type_id, doctor_id, address, 
+      default_point, status, gmt_create, 
+      gmt_modified, remarks)
+    values (#{provinceId,jdbcType=VARCHAR}, #{cityId,jdbcType=VARCHAR}, #{areaId,jdbcType=VARCHAR}, 
+      #{hospitalId,jdbcType=BIGINT}, #{catalogId,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, 
+      #{typeId,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, #{address,jdbcType=VARCHAR}, 
+      #{defaultPoint,jdbcType=CHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DoctorPracticePoint">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_practice_point
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="provinceId != null">
+        province_id,
+      </if>
+      <if test="cityId != null">
+        city_id,
+      </if>
+      <if test="areaId != null">
+        area_id,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="catalogId != null">
+        catalog_id,
+      </if>
+      <if test="departmentId != null">
+        department_id,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="doctorId != null">
+        doctor_id,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="defaultPoint != null">
+        default_point,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="provinceId != null">
+        #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null">
+        #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="catalogId != null">
+        #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorId != null">
+        #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultPoint != null">
+        #{defaultPoint,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DoctorPracticePoint">
+    update t_practice_point
+    <set>
+      <if test="provinceId != null">
+        province_id = #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        city_id = #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null">
+        area_id = #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        hospital_id = #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="catalogId != null">
+        catalog_id = #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorId != null">
+        doctor_id = #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultPoint != null">
+        default_point = #{defaultPoint,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DoctorPracticePoint">
+    update t_practice_point
+    set province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      catalog_id = #{catalogId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      type_id = #{typeId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      address = #{address,jdbcType=VARCHAR},
+      default_point = #{defaultPoint,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

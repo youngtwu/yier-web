@@ -1,0 +1,83 @@
+package com.yier.platform.service;
+
+import com.yier.platform.common.model.Areas;
+import com.yier.platform.common.model.Cities;
+import com.yier.platform.common.model.Provinces;
+import com.yier.platform.dao.AreasMapper;
+import com.yier.platform.dao.CitiesMapper;
+import com.yier.platform.dao.ProvincesMapper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * 地址区域管理 service
+ */
+@ApiModel(value = "地址区域管理 service")
+@Service
+public class DistrictService {
+    private final Logger logger = LoggerFactory.getLogger(DistrictService.class);
+    @Autowired
+    private CitiesMapper daoCitiesMapper;
+    @Autowired
+    private ProvincesMapper daoProvincesMapper;
+    @Autowired
+    private AreasMapper daoAreasMapper;
+
+    @ApiOperation(value = "新增城市")
+    public Cities insertCity(Cities cities) {
+        this.daoCitiesMapper.insertSelective(cities);
+        return cities;
+    }
+
+    @ApiOperation(value = "更新城市")
+    public Cities updateCity(Cities cities) {
+        this.daoCitiesMapper.updateByPrimaryKeySelective(cities);
+        return cities;
+    }
+
+    @ApiOperation(value = "删除城市")
+    public Cities deleteCity(Cities cities) {
+        this.daoCitiesMapper.deleteByPrimaryKey(cities.getId());
+        return cities;
+    }
+
+    @ApiOperation(value = "新增省份")
+    public Provinces insertProvince(Provinces provinces) {
+        this.daoProvincesMapper.insertSelective(provinces);
+        return provinces;
+    }
+
+    @ApiOperation(value = "更新省份")
+    public Provinces updateProvince(Provinces provinces) {
+        this.daoProvincesMapper.updateByPrimaryKeySelective(provinces);
+        return provinces;
+    }
+
+    @ApiOperation(value = "删除省份")
+    public Provinces deleteProvince(Provinces provinces) {
+        this.daoProvincesMapper.deleteByPrimaryKey(provinces.getId());
+        return provinces;
+    }
+
+    @ApiOperation(value = "新增区县")
+    public Areas insertArea(Areas areas) {
+        this.daoAreasMapper.insertSelective(areas);
+        return areas;
+    }
+
+    @ApiOperation(value = "删除区县")
+    public Areas updateArea(Areas areas) {
+        this.daoAreasMapper.updateByPrimaryKeySelective(areas);
+        return areas;
+    }
+
+    @ApiOperation(value = "删除区县")
+    public Areas deleteArea(Areas areas) {
+        this.daoAreasMapper.deleteByPrimaryKey(areas.getId());
+        return areas;
+    }
+}

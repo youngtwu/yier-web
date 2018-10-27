@@ -1,0 +1,156 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class Role extends BaseJsonObject {
+    private Long id;
+
+    private Long type;
+
+    private Long officeId;
+
+    private String name;
+
+    private String enname;
+
+    private String roleType;
+
+    private String dataScope;
+
+    private String isSys;
+
+    private Long createBy;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public Role(Long id, Long type, Long officeId, String name, String enname, String roleType, String dataScope, String isSys, Long createBy, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.type = type;
+        this.officeId = officeId;
+        this.name = name;
+        this.enname = enname;
+        this.roleType = roleType;
+        this.dataScope = dataScope;
+        this.isSys = isSys;
+        this.createBy = createBy;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public Role() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getType() {
+        return type;
+    }
+
+    public void setType(Long type) {
+        this.type = type;
+    }
+
+    public Long getOfficeId() {
+        return officeId;
+    }
+
+    public void setOfficeId(Long officeId) {
+        this.officeId = officeId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEnname() {
+        return enname;
+    }
+
+    public void setEnname(String enname) {
+        this.enname = enname;
+    }
+
+    public String getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(String roleType) {
+        this.roleType = roleType;
+    }
+
+    public String getDataScope() {
+        return dataScope;
+    }
+
+    public void setDataScope(String dataScope) {
+        this.dataScope = dataScope;
+    }
+
+    public String getIsSys() {
+        return isSys;
+    }
+
+    public void setIsSys(String isSys) {
+        this.isSys = isSys;
+    }
+
+    public Long getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(Long createBy) {
+        this.createBy = createBy;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

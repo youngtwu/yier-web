@@ -1,0 +1,99 @@
+package com.yier.platform.service;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.Pharmacist;
+import com.yier.platform.common.model.Pharmacy;
+import com.yier.platform.common.model.PharmacyPo;
+import com.yier.platform.common.requestParam.HospitalRequest;
+import com.yier.platform.common.requestParam.PharmacistRequest;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.dao.PharmacyMapper;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
+
+@Service
+public class PharmacyService {
+    private final Logger logger = LoggerFactory.getLogger(PharmacyService.class);
+    @Autowired
+    private PharmacyMapper daoPharmacyMapper;
+    @Autowired
+    private RedisService redisService;
+
+    @ApiOperation(value = "获取DB中所有的药房药店列表")
+    public List<Pharmacy> getListAllPharmacy() {
+        List<Pharmacy> listAllPharmacy =  redisService.getJsonObjectByKey(ConstantAll.REDIS_ALL_PHARMACY, new TypeReference<List<Pharmacy>>() {
+        });
+        if(listAllPharmacy==null || listAllPharmacy.size()==0){
+            HospitalRequest params = new HospitalRequest();
+            params.setStatus(ConstantAll.STATUS_0);
+            listAllPharmacy = this.listPharmacy(params);
+//            redisService.setJsonObjectBy(ConstantAll.REDIS_ALL_PHARMACY,listAllPharmacy,12L,TimeUnit.HOURS);
+            redisService.setJsonObjectBy(ConstantAll.REDIS_ALL_PHARMACY,listAllPharmacy,30L,TimeUnit.SECONDS);
+            logger.info("目前DB调用查询情况是：key-{} value：{}",ConstantAll.REDIS_ALL_PHARMACY,JsonUtils.toJsonString(listAllPharmacy));
+        }
+        return listAllPharmacy;
+    }
+    @ApiOperation(value = "更新数据库中DB中所有的药房药店列表")
+    public void updateListAllPharmacyt(){
+        this.redisService.deleteRedisByKey(ConstantAll.REDIS_ALL_PHARMACY);
+    }
+
+
+    @ApiOperation(value = "根据医院id查询药库信息")
+    public Pharmacy selectPharmacyByHospitalId(Long hospitalId) {
+        Assert.isTrue(hospitalId != null, "医院id不能为空！");
+        Pharmacy pharmacy = this.daoPharmacyMapper.selectPharmacyByHospitalId(hospitalId);
+        return pharmacy;
+    }
+    @ApiOperation(value = "根据条件查询药库携带距离信息")
+    public List<PharmacyPo> listPharmacyPo(HospitalRequest params){
+        return daoPharmacyMapper.listPharmacyPo(params);
+    }
+    @ApiOperation(value = "根据条件查询列表 总数")
+    public int listPharmacyPoCount(HospitalRequest params){
+        return daoPharmacyMapper.listPharmacyPoCount(params);
+    }
+    // 根据条件查询列表
+    public List<Pharmacy> listPharmacy(HospitalRequest params){
+        return daoPharmacyMapper.listPharmacy(params);
+    }
+    // 根据条件查询列表 总数
+    public int listPharmacyCount(HospitalRequest params){
+        return daoPharmacyMapper.listPharmacyCount(params);
+    }
+
+    public int deleteByPrimaryKey(Long id) {
+        return daoPharmacyMapper.deleteByPrimaryKey(id);
+    }
+
+    int insert(Pharmacy record) {
+        return daoPharmacyMapper.insert(record);
+    }
+
+    public int insertSelective(Pharmacy record) {
+        return daoPharmacyMapper.insertSelective(record);
+    }
+
+    public Pharmacy selectByPrimaryKey(Long id) {
+        return daoPharmacyMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(Pharmacy record) {
+        return daoPharmacyMapper.updateByPrimaryKeySelective(record);
+    }
+
+    public int updateByPrimaryKey(Pharmacy record) {
+        return daoPharmacyMapper.updateByPrimaryKey(record);
+    }
+}

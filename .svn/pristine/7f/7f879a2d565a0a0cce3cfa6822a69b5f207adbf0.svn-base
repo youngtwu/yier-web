@@ -1,0 +1,73 @@
+package com.yier.platform.common.model;
+
+import io.swagger.annotations.ApiModelProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class UserPo extends User {
+    private static final Logger logger = LoggerFactory.getLogger(UserPo.class);
+    @ApiModelProperty(value = "亿尔云平台分配的Access Key")
+    private String appKey ="" ;
+
+    @ApiModelProperty(value = "Nonce 随机数，长度8位")
+    private String nonce ="" ;
+
+    @ApiModelProperty(value = "Timestamp 时间戳，从1970年1月1日0点0分0秒开始到现在的毫秒数")
+    private String timestamp ="" ;
+
+    @ApiModelProperty(value = "Signature 数据签名")
+    private String signature ="" ;
+
+    @ApiModelProperty(value = "登录token")
+    private String token = "";
+
+    public UserPo(){}
+    public UserPo(User info){
+        super(info);
+        thinkField();
+    }
+    public void thinkField(){
+        super.thinkField();
+        this.setPassSalt("秘钥不暴露");//秘钥使命完成
+        logger.debug("用户信息思考完毕，秘钥清空不暴露");
+    }
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+}

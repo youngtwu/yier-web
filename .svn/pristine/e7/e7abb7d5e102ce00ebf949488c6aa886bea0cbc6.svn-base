@@ -1,0 +1,175 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "医生请求类")
+public class DoctorRequest  extends BaseRequest {
+    private Long hospitalId;//医院ID
+    private Long catalogId;//科目大分类ID
+    private Long hospitalDepartmentId ;//科室ID
+    private Long doctorId ;//医生ID
+    private String doctorName ;//医生名字
+    private Long patientId ;//患者ID
+    private Long doctorEvaluationId;//医生评价ID
+    private String typeId;//评价类型id
+    @ApiModelProperty(value = "路线 ：insert,list 使用场合标识")
+    private String path;//路线 ：insert,list
+
+    @ApiModelProperty(value = "医生姓名")
+    private String trueName;
+    @ApiModelProperty(value = "身份证号码")
+    private String idCardNo;
+    @ApiModelProperty(value = "手机号码")
+    private String phoneNumber;
+    @ApiModelProperty(value = "随机口令")
+    private String passHash;
+    @ApiModelProperty(value = "随机字符串")
+    private String passSalt;
+    @ApiModelProperty(value = "医生职称")
+    private Long titleId;
+    @ApiModelProperty(value = "擅长领域")
+    private String field;
+    @ApiModelProperty(value = "是否可聊天:0表示可以聊天")
+    private String chat;
+
+    public Long getHospitalId() {
+        return hospitalId;
+    }
+
+    public void setHospitalId(Long hospitalId) {
+        this.hospitalId = hospitalId;
+    }
+
+    public Long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(Long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public DoctorRequest(){}
+    public DoctorRequest(BaseRequest br){
+        super(br);
+    }
+
+    public String getTrueName() {
+        return trueName;
+    }
+
+    public void setTrueName(String trueName) {
+        this.trueName = trueName;
+    }
+
+    public String getIdCardNo() {
+        return idCardNo;
+    }
+
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassHash() {
+        return passHash;
+    }
+
+    public void setPassHash(String passHash) {
+        this.passHash = passHash;
+    }
+
+    public String getPassSalt() {
+        return passSalt;
+    }
+
+    public void setPassSalt(String passSalt) {
+        this.passSalt = passSalt;
+    }
+
+    public Long getTitleId() {
+        return titleId;
+    }
+
+    public void setTitleId(Long titleId) {
+        this.titleId = titleId;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public Long getDoctorEvaluationId() {
+        return doctorEvaluationId;
+    }
+
+    public void setDoctorEvaluationId(Long doctorEvaluationId) {
+        this.doctorEvaluationId = doctorEvaluationId;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public Long getHospitalDepartmentId() {
+        return hospitalDepartmentId;
+    }
+    public void setHospitalDepartmentId(Long hospitalDepartmentId) {
+        this.hospitalDepartmentId = hospitalDepartmentId;
+    }
+
+    public String getChat() {
+        return chat;
+    }
+
+    public void setChat(String chat) {
+        this.chat = chat;
+    }
+}

@@ -1,0 +1,183 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "计划任务")
+public class TaskSchedule extends BaseJsonObject {
+    @ApiModelProperty(value = "主键ID")
+    private Long id;
+    @ApiModelProperty(value = "客户端标识。1-患者端，2-医生端，3-药师端")
+    private Long typeId;
+    @ApiModelProperty(value = "关注用户ID,关联t_doctor.id，t_patient.id,t_pharmacy.id")
+    private Long userId;
+    @ApiModelProperty(value = "任务类型 1医生或药师聊天设置")
+    private Long taskType;
+    @ApiModelProperty(value = "任务子类型")
+    private Long subTaskType;
+    @ApiModelProperty(value = "任务描述")
+    private String taskDescription;
+    @ApiModelProperty(value = "执行参数")
+    private String taskParams;
+    @ApiModelProperty(value = "执行结果")
+    private String taskResult;
+    @ApiModelProperty(value = "计划执行时间")
+    private Date schedule;
+    @ApiModelProperty(value = "附加值，比如时间戳")
+    private Long attach;
+    @ApiModelProperty(value = "其他附加信息")
+    private String other;
+    @ApiModelProperty(value = "状态（0正常 1已经处理 2执行出现问题 3 4 待定）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+
+    public TaskSchedule(Long id, Long typeId, Long userId, Long taskType, Long subTaskType, String taskDescription, String taskParams, String taskResult, Date schedule, Long attach, String other, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.taskType = taskType;
+        this.subTaskType = subTaskType;
+        this.taskDescription = taskDescription;
+        this.taskParams = taskParams;
+        this.taskResult = taskResult;
+        this.schedule = schedule;
+        this.attach = attach;
+        this.other = other;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public TaskSchedule() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Long taskType) {
+        this.taskType = taskType;
+    }
+
+    public Long getSubTaskType() {
+        return subTaskType;
+    }
+
+    public void setSubTaskType(Long subTaskType) {
+        this.subTaskType = subTaskType;
+    }
+
+    public String getTaskDescription() {
+        return taskDescription;
+    }
+
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
+    }
+
+    public String getTaskParams() {
+        return taskParams;
+    }
+
+    public void setTaskParams(String taskParams) {
+        this.taskParams = taskParams;
+    }
+
+    public String getTaskResult() {
+        return taskResult;
+    }
+
+    public void setTaskResult(String taskResult) {
+        this.taskResult = taskResult;
+    }
+
+    public Date getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Date schedule) {
+        this.schedule = schedule;
+    }
+
+    public Long getAttach() {
+        return attach;
+    }
+
+    public void setAttach(Long attach) {
+        this.attach = attach;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

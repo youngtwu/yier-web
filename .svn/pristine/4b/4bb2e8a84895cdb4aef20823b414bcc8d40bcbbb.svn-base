@@ -1,0 +1,332 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class DrugTakeOrder extends BaseJsonObject {
+    private Long id;
+
+    private String takeOrderNo;
+
+    private String orderNo;
+
+    private String prescriptionId;
+
+    private String pharmacyId;
+
+    private String pharmacyName;
+
+    private String pharmacyAddress;
+
+    private String pharmacyContact;
+
+    private Long patientId;
+
+    private String patientIdCardNo;
+
+    private String patientName;
+
+    private String patientContact;
+
+    private String patientAddress;
+
+    private String patientSex;
+
+    private String patientYearOld;
+
+    private Date planTime;
+
+    private String workTime;
+
+    private Date workStartTime;
+
+    private Date workEndTime;
+
+    private Integer payment;
+
+    private String remind;
+
+    private String other;
+
+    private Date overTime;
+
+    private String overType;
+
+    private String takeStatus;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public DrugTakeOrder(Long id, String takeOrderNo, String orderNo, String prescriptionId, String pharmacyId, String pharmacyName, String pharmacyAddress, String pharmacyContact, Long patientId, String patientIdCardNo, String patientName, String patientContact, String patientAddress, String patientSex, String patientYearOld, Date planTime, String workTime, Date workStartTime, Date workEndTime, Integer payment, String remind, String other, Date overTime, String overType, String takeStatus, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.takeOrderNo = takeOrderNo;
+        this.orderNo = orderNo;
+        this.prescriptionId = prescriptionId;
+        this.pharmacyId = pharmacyId;
+        this.pharmacyName = pharmacyName;
+        this.pharmacyAddress = pharmacyAddress;
+        this.pharmacyContact = pharmacyContact;
+        this.patientId = patientId;
+        this.patientIdCardNo = patientIdCardNo;
+        this.patientName = patientName;
+        this.patientContact = patientContact;
+        this.patientAddress = patientAddress;
+        this.patientSex = patientSex;
+        this.patientYearOld = patientYearOld;
+        this.planTime = planTime;
+        this.workTime = workTime;
+        this.workStartTime = workStartTime;
+        this.workEndTime = workEndTime;
+        this.payment = payment;
+        this.remind = remind;
+        this.other = other;
+        this.overTime = overTime;
+        this.overType = overType;
+        this.takeStatus = takeStatus;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public DrugTakeOrder() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTakeOrderNo() {
+        return takeOrderNo;
+    }
+
+    public void setTakeOrderNo(String takeOrderNo) {
+        this.takeOrderNo = takeOrderNo;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getPharmacyId() {
+        return pharmacyId;
+    }
+
+    public void setPharmacyId(String pharmacyId) {
+        this.pharmacyId = pharmacyId;
+    }
+
+    public String getPharmacyName() {
+        return pharmacyName;
+    }
+
+    public void setPharmacyName(String pharmacyName) {
+        this.pharmacyName = pharmacyName;
+    }
+
+    public String getPharmacyAddress() {
+        return pharmacyAddress;
+    }
+
+    public void setPharmacyAddress(String pharmacyAddress) {
+        this.pharmacyAddress = pharmacyAddress;
+    }
+
+    public String getPharmacyContact() {
+        return pharmacyContact;
+    }
+
+    public void setPharmacyContact(String pharmacyContact) {
+        this.pharmacyContact = pharmacyContact;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientIdCardNo() {
+        return patientIdCardNo;
+    }
+
+    public void setPatientIdCardNo(String patientIdCardNo) {
+        this.patientIdCardNo = patientIdCardNo;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getPatientContact() {
+        return patientContact;
+    }
+
+    public void setPatientContact(String patientContact) {
+        this.patientContact = patientContact;
+    }
+
+    public String getPatientAddress() {
+        return patientAddress;
+    }
+
+    public void setPatientAddress(String patientAddress) {
+        this.patientAddress = patientAddress;
+    }
+
+    public String getPatientSex() {
+        return patientSex;
+    }
+
+    public void setPatientSex(String patientSex) {
+        this.patientSex = patientSex;
+    }
+
+    public String getPatientYearOld() {
+        return patientYearOld;
+    }
+
+    public void setPatientYearOld(String patientYearOld) {
+        this.patientYearOld = patientYearOld;
+    }
+
+    public Date getPlanTime() {
+        return planTime;
+    }
+
+    public void setPlanTime(Date planTime) {
+        this.planTime = planTime;
+    }
+
+    public String getWorkTime() {
+        return workTime;
+    }
+
+    public void setWorkTime(String workTime) {
+        this.workTime = workTime;
+    }
+
+    public Date getWorkStartTime() {
+        return workStartTime;
+    }
+
+    public void setWorkStartTime(Date workStartTime) {
+        this.workStartTime = workStartTime;
+    }
+
+    public Date getWorkEndTime() {
+        return workEndTime;
+    }
+
+    public void setWorkEndTime(Date workEndTime) {
+        this.workEndTime = workEndTime;
+    }
+
+    public Integer getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Integer payment) {
+        this.payment = payment;
+    }
+
+    public String getRemind() {
+        return remind;
+    }
+
+    public void setRemind(String remind) {
+        this.remind = remind;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
+    public Date getOverTime() {
+        return overTime;
+    }
+
+    public void setOverTime(Date overTime) {
+        this.overTime = overTime;
+    }
+
+    public String getOverType() {
+        return overType;
+    }
+
+    public void setOverType(String overType) {
+        this.overType = overType;
+    }
+
+    public String getTakeStatus() {
+        return takeStatus;
+    }
+
+    public void setTakeStatus(String takeStatus) {
+        this.takeStatus = takeStatus;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

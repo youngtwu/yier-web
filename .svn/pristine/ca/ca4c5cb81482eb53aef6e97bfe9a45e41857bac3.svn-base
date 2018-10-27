@@ -1,0 +1,41 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.Pharmacist;
+import com.yier.platform.common.model.PharmacistPo;
+import com.yier.platform.common.requestParam.BaseRequest;
+import com.yier.platform.common.requestParam.PharmacistRequest;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface PharmacistMapper {
+
+    //搜索对应的模糊名字
+    List<String> getSimilarNameList(BaseRequest params);
+    // 根据条件查询列表
+    List<PharmacistPo> listPharmacistPo(PharmacistRequest params);
+    // 根据条件查询列表 总数
+    int listPharmacistPoCount(PharmacistRequest params);
+
+    // 根据条件查询原始列表
+    List<Pharmacist> listPharmacist(PharmacistRequest params);
+    // 根据条件查询原始列表 总数
+    int listPharmacistCount(PharmacistRequest params);
+
+    //根据IP获取医生详情信息
+    PharmacistPo getPharmacistPoById(PharmacistRequest params);
+
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(Pharmacist record);
+
+    int insertSelective(Pharmacist record);
+
+    Pharmacist selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(Pharmacist record);
+
+    int updateByPrimaryKey(Pharmacist record);
+}

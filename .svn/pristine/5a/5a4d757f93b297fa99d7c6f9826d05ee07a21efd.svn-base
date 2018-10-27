@@ -1,0 +1,143 @@
+package com.yier.platform.service;
+
+import cn.jiguang.common.ClientConfig;
+import cn.jiguang.common.resp.APIConnectionException;
+import cn.jiguang.common.resp.APIRequestException;
+import cn.jpush.api.JPushClient;
+import cn.jpush.api.push.PushResult;
+import cn.jpush.api.push.model.Options;
+import cn.jpush.api.push.model.Platform;
+import cn.jpush.api.push.model.PushPayload;
+import cn.jpush.api.push.model.audience.Audience;
+import cn.jpush.api.push.model.notification.AndroidNotification;
+import cn.jpush.api.push.model.notification.IosNotification;
+import cn.jpush.api.push.model.notification.Notification;
+import com.yier.platform.conf.ApplicationConfig;
+import com.yier.platform.conf.CommonCfg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 发送APP推送消息给到jpush
+ *
+ */
+@Service
+public class AppPushService {
+    private static final Logger log = LoggerFactory.getLogger(AppPushService.class);
+    @Autowired
+    private ApplicationConfig applicationConfig;
+    @Autowired
+    private CommonCfg commonCfg;
+
+    public void pushListUserIdApp(Long typeId, String title, String message, List<String> listPushUserId){
+        Assert.isTrue(typeId !=null,"请指定端口来源,typeId:1(patient)2(doctor)3()");
+        if(typeId.longValue()==1){
+            log.info("激光推送----->亿尔云-患者端 typeId:{} title:{} message:{} listPushUserId:{}  getAppMasterSecretForPatient:{}  getAppKeyForPatient:{}",typeId, title, message,listPushUserId,applicationConfig.getJpush().getAppMasterSecretForPatient(),applicationConfig.getJpush().getAppKeyForPatient());
+            this.testSendPush(applicationConfig.getJpush().getAppMasterSecretForPatient(),applicationConfig.getJpush().getAppKeyForPatient(),title, message,listPushUserId);
+            //this.testSendPush("e51daf2bd6e8fee49bb33841","0819386eeeb8e8fb8100f909",title, message,listPushUserId);
+        }
+        else if(typeId.longValue()==2){
+            log.info("激光推送----->亿尔云-医生端");
+            this.testSendPush(applicationConfig.getJpush().getAppMasterSecretForDoctor(),applicationConfig.getJpush().getAppKeyForDoctor(),title, message,listPushUserId);
+            //this.testSendPush("f768f54706a03a9507f7d837","0d86bdb79e1a1e9619886341",title, message,listPushUserId);
+        }
+        else if(typeId.longValue()==3){
+            log.info("激光推送----->亿尔云-药师端");
+            this.testSendPush(applicationConfig.getJpush().getAppMasterSecretForPharmacist(),applicationConfig.getJpush().getAppKeyForPharmacist(),title, message,listPushUserId);
+            //this.testSendPush("f768f54706a03a9507f7d837","0d86bdb79e1a1e9619886341",title, message,listPushUserId);
+        }
+        else if(typeId.longValue()==5){
+            log.info("激光推送----->亿尔云-护士端");
+            this.testSendPush(applicationConfig.getJpush().getAppMasterSecretForNurse(),applicationConfig.getJpush().getAppKeyForNurse(),title, message,listPushUserId);
+            //this.testSendPush("f768f54706a03a9507f7d837","0d86bdb79e1a1e9619886341",title, message,listPushUserId);
+        }
+    }
+
+    public void pushAppTest(){
+//        LOG.info("激光推送----->亿尔云-患者端");
+//        PushExample.testSendPush("e51daf2bd6e8fee49bb33841","0819386eeeb8e8fb8100f909");
+//        LOG.info("激光推送----->亿尔云-医生端");
+//        PushExample.testSendPush("f768f54706a03a9507f7d837","0d86bdb79e1a1e9619886341");
+    }
+
+
+
+    public void testSendPush(String secret,String key,String title,String message,List<String> listPushUserId) {
+        ClientConfig clientConfig = ClientConfig.getInstance();
+        final JPushClient jpushClient = new JPushClient(secret, key, null, clientConfig);
+        // Here you can use NativeHttpClient or NettyHttpClient or ApacheHttpClient.
+        // Call setHttpClient to set httpClient,
+        // If you don't invoke this method, default httpClient will use NativeHttpClient.
+//        ApacheHttpClient httpClient = new ApacheHttpClient(authCode, null, clientConfig);
+//        jpushClient.getPushClient().setHttpClient(httpClient);
+        final PushPayload payload = buildPushObject_android_and_ios(title,message,listPushUserId);
+//        // For push, all you need do is to build PushPayload object.
+//        PushPayload payload = buildPushObject_all_alias_alert();
+        try {
+            PushResult result = jpushClient.sendPush(payload);
+            log.info("激光推送结果： " + result);
+            // 如果使用 NettyHttpClient，需要手动调用 close 方法退出进程
+            // If uses NettyHttpClient, call close when finished sending request, otherwise process will not exit.
+            // jpushClient.close();
+        } catch (APIConnectionException e) {
+            log.error("Connection error. Should retry later. ", e);
+            log.error("Sendno: " + payload.getSendno());
+//            throw new ServiceException(Constants.ERROR_SERVICE_EXCEPTION,"极光推送连接异常，稍后再试 "+e.getMessage());
+        } catch (APIRequestException e) {
+            //log.error("Error response from JPush server. Should review and fix it. ", e);
+            log.info("HTTP Status: " + e.getStatus());
+            log.info("Error Code: " + e.getErrorCode());
+            log.info("Error Message: " + e.getErrorMessage());
+            log.info("Msg ID: " + e.getMsgId());
+            log.error("Sendno: " + payload.getSendno());
+            log.warn("异常的原因更多是没有满足条件的推送目标，目前绑定ID手机的别名有：{}",listPushUserId.toString());
+//            throw new ServiceException(Constants.ERROR_SERVICE_EXCEPTION,e.getErrorMessage()+" 目前的别名："+listPushUserId.toString());
+        }
+    }
+    public PushPayload buildPushObject_android_and_ios(String title,String message,List<String> listPushUserId) {
+        return PushPayload.newBuilder()
+                .setPlatform(Platform.android_ios())
+                .setAudience(Audience.alias(listPushUserId)) //单独一个的话很在意这个别名是否存在，不存在马上抛出异常，多个则忽略及不发送不存在的
+                //.setMessage(Message.newBuilder().setMsgContent(message).setTitle(title).addExtra("from","yierPlatform").build())
+                .setOptions(Options.newBuilder().setApnsProduction(this.commonCfg.isProductEnv()).build()) // APNs 的推送环境是“生产”（如果不显式设置的话，Library 会默认指定为开发）
+                .setNotification(Notification.newBuilder().setAlert(message)
+                        .addPlatformNotification(AndroidNotification.newBuilder().setTitle(title).build())
+                        .addPlatformNotification(IosNotification.newBuilder().setAlert(message).incrBadge(1).build())
+                        .build())
+//                .setNotification(Notification.newBuilder()
+//                        .setAlert(message)
+//                        .addPlatformNotification(AndroidNotification.newBuilder()
+//                                .setTitle(title)
+//                                .addExtras(extras).build())
+//                        .addPlatformNotification(IosNotification.newBuilder()
+//                                .incrBadge(1)
+//                                .addExtra("from", "platform").build())
+//                        .build())
+                .build();
+    }
+
+    public static PushPayload buildPushObject_android_and_ios_AA(String title,String message,List<String> listPushUserId) {
+        Map<String, String> extras = new HashMap<String, String>();
+        extras.put("扩展消息", "https://community.jiguang.cn/push");
+        return PushPayload.newBuilder()
+                .setPlatform(Platform.android_ios())
+                .setAudience(Audience.alias(listPushUserId))
+                .setNotification(Notification.newBuilder()
+                        .setAlert(message)
+                        .addPlatformNotification(AndroidNotification.newBuilder()
+                                .setTitle(title)
+                                .addExtras(extras).build())
+                        .addPlatformNotification(IosNotification.newBuilder()
+                                .incrBadge(1)
+                                .addExtra("extra_key", "extra_value").build())
+                        .build())
+                .build();
+    }
+}

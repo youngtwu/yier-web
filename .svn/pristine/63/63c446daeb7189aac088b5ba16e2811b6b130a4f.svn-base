@@ -1,0 +1,670 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.MedicalPrescriptionMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.MedicalPrescription">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="medical_order_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="order_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="prescription_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="prescription_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="organization_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="organization_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="catalog_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="department_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="patient_id_card_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="patient_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="doctor_title" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="doctor_signature" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pharmacist_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="pharmacist_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="view_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="view_info" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pharmacy_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pharmacy_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pharmacy_address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pharmacy_contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="icd_codes" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="icd_diseases" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="advice" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cost" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="service_fee" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="effective_days" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="original" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="prescription_status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, medical_order_id, order_no, prescription_time, prescription_id, organization_id, 
+    organization_name, hospital_address, hospital_contact, catalog_id, department_id, 
+    department_name, patient_id, patient_id_card_no, patient_name, patient_contact, patient_address, 
+    doctor_id, doctor_title, doctor_name, doctor_signature, pharmacist_id, pharmacist_name, 
+    view_time, view_info, pharmacy_id, pharmacy_name, pharmacy_address, pharmacy_contact, 
+    icd_codes, icd_diseases, advice, cost, service_fee, effective_days, original, create_time, 
+    prescription_status, status, gmt_create, gmt_modified, remarks
+  </sql>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listMedicalPrescription" parameterType="com.yier.platform.common.requestParam.MedicalPrescriptionRequest" resultMap="BaseResultMap">
+    select t.* from t_medical_prescription t
+    <where>
+      <if test="medicalPrescriptionId != null">
+        and t.id = #{medicalPrescriptionId}
+      </if>
+      <if test="prescriptionId != null">
+        and t.prescription_id = #{prescriptionId}
+      </if>
+      <if test="medicalOrderId != null">
+        and t.medical_order_id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="organizationId != null">
+        and t.organization_id = #{organizationId}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="viewTimeNull != null">
+        and t.view_time IS NULL
+      </if>
+      <if test="limitTime !=null">
+        <![CDATA[	 and timestampdiff(SECOND,t.gmt_create,NOW()) >  #{limitTime} ]]>
+      </if>
+      <if test="prescriptionStatus != null">
+        and t.prescription_status = #{prescriptionStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listMedicalPrescriptionCount" parameterType="com.yier.platform.common.requestParam.MedicalPrescriptionRequest" resultType="Integer">
+    select count(t.id) from t_medical_prescription t
+    <where>
+      <if test="medicalPrescriptionId != null">
+        and t.id = #{medicalPrescriptionId}
+      </if>
+      <if test="prescriptionId != null">
+        and t.prescription_id = #{prescriptionId}
+      </if>
+      <if test="medicalOrderId != null">
+        and t.medical_order_id = #{medicalOrderId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="organizationId != null">
+        and t.organization_id = #{organizationId}
+      </if>
+      <if test="patientId != null">
+        and t.patient_id = #{patientId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="pharmacyId != null">
+        and t.pharmacy_id = #{pharmacyId}
+      </if>
+      <if test="viewTimeNull != null">
+        and t.view_time IS NULL
+      </if>
+      <if test="limitTime !=null">
+        <![CDATA[	 and timestampdiff(SECOND,t.gmt_create,NOW()) >  #{limitTime} ]]>
+      </if>
+      <if test="prescriptionStatus != null">
+        and t.prescription_status = #{prescriptionStatus}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_medical_prescription
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_medical_prescription
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.MedicalPrescription">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_medical_prescription (medical_order_id, order_no, prescription_time, 
+      prescription_id, organization_id, organization_name, 
+      hospital_address, hospital_contact, catalog_id, 
+      department_id, department_name, patient_id, 
+      patient_id_card_no, patient_name, patient_contact, 
+      patient_address, doctor_id, doctor_title, 
+      doctor_name, doctor_signature, pharmacist_id, 
+      pharmacist_name, view_time, view_info, 
+      pharmacy_id, pharmacy_name, pharmacy_address, 
+      pharmacy_contact, icd_codes, icd_diseases, 
+      advice, cost, service_fee, 
+      effective_days, original, create_time, 
+      prescription_status, status, gmt_create, 
+      gmt_modified, remarks)
+    values (#{medicalOrderId,jdbcType=BIGINT}, #{orderNo,jdbcType=VARCHAR}, #{prescriptionTime,jdbcType=TIMESTAMP}, 
+      #{prescriptionId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{organizationName,jdbcType=VARCHAR}, 
+      #{hospitalAddress,jdbcType=VARCHAR}, #{hospitalContact,jdbcType=VARCHAR}, #{catalogId,jdbcType=BIGINT}, 
+      #{departmentId,jdbcType=BIGINT}, #{departmentName,jdbcType=VARCHAR}, #{patientId,jdbcType=BIGINT}, 
+      #{patientIdCardNo,jdbcType=VARCHAR}, #{patientName,jdbcType=VARCHAR}, #{patientContact,jdbcType=VARCHAR}, 
+      #{patientAddress,jdbcType=VARCHAR}, #{doctorId,jdbcType=BIGINT}, #{doctorTitle,jdbcType=VARCHAR}, 
+      #{doctorName,jdbcType=VARCHAR}, #{doctorSignature,jdbcType=VARCHAR}, #{pharmacistId,jdbcType=BIGINT}, 
+      #{pharmacistName,jdbcType=VARCHAR}, #{viewTime,jdbcType=TIMESTAMP}, #{viewInfo,jdbcType=VARCHAR}, 
+      #{pharmacyId,jdbcType=VARCHAR}, #{pharmacyName,jdbcType=VARCHAR}, #{pharmacyAddress,jdbcType=VARCHAR}, 
+      #{pharmacyContact,jdbcType=VARCHAR}, #{icdCodes,jdbcType=VARCHAR}, #{icdDiseases,jdbcType=VARCHAR}, 
+      #{advice,jdbcType=VARCHAR}, #{cost,jdbcType=INTEGER}, #{serviceFee,jdbcType=INTEGER}, 
+      #{effectiveDays,jdbcType=INTEGER}, #{original,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{prescriptionStatus,jdbcType=CHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.MedicalPrescription">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_medical_prescription
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="medicalOrderId != null">
+        medical_order_id,
+      </if>
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="prescriptionTime != null">
+        prescription_time,
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id,
+      </if>
+      <if test="organizationId != null">
+        organization_id,
+      </if>
+      <if test="organizationName != null">
+        organization_name,
+      </if>
+      <if test="hospitalAddress != null">
+        hospital_address,
+      </if>
+      <if test="hospitalContact != null">
+        hospital_contact,
+      </if>
+      <if test="catalogId != null">
+        catalog_id,
+      </if>
+      <if test="departmentId != null">
+        department_id,
+      </if>
+      <if test="departmentName != null">
+        department_name,
+      </if>
+      <if test="patientId != null">
+        patient_id,
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no,
+      </if>
+      <if test="patientName != null">
+        patient_name,
+      </if>
+      <if test="patientContact != null">
+        patient_contact,
+      </if>
+      <if test="patientAddress != null">
+        patient_address,
+      </if>
+      <if test="doctorId != null">
+        doctor_id,
+      </if>
+      <if test="doctorTitle != null">
+        doctor_title,
+      </if>
+      <if test="doctorName != null">
+        doctor_name,
+      </if>
+      <if test="doctorSignature != null">
+        doctor_signature,
+      </if>
+      <if test="pharmacistId != null">
+        pharmacist_id,
+      </if>
+      <if test="pharmacistName != null">
+        pharmacist_name,
+      </if>
+      <if test="viewTime != null">
+        view_time,
+      </if>
+      <if test="viewInfo != null">
+        view_info,
+      </if>
+      <if test="pharmacyId != null">
+        pharmacy_id,
+      </if>
+      <if test="pharmacyName != null">
+        pharmacy_name,
+      </if>
+      <if test="pharmacyAddress != null">
+        pharmacy_address,
+      </if>
+      <if test="pharmacyContact != null">
+        pharmacy_contact,
+      </if>
+      <if test="icdCodes != null">
+        icd_codes,
+      </if>
+      <if test="icdDiseases != null">
+        icd_diseases,
+      </if>
+      <if test="advice != null">
+        advice,
+      </if>
+      <if test="cost != null">
+        cost,
+      </if>
+      <if test="serviceFee != null">
+        service_fee,
+      </if>
+      <if test="effectiveDays != null">
+        effective_days,
+      </if>
+      <if test="original != null">
+        original,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="prescriptionStatus != null">
+        prescription_status,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="medicalOrderId != null">
+        #{medicalOrderId,jdbcType=BIGINT},
+      </if>
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionTime != null">
+        #{prescriptionTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prescriptionId != null">
+        #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationName != null">
+        #{organizationName,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalAddress != null">
+        #{hospitalAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalContact != null">
+        #{hospitalContact,jdbcType=VARCHAR},
+      </if>
+      <if test="catalogId != null">
+        #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentName != null">
+        #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientIdCardNo != null">
+        #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null">
+        #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorId != null">
+        #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorTitle != null">
+        #{doctorTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorName != null">
+        #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSignature != null">
+        #{doctorSignature,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacistId != null">
+        #{pharmacistId,jdbcType=BIGINT},
+      </if>
+      <if test="pharmacistName != null">
+        #{pharmacistName,jdbcType=VARCHAR},
+      </if>
+      <if test="viewTime != null">
+        #{viewTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="viewInfo != null">
+        #{viewInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyId != null">
+        #{pharmacyId,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyName != null">
+        #{pharmacyName,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyAddress != null">
+        #{pharmacyAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyContact != null">
+        #{pharmacyContact,jdbcType=VARCHAR},
+      </if>
+      <if test="icdCodes != null">
+        #{icdCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="icdDiseases != null">
+        #{icdDiseases,jdbcType=VARCHAR},
+      </if>
+      <if test="advice != null">
+        #{advice,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=INTEGER},
+      </if>
+      <if test="serviceFee != null">
+        #{serviceFee,jdbcType=INTEGER},
+      </if>
+      <if test="effectiveDays != null">
+        #{effectiveDays,jdbcType=INTEGER},
+      </if>
+      <if test="original != null">
+        #{original,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prescriptionStatus != null">
+        #{prescriptionStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.MedicalPrescription">
+    update t_medical_prescription
+    <set>
+      <if test="medicalOrderId != null">
+        medical_order_id = #{medicalOrderId,jdbcType=BIGINT},
+      </if>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionTime != null">
+        prescription_time = #{prescriptionTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationName != null">
+        organization_name = #{organizationName,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalAddress != null">
+        hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalContact != null">
+        hospital_contact = #{hospitalContact,jdbcType=VARCHAR},
+      </if>
+      <if test="catalogId != null">
+        catalog_id = #{catalogId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentId != null">
+        department_id = #{departmentId,jdbcType=BIGINT},
+      </if>
+      <if test="departmentName != null">
+        department_name = #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientId != null">
+        patient_id = #{patientId,jdbcType=BIGINT},
+      </if>
+      <if test="patientIdCardNo != null">
+        patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null">
+        patient_name = #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientContact != null">
+        patient_contact = #{patientContact,jdbcType=VARCHAR},
+      </if>
+      <if test="patientAddress != null">
+        patient_address = #{patientAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorId != null">
+        doctor_id = #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorTitle != null">
+        doctor_title = #{doctorTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorName != null">
+        doctor_name = #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSignature != null">
+        doctor_signature = #{doctorSignature,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacistId != null">
+        pharmacist_id = #{pharmacistId,jdbcType=BIGINT},
+      </if>
+      <if test="pharmacistName != null">
+        pharmacist_name = #{pharmacistName,jdbcType=VARCHAR},
+      </if>
+      <if test="viewTime != null">
+        view_time = #{viewTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="viewInfo != null">
+        view_info = #{viewInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyId != null">
+        pharmacy_id = #{pharmacyId,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyName != null">
+        pharmacy_name = #{pharmacyName,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyAddress != null">
+        pharmacy_address = #{pharmacyAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="pharmacyContact != null">
+        pharmacy_contact = #{pharmacyContact,jdbcType=VARCHAR},
+      </if>
+      <if test="icdCodes != null">
+        icd_codes = #{icdCodes,jdbcType=VARCHAR},
+      </if>
+      <if test="icdDiseases != null">
+        icd_diseases = #{icdDiseases,jdbcType=VARCHAR},
+      </if>
+      <if test="advice != null">
+        advice = #{advice,jdbcType=VARCHAR},
+      </if>
+      <if test="cost != null">
+        cost = #{cost,jdbcType=INTEGER},
+      </if>
+      <if test="serviceFee != null">
+        service_fee = #{serviceFee,jdbcType=INTEGER},
+      </if>
+      <if test="effectiveDays != null">
+        effective_days = #{effectiveDays,jdbcType=INTEGER},
+      </if>
+      <if test="original != null">
+        original = #{original,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prescriptionStatus != null">
+        prescription_status = #{prescriptionStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.MedicalPrescription">
+    update t_medical_prescription
+    set medical_order_id = #{medicalOrderId,jdbcType=BIGINT},
+      order_no = #{orderNo,jdbcType=VARCHAR},
+      prescription_time = #{prescriptionTime,jdbcType=TIMESTAMP},
+      prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
+      organization_name = #{organizationName,jdbcType=VARCHAR},
+      hospital_address = #{hospitalAddress,jdbcType=VARCHAR},
+      hospital_contact = #{hospitalContact,jdbcType=VARCHAR},
+      catalog_id = #{catalogId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      department_name = #{departmentName,jdbcType=VARCHAR},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      patient_id_card_no = #{patientIdCardNo,jdbcType=VARCHAR},
+      patient_name = #{patientName,jdbcType=VARCHAR},
+      patient_contact = #{patientContact,jdbcType=VARCHAR},
+      patient_address = #{patientAddress,jdbcType=VARCHAR},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      doctor_title = #{doctorTitle,jdbcType=VARCHAR},
+      doctor_name = #{doctorName,jdbcType=VARCHAR},
+      doctor_signature = #{doctorSignature,jdbcType=VARCHAR},
+      pharmacist_id = #{pharmacistId,jdbcType=BIGINT},
+      pharmacist_name = #{pharmacistName,jdbcType=VARCHAR},
+      view_time = #{viewTime,jdbcType=TIMESTAMP},
+      view_info = #{viewInfo,jdbcType=VARCHAR},
+      pharmacy_id = #{pharmacyId,jdbcType=VARCHAR},
+      pharmacy_name = #{pharmacyName,jdbcType=VARCHAR},
+      pharmacy_address = #{pharmacyAddress,jdbcType=VARCHAR},
+      pharmacy_contact = #{pharmacyContact,jdbcType=VARCHAR},
+      icd_codes = #{icdCodes,jdbcType=VARCHAR},
+      icd_diseases = #{icdDiseases,jdbcType=VARCHAR},
+      advice = #{advice,jdbcType=VARCHAR},
+      cost = #{cost,jdbcType=INTEGER},
+      service_fee = #{serviceFee,jdbcType=INTEGER},
+      effective_days = #{effectiveDays,jdbcType=INTEGER},
+      original = #{original,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      prescription_status = #{prescriptionStatus,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

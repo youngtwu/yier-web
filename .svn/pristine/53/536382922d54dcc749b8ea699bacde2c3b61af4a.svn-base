@@ -1,0 +1,77 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "用户地址任务请求类")
+public class UserAddressRequest extends BaseRequest {
+    private Long userAddressId;
+
+    private String addressCodeNo;
+    @ApiModelProperty(value = "发送端")
+    private Long typeId;
+
+    private Long userTableId;
+
+    private String userName;
+
+    private String contact;
+
+    private String defaultValue;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public Long getUserAddressId() {
+        return userAddressId;
+    }
+
+    public void setUserAddressId(Long userAddressId) {
+        this.userAddressId = userAddressId;
+    }
+
+    public String getAddressCodeNo() {
+        return addressCodeNo;
+    }
+
+    public void setAddressCodeNo(String addressCodeNo) {
+        this.addressCodeNo = addressCodeNo;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserTableId() {
+        return userTableId;
+    }
+
+    public void setUserTableId(Long userTableId) {
+        this.userTableId = userTableId;
+    }
+}

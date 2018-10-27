@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DepartmentCatalogMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DepartmentCatalog">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="hospital_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="use_type" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="flag" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, hospital_id, display_order, use_type, flag, status, gmt_create, gmt_modified, 
+    remarks
+  </sql>
+  
+  
+  
+  
+  
+  
+
+
+  <!-- 根据条件 开通聊天设置并且是有效数据来 查询关于医生的列表 -->
+  <select id="listDepartmentCatalogForDoctor" parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultMap="BaseResultMap">
+    select DISTINCT t.* from t_department_catalog t LEFT JOIN t_doctor dt ON t.id = dt.catalog_id and dt.`status` = '0'
+    LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',dt.id)
+    <where>
+      dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="useType != null">
+        and t.use_type = #{useType}
+      </if>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by t.display_order asc, ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.display_order asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件 开通聊天设置并且是有效数据来 查询关于医生的列表 总和 -->
+  <select id="listDepartmentCatalogForDoctorCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultType="Integer">
+    select count(DISTINCT t.id) from t_department_catalog t LEFT JOIN t_doctor dt ON t.id = dt.catalog_id and dt.`status` = '0'
+    LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',dt.id)
+    <where>
+      dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="useType != null">
+        and t.use_type = #{useType}
+      </if>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+  <!-- 根据条件 开通聊天设置并且是有效数据来 查询关于药师的列表 -->
+  <select id="listDepartmentCatalogForPharmacist" parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultMap="BaseResultMap">
+    select DISTINCT t.* from t_department_catalog t LEFT JOIN t_pharmacist dt ON t.id = dt.catalog_id and dt.`status` = '0'
+    LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',dt.id)
+    <where>
+      dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="useType != null">
+        and t.use_type = #{useType}
+      </if>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by t.display_order asc, ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.display_order asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件 开通聊天设置并且是有效数据来 查询关于药师的列表 总和 -->
+  <select id="listDepartmentCatalogForPharmacistCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultType="Integer">
+    select count(DISTINCT t.id) from t_department_catalog t LEFT JOIN t_pharmacist dt ON t.id = dt.catalog_id and dt.`status` = '0'
+    LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',dt.id)
+    <where>
+      dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="useType != null">
+        and t.use_type = #{useType}
+      </if>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDepartmentCatalog" parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultMap="BaseResultMap">
+    select t.*  from t_department_catalog t
+    <where>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="useType != null">
+        and t.use_type = #{useType}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="status == null">
+        and t.status = '0'
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by t.display_order asc, ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.display_order asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDepartmentCatalogCount" parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultType="Integer">
+    select count(t.id) from t_department_catalog t
+    <where>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="useType != null">
+        and t.use_type = #{useType}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="status == null">
+        and t.status = '0'
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+  <delete id="deleteDepartmentCatalogByHospitalId" parameterType="java.lang.Long">
+    delete from t_department_catalog
+    where hospital_id = #{hospitalId,jdbcType=BIGINT}
+  </delete>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_department_catalog
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_department_catalog
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DepartmentCatalog">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_department_catalog (name, hospital_id, display_order, 
+      use_type, flag, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{name,jdbcType=VARCHAR}, #{hospitalId,jdbcType=BIGINT}, #{displayOrder,jdbcType=INTEGER}, 
+      #{useType,jdbcType=INTEGER}, #{flag,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DepartmentCatalog">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_department_catalog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        name,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="displayOrder != null">
+        display_order,
+      </if>
+      <if test="useType != null">
+        use_type,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="displayOrder != null">
+        #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="useType != null">
+        #{useType,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DepartmentCatalog">
+    update t_department_catalog
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        hospital_id = #{hospitalId,jdbcType=BIGINT},
+      </if>
+      <if test="displayOrder != null">
+        display_order = #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="useType != null">
+        use_type = #{useType,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DepartmentCatalog">
+    update t_department_catalog
+    set name = #{name,jdbcType=VARCHAR},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      display_order = #{displayOrder,jdbcType=INTEGER},
+      use_type = #{useType,jdbcType=INTEGER},
+      flag = #{flag,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

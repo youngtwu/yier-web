@@ -1,0 +1,222 @@
+package com.yier.platform.web;
+
+import com.github.yingzhuo.carnival.restful.security.Logical;
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.github.yingzhuo.carnival.restful.security.RequiresRoles;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.AppConfig;
+import com.yier.platform.common.model.AppConfigPo;
+import com.yier.platform.common.model.Images;
+import com.yier.platform.common.requestParam.AppConfigRequest;
+import com.yier.platform.common.requestParam.ImagesRequest;
+import com.yier.platform.service.AppConfigService;
+import com.yier.platform.service.ImagesService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+
+
+@ApiModel(value = "APP信息管理相关的请求接口")
+@RestController
+@RequestMapping("/appConfigManager")
+@Slf4j
+public class AppConfigManagerController {
+    private static final Logger logger = LoggerFactory.getLogger(AppConfigManagerController.class);
+
+    @Autowired
+    private ImagesService imagesService;
+    @Autowired
+    private AppConfigService appConfigService;
+
+    @ApiOperation(value = "获取APP配置信息列表")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getAppConfigList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<AppConfigPo> getAppConfigList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP配置信息请求接口类") @RequestBody AppConfigRequest params) {
+        params.doWithSortOrStart();
+        logger.info("获取APP配置信息列表, 请求参数：{}", params);
+        ListResponse<AppConfigPo> res = new ListResponse<AppConfigPo>();
+        List<AppConfigPo> appConfigList = this.appConfigService.getAppConfigList(params);
+        int count = this.appConfigService.getAppConfigListCount(params);
+        res.setData(appConfigList);
+        res.setTotal(count);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增APP配置信息, 状态（0正常 1删除 2停用）")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/insertAppConfig.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<AppConfig> insertAppConfig(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP配置信息map") @RequestParam Map<String, String> map, @ApiParam(value = "区分app配置管理类型(1.app基本信息管理 2.app版本管理)") @RequestParam String configType, @ApiParam(value = "所属APP（端口类型 1患者端 2医生端 3药师端）") @RequestParam Long typeId, @ApiParam(value = "上传文件") @RequestParam(value = "APP_CONFIG_TYPE_ID_REG_FILE_PATH", required = false) MultipartFile file) {
+        logger.info("新增APP配置信息, 请求参数：map==={}, configType==={}, typeId==={}, file==={}", map, configType, typeId, file);
+        ListResponse<AppConfig> res = new ListResponse<AppConfig>();
+        List<AppConfig> appConfigList = this.appConfigService.insertAppConfig(map, configType, typeId, file);
+        res.setData(appConfigList);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "获取APP图片信息列表 {\"typeId\":1,\"markId\":6}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getAppImagesList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> getAppImagesList(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP配置信息请求接口类") @RequestBody ImagesRequest params) {
+        params.doWithSortOrStart();
+        logger.info("获取APP图片信息列表, 请求参数：{}", params);
+        ListResponse<Images> res = new ListResponse<Images>();
+        Assert.isTrue(params.getTypeId() != null, "typeId不能为空");
+        Assert.isTrue(params.getMarkId() != null, "markId不能为空");
+        List<Images> appConfigList = this.imagesService.listImages(params);
+        int count = this.imagesService.listImagesCount(params);
+        res.setData(appConfigList);
+        res.setTotal(count);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据id获取APP图片信息，/baseInfo/getAppImagesById.json?imageId=1")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getAppImagesById.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> getAppImagesById(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestParam Long id) {
+        logger.info("根据id获取APP配置信息, 请求参数：{}", id);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        Images images = this.imagesService.getAppImagesById(id);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据typeId和markId(表的标识类型： 1表示New，2表示message，3表示personMessage 4.表示来自于banner(首页图片) 没有库中id，5.广告表的类型（启动页图片），无Id)联合查询APP图片信息，{\"typeId\":1,\"markId\":6}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getAppImagesByTypeIdAndMarkId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> getAppImagesByTypeIdAndMarkId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody ImagesRequest params) {
+        logger.info("根据typeId和markId联合查询APP信息信息, 请求参数：{}", params);
+        ListResponse<Images> res = new ListResponse<Images>();
+        List<Images> images = this.imagesService.getAppImagesByTypeIdAndMarkId(params);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据typeId查询APP基本信息，{\"typeId\":1}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getAppImagesByTypeId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> getAppImagesByTypeId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody ImagesRequest params) {
+        logger.info("根据typeId查询APP基本信息, 请求参数：{}", params);
+        ListResponse<Images> res = new ListResponse<Images>();
+        List<Images> images = this.imagesService.getAppImagesByTypeId(params);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据markId(表的标识类型： 1表示New，2表示message，3表示personMessage 4.表示来自于banner(首页图片) 没有库中id，5.广告表的类型（启动页图片），无Id)查询APP图片信息，{\"markId\":4}")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getAppImagesByMarkId.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> getAppImagesByMarkId(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody ImagesRequest params) {
+        logger.info("根据markId查询APP基本信息, 请求参数：{}", params);
+        ListResponse<Images> res = new ListResponse<Images>();
+        List<Images> images = this.imagesService.getAppImagesByMarkId(params);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增APP启动页图片")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/insertAppStartupHomepageImage.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> insertAppStartupHomepageImage(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") Images images, @ApiParam(value = "上传图片的数组") @RequestParam(value = "files", required = false) MultipartFile[] files) {
+        logger.info("新增APP启动页图片, 请求参数：images==={}, {}", images, files);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        this.imagesService.insertAppStartupHomepageImage(images, files);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "更新APP启动页图片")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/updateAppStartupHomepageImage.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> updateAppStartupHomepageImage(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") Images images, @ApiParam(value = "上传图片的数组") @RequestParam(value = "files", required = false) MultipartFile[] files) {
+        logger.info("更新APP启动页图片, 请求参数：images==={}, {}", images, files);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        this.imagesService.updateAppStartupHomepageImage(images, files);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增APP首页图片")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/insertAppIndexImage.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> insertAppIndexImage(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") Images images, @ApiParam(value = "上传图片的数组") @RequestParam(value = "files", required = false) MultipartFile[] files) {
+        logger.info("新增APP首页图片, 请求参数：images==={}, {}", images, files);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        this.imagesService.insertAppIndexImage(images, files);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "更新APP首页图片")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/updateAppIndexImage.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Images> updateAppIndexImage(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") Images images, @ApiParam(value = "上传图片的数组") @RequestParam(value = "files", required = false) MultipartFile[] files) {
+        logger.info("更新APP首页图片, 请求参数：images==={}, {}", images, files);
+        CommonResponse<Images> res = new CommonResponse<Images>();
+        this.imagesService.updateAppIndexImage(images, files);
+        res.setData(images);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "修改APP图片显示顺序, 例如：[{\"id\":27,\"displayOrder\":1},{\"id\":28,\"displayOrder\":2},{\"id\":31,\"displayOrder\":3}]")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/updateAppImageOrder.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<Images> updateAppImageOrder(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "APP图片请求接口类") @RequestBody List<Images> images) {
+        logger.info("修改APP图片显示顺序, 请求参数：images==={}", images);
+        ListResponse<Images> res = new ListResponse<Images>();
+        List<Images> imagesList = this.imagesService.updateAppImageOrder(images);
+        res.setData(imagesList);
+        logger.debug(res.toJsonString());
+        return res;
+    }
+
+}

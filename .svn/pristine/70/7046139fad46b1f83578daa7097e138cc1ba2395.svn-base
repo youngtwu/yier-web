@@ -1,0 +1,87 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModel;
+
+@ApiModel(value = "取药查询请求类")
+public class DrugTakeOrderRequest extends BaseRequest {
+    private Long drugTakeOrderId;
+
+    private String prescriptionId;
+
+    private String takeOrderNo;
+
+    private Long medicalPrescriptionId;
+
+    private Long medicalOrderId;
+
+    private String orderNo;
+
+    private String pharmacyId;
+
+
+    private Long patientId;
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public Long getDrugTakeOrderId() {
+        return drugTakeOrderId;
+    }
+
+    public void setDrugTakeOrderId(Long drugTakeOrderId) {
+        this.drugTakeOrderId = drugTakeOrderId;
+    }
+
+    public String getPrescriptionId() {
+        return prescriptionId;
+    }
+
+    public void setPrescriptionId(String prescriptionId) {
+        this.prescriptionId = prescriptionId;
+    }
+
+    public String getTakeOrderNo() {
+        return takeOrderNo;
+    }
+
+    public void setTakeOrderNo(String takeOrderNo) {
+        this.takeOrderNo = takeOrderNo;
+    }
+
+    public Long getMedicalPrescriptionId() {
+        return medicalPrescriptionId;
+    }
+
+    public void setMedicalPrescriptionId(Long medicalPrescriptionId) {
+        this.medicalPrescriptionId = medicalPrescriptionId;
+    }
+
+    public Long getMedicalOrderId() {
+        return medicalOrderId;
+    }
+
+    public void setMedicalOrderId(Long medicalOrderId) {
+        this.medicalOrderId = medicalOrderId;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPharmacyId() {
+        return pharmacyId;
+    }
+
+    public void setPharmacyId(String pharmacyId) {
+        this.pharmacyId = pharmacyId;
+    }
+}

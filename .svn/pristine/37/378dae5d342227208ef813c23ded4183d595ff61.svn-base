@@ -1,0 +1,43 @@
+package com.yier.platform.common.requestParam;
+
+public class AttentionUserRequest  extends BaseRequest {
+    private Long typeId;
+
+    private Long userId;
+
+    private Long attentionTypeId;
+
+    private Long attentionUserId;
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getAttentionTypeId() {
+        return attentionTypeId;
+    }
+
+    public void setAttentionTypeId(Long attentionTypeId) {
+        this.attentionTypeId = attentionTypeId;
+    }
+
+    public Long getAttentionUserId() {
+        return attentionUserId;
+    }
+
+    public void setAttentionUserId(Long attentionUserId) {
+        this.attentionUserId = attentionUserId;
+    }
+}

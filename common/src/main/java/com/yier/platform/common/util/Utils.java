@@ -1,0 +1,1127 @@
+package com.yier.platform.common.util;
+
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.beans.PropertyDescriptor;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
+public class Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final boolean IS_WIN = -1 != System.getProperty("os.name").toLowerCase().indexOf("windows");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+    /**
+     * 汉语中数字大写
+     */
+    private static final String[] CN_UPPER_NUMBER = {"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
+    /**
+     * 汉语中货币单位大写，这样的设计类似于占位符
+     */
+    private static final String[] CN_UPPER_MONETRAY_UNIT = {"分", "角", "元", "拾", "佰", "仟", "万", "拾", "佰", "仟", "亿", "拾",
+            "佰", "仟", "兆", "拾", "佰", "仟"};
+
+    private static String[] weekDays = { "周日", "周一", "周二", "周三", "周四", "周五", "周六" };
+    /**
+     * 特殊字符：整
+     */
+    private static final String CN_FULL = "整";
+    /**
+     * 特殊字符：负
+     */
+    private static final String CN_NEGATIVE = "负";
+    /**
+     * 金额的精度，默认值为2
+     */
+    private static final int MONEY_PRECISION = 2;
+    /**
+     * 特殊字符：零元整
+     */
+    private static final String CN_ZEOR_FULL = "零元" + CN_FULL;
+    private static final byte[] DES_KEY = {21, 1, -110, 82, -32, -85, -128, -65};
+    private static String hostName = null;
+    private static String[] parsePatterns = {"yyyy/MM/dd HH:mm", "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm", "yyyy-MM", "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
+            "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
+
+    static {
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException localUnknownHostException) {
+            logger.warn(localUnknownHostException.getMessage(), localUnknownHostException);
+
+        }
+    }
+
+    public static Date parseAutoDate(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        try {
+            return org.apache.commons.lang3.time.DateUtils.parseDate(obj.toString(), parsePatterns);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    public static String getPrivilege(int time) {
+        if (time >= 60) {
+            return (time / 60) + "小时";
+        }
+        return time + "分钟";
+    }
+
+    /**
+     * 给定时间间隔间的天数
+     *
+     * @param bigDate
+     * @param smallDate
+     * @return
+     */
+    public static long getDays(String bigDate, String smallDate) {
+        long quot = 0;
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date1 = ft.parse(bigDate);
+            Date date2 = ft.parse(smallDate);
+            quot = getDays(date1, date2);
+        } catch (ParseException e) {
+            logger.error("转换异常", e);
+        }
+        return quot;
+    }
+
+    /**
+     * 给定时间间隔间的天数,前后闭区间，[smallDate,bigDate]
+     *
+     * @param bigDate
+     * @param smallDate
+     * @return
+     */
+    public static long getDays(Date bigDate, Date smallDate) {
+        long quot = 0;
+        quot = bigDate.getTime() - smallDate.getTime();
+        quot = quot / 1000 / 60 / 60 / 24;
+        return quot;
+    }
+
+    public static Date formatDate(String date) throws ParseException {
+        return formatDate(date, "yyyy-MM-dd");
+    }
+
+    public static Date formatDate(String date, String pattern) throws ParseException {
+        Date result = new SimpleDateFormat(pattern).parse(date);
+        return result;
+    }
+
+    public static String concat(String ufirstName, String ulastName) {
+        if (StringUtils.isBlank(ufirstName) || StringUtils.isBlank(ulastName)) {
+            return "";
+        }
+        return ((StringUtils.isBlank(ufirstName) ? "" : ufirstName)
+                + (StringUtils.isBlank(ulastName) ? "" : ulastName));
+    }
+
+    /**
+     * 将 prefix 和 suffix 拼接为一个字符串
+     *
+     * @param prefix
+     * @param suffix
+     * @param separator
+     * @return
+     */
+    public static String concatLong2String(String prefix, Long suffix, String separator) {
+        if (StringUtils.isBlank(prefix)) {
+            if (suffix == null) {
+                return "";
+            } else {
+                return suffix.toString();
+            }
+        } else {
+            if (suffix == null) {
+                return prefix;
+            } else {
+                return StringUtils.join(prefix, separator, suffix.toString());
+            }
+        }
+    }
+
+    /**
+     * 将字符串格式的输入内容 str, 拆分为数组
+     *
+     * @param str
+     * @param type
+     * @param filter
+     * @return
+     */
+    public static <T> List<T> split2Array(String str, Class<T> type, Predicate<? super T> filter) {
+        return Utils.split2Array(str, ",", type, filter);
+    }
+
+    /**
+     * 将字符串格式的输入内容 str, 拆分为数组
+     *
+     * @param str
+     * @param type
+     * @return
+     */
+    public static <T> List<T> split2Array(String str, Class<T> type) {
+        return Utils.split2Array(str, ",", type, null);
+    }
+
+    /**
+     * 将字符串格式的输入内容 str, 拆分为数组
+     *
+     * @param str
+     * @param type
+     * @param filter
+     * @return
+     */
+    public static <T> List<T> split2Array(String str, String splitor, Class<T> type, Predicate<? super T> filter) {
+        List<T> list = new ArrayList<>();
+        String[] vs = StringUtils.split(str, splitor);
+        if (vs != null && vs.length > 0) {
+            for (int i = 0; i < vs.length; i++) {
+                try {
+                    Object obj = type.getMethod("valueOf", String.class).invoke(null, vs[i]);
+                    @SuppressWarnings("unchecked")
+                    T objT = (T) obj;
+                    if (filter == null || filter.test(objT)) {
+                        list.add(objT);
+                    }
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                        | NoSuchMethodException | SecurityException e) {
+                    logger.error("解析错误, value = {}, exception = {}", vs[i], e.getMessage(), e);
+                }
+
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 刚刚 昨天 上周 上个月 去年...
+     *
+     * @param date
+     * @return
+     */
+    public static String formatDate(Date date) {
+        Calendar compare = Calendar.getInstance();
+        compare.setTime(date);
+        Calendar cur = Calendar.getInstance();
+
+        // year
+        if (cur.get(Calendar.YEAR) - compare.get(Calendar.YEAR) > 2)
+            return (cur.get(Calendar.YEAR) - compare.get(Calendar.YEAR)) + "年前";
+        if (cur.get(Calendar.YEAR) - compare.get(Calendar.YEAR) == 2)
+            return "前年";
+        if (cur.get(Calendar.YEAR) - compare.get(Calendar.YEAR) == 1) {// 跨年
+            if (cur.get(Calendar.MONTH) < compare.get(Calendar.MONTH)) {
+                return (12 + cur.get(Calendar.MONTH) - compare.get(Calendar.MONTH)) + "月前";
+            } else {
+                return "去年";
+            }
+        }
+
+        // month
+        if (cur.get(Calendar.MONTH) - compare.get(Calendar.MONTH) > 1)
+            return (cur.get(Calendar.MONTH) - compare.get(Calendar.MONTH)) + "月前";
+        if (cur.get(Calendar.MONTH) - compare.get(Calendar.MONTH) == 1) {// 跨月
+            if (cur.get(Calendar.DAY_OF_MONTH) < compare.get(Calendar.DAY_OF_MONTH)) {
+                return (getDaysLastMonth() + cur.get(Calendar.DAY_OF_MONTH) - compare.get(Calendar.DAY_OF_MONTH))
+                        + "天前";
+            } else {
+                return "上个月";
+            }
+        }
+
+        // day
+        if (cur.get(Calendar.DAY_OF_MONTH) - compare.get(Calendar.DAY_OF_MONTH) > 1)
+            return (cur.get(Calendar.DAY_OF_MONTH) - compare.get(Calendar.DAY_OF_MONTH)) + "天前";
+        if (cur.get(Calendar.DAY_OF_MONTH) - compare.get(Calendar.DAY_OF_MONTH) == 1) {// 跨天
+            if (cur.get(Calendar.HOUR) < compare.get(Calendar.HOUR)) {
+                return (24 + cur.get(Calendar.HOUR) - compare.get(Calendar.HOUR)) + "小时前";
+            } else {
+                return "昨天";
+            }
+        }
+
+        // hour
+        if (cur.get(Calendar.HOUR) - compare.get(Calendar.HOUR) > 0)
+            return (cur.get(Calendar.HOUR) - compare.get(Calendar.HOUR)) + "小时前";
+
+        // minute
+        if (cur.get(Calendar.MINUTE) - compare.get(Calendar.MINUTE) > 0)
+            return (cur.get(Calendar.MINUTE) - compare.get(Calendar.MINUTE)) + "分钟前";
+
+        return "刚刚";
+    }
+
+    /**
+     * 将指定日期格式的字符串转为日期类型，如果转换失败返回null
+     *
+     * @param stringValue
+     * @param format
+     * @return Date
+     */
+    public static Date stringToDate(String stringValue, String format) {
+        Date dateValue = null;
+        if (stringValue != null && format != null) {
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                dateValue = dateFormat.parse(stringValue);
+
+            } catch (ParseException ex) {
+                dateValue = null;
+            }
+        }
+        return dateValue;
+    }
+
+    /**
+     * 将日期类型转换为指定格式的字符串
+     *
+     * @param dateValue
+     * @param format
+     * @return String
+     */
+    public static String dateToString(Date dateValue, String format) {
+        if (dateValue == null || format == null) {
+            return null;
+        } else {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+            return dateFormat.format(dateValue);
+        }
+    }
+
+    /**
+     * 格式化为 xx天xx小时xx分钟
+     *
+     * @param time
+     * @return
+     */
+    public static String formatTime(long time) {
+
+        int minute = (int) (time / (60 * 1000));
+        int hour = minute / 60;
+        int day = hour / 24;
+
+        minute = minute % 60;
+        hour = hour % 24;
+
+        String result = "";
+        if (minute > 0) {
+            result = minute + "分钟";
+        } else if (time > 0) {
+            result = "小于1分钟";
+        }
+
+        if (hour > 0) {
+            result = hour + "小时" + result;
+        }
+
+        if (day > 0) {
+            result = day + "天" + result;
+        }
+        return result;
+    }
+
+    /**
+     * 格式化为 xx天;xx小时;xx分钟
+     *
+     * @param time
+     * @return
+     */
+    public static String formatTimeT(long time) {
+
+        int minute = (int) (time / (60 * 1000));
+        int hour = minute / 60;
+        int day = hour / 24;
+
+        minute = minute % 60;
+        hour = hour % 24;
+
+        String result = "";
+        if (minute > 0) {
+            result = minute + "分钟";
+            return result;
+        } else if (time > 0) {
+            result = "小于1分钟";
+            return result;
+        }
+
+        if (hour > 0) {
+            result = hour + "小时";
+            return result;
+        }
+
+        if (day > 0) {
+            result = day + "天";
+            return result;
+        }
+        return result;
+    }
+
+    public static String formatTime2Hour(long time) {
+        if (time == 0) {
+            return "00小时00分";
+        }
+        int second = (int) (time / 1000);
+        int minute = second / 60;
+        int hour = minute / 60;
+        int day = hour / 24;
+
+        second = second % 60;
+        minute = minute % 60;
+        hour = hour % 24;
+
+        String result = "";
+        result = rightzelo(2, second <= 0 ? minute : minute + 1) + "分" + result;
+        result = rightzelo(2, hour) + "小时" + result;
+        if (day > 0) {
+            result = day + "天" + result;
+        }
+        return result;
+    }
+
+    private static String rightzelo(int length, int data) {
+        if (data == 0) {
+            return "00";
+        }
+        String value = "" + data;
+        if (value.length() < length) {
+            return "0" + data;
+        }
+        return value;
+    }
+
+    private static int getDaysLastMonth() {
+        // 取得系统当前时间
+        Calendar cal = Calendar.getInstance();
+        // 取得系统当前时间所在月第一天时间对象
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        // 日期减一,取得上月最后一天时间对象
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        // 输出上月最后一天日期
+        return cal.get(Calendar.DAY_OF_MONTH);
+    }
+
+    // public static String getDomain() {
+    // return DOMAIN;
+    // }
+
+    // public static String getCmsCouponChannels(){
+    // return CMS_COUPON_CHANNEL_LIST;
+    // }
+
+    public static boolean isWin() {
+        return IS_WIN;
+    }
+
+    public static boolean hostNameStartsWith(String paramString) {
+        if (hostName == null)
+            return false;
+        return hostName.startsWith(paramString);
+    }
+
+    public static String getHostName() {
+        return hostName;
+    }
+
+    public static String abbreviate(String text) {
+        return StringUtils.abbreviate(text, 15);
+    }
+
+    /**
+     * @return 返回系统当前时间
+     */
+    public static String getDateNow() {
+        Date nowDate = new Date(System.currentTimeMillis());
+        String nowDateString = dateToString(nowDate, "yyyy-MM-dd HH:mm:ss");
+        return nowDateString;
+    }
+
+    /**
+     * @param parameterString 需要转码的字符串
+     * @return 转码之后字符串
+     */
+    public static String transcoding(String parameterString) {
+        String str = null;
+        if (parameterString != null) {
+            try {
+                str = new String(parameterString.getBytes("ISO-8859-1"), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+        return str;
+    }
+
+    /**
+     * 计算两个日期之间相差的天数
+     *
+     * @param smdate 较小的时间
+     * @param bdate  较大的时间
+     * @return 相差天数
+     * @throws ParseException
+     */
+    public static int daysBetween(Date smdate, Date bdate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        smdate = sdf.parse(sdf.format(smdate));
+        bdate = sdf.parse(sdf.format(bdate));
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(smdate);
+        long time1 = cal.getTimeInMillis();
+        cal.setTime(bdate);
+        long time2 = cal.getTimeInMillis();
+        long between_days = (time2 - time1) / (1000 * 3600 * 24);
+
+        return Integer.parseInt(String.valueOf(between_days));
+    }
+
+    /**
+     * 计算两个日期之间相差的分钟数
+     *
+     * @param smdate
+     * @param bdate
+     * @return
+     */
+    public static long minutesBetween(Date smdate, Date bdate) {
+        long dateTemp = smdate.getTime() - bdate.getTime();
+        if (dateTemp > (1000 * 60)) {
+            return dateTemp / (1000 * 60);
+        }
+        return 0;
+
+    }
+
+    /**
+     * 计算两个日期之间相差的秒数
+     *
+     * @param smdate
+     * @param bdate
+     * @return
+     */
+    public static long secondsBetween(Date smdate, Date bdate) {
+        long dateTemp = smdate.getTime() - bdate.getTime();
+        if (dateTemp > (1000)) {
+            return dateTemp / (1000);
+        }
+        return 0;
+
+    }
+
+    public static long millisecondsBetween(Date smdate, Date bdate) {
+        long dateTemp = smdate.getTime() - bdate.getTime();
+        return dateTemp;
+    }
+
+    /**
+     * 字符串的日期格式的计算
+     */
+    public static int daysBetween(String smdate, String bdate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(sdf.parse(smdate));
+        long time1 = cal.getTimeInMillis();
+        cal.setTime(sdf.parse(bdate));
+        long time2 = cal.getTimeInMillis();
+        long between_days = (time2 - time1) / (1000 * 3600 * 24);
+
+        return Integer.parseInt(String.valueOf(between_days));
+    }
+
+    /**
+     * 去时分秒的今天
+     *
+     * @return
+     */
+    public static Date getToday() {
+        return getDay(new Date(), 0);
+    }
+
+    public static Date getLastDay(int size) {
+        return getDay(new Date(), size);
+    }
+
+    public static String getWeekInfo(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int w = calendar.get(Calendar.DAY_OF_WEEK)-1;// 指示一个星期中的某天。
+        if(w<0) w=0;
+        return weekDays[w];
+    }
+    public static int getWeekInt(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int w = calendar.get(Calendar.DAY_OF_WEEK)-1;// 指示一个星期中的某天。
+        if(w == 0) w = 7;
+        return w;
+    }
+    /**
+     * 去时分秒的日期
+     *
+     * @return
+     */
+    public static Date getDay(Date date, int size) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, -size);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+    public static Date getDayTimeHHmmss(Date date,int addDay, int hour,int minute,int second) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, addDay);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, second);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+    public static Date getDayTimeHHmmss(Date date, int hour,int minute,int second) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, second);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+    public static Date getDayTimeHHmmss(Date date, Date dateTime) {
+        Calendar calendarTime = Calendar.getInstance();
+        calendarTime.setTime(dateTime);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, calendarTime.get(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, calendarTime.get(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, calendarTime.get(Calendar.SECOND));
+        calendar.set(Calendar.MILLISECOND, calendarTime.get(Calendar.MILLISECOND));
+        return calendar.getTime();
+    }
+
+/*    public static Date getDay(Date date, int hour) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY,hour);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }*/
+
+    public static String getDateNoTime(Date date) {
+        return formatDate(date, "yyyy-MM-dd");
+    }
+
+    public static String formatDate(Date date, String pattern) {
+        if (date == null) {
+            return "";
+        }
+        SimpleDateFormat sd = new SimpleDateFormat(pattern);
+//        logger.info("[1]SimpleDateFormat 类的默认时区：" + sd.getTimeZone().getID());
+//        sd.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+//        logger.info("[2]SimpleDateFormat 类的默认时区：" + sd.getTimeZone().getID());
+        return sd.format(date);
+    }
+
+    public static String formatDateToyyyyMMddHHmmss(Date date) {
+        return formatDate(date,"yyyy-MM-dd HH:mm:ss");
+    }
+    public static String formatDateToyyyyMMdd(Date date) {
+        return formatDate(date,"yyyy-MM-dd");
+    }
+    public static Date parseDateTime(String date) {
+        return parseDate(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public static Date parseDate(String date) {
+        return parseDate(date, "yyyy-MM-dd");
+    }
+
+    public static Date parseDate(String date, String pattern) {
+        if (StringUtils.isBlank(date)) {
+            return null;
+        }
+        SimpleDateFormat sd = new SimpleDateFormat(pattern);
+        try {
+            return sd.parse(date);
+        } catch (ParseException e) {
+            // e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param calIn
+     * @return like 2015-09-01 00:00:00
+     */
+    public static Calendar getMonthStartTime(Calendar calIn) {
+        Calendar out = (Calendar) calIn.clone();
+        out.set(calIn.get(Calendar.YEAR), calIn.get(Calendar.MONTH), 1, 0, 0, 0);
+        return out;
+    }
+
+    /**
+     * @param calIn
+     * @return like 2015-9-30 23:59:59
+     */
+    public static Calendar getMonthEndTime(Calendar calIn) {
+        Calendar out = Utils.getMonthStartTime(calIn);
+        out.add(Calendar.MONTH, 1);
+        out.add(Calendar.SECOND, -1);
+        return out;
+    }
+
+    /**
+     * @param calIn
+     * @return like 2015-09-01 00:00:00
+     */
+    public static String getStrMonthStartTime(Calendar calIn) {
+        return Utils.formatDateTime(Utils.getMonthStartTime(calIn).getTime());
+    }
+
+    /**
+     * @param calIn
+     * @return like 2015-9-30 23:59:59
+     */
+    public static String getStrMonthEndTime(Calendar calIn) {
+        return Utils.formatDateTime(Utils.getMonthEndTime(calIn).getTime());
+    }
+
+    /**
+     * 获取查询时间，没有时分秒
+     *
+     * @param date
+     * @param days
+     * @return
+     */
+    public static Date getQueryStrtDate(Date date, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, days);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+
+    public static Date getQueryEndDate(Date date, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, days);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        return calendar.getTime();
+    }
+
+    /**
+     * 含中文字符串长度
+     *
+     * @param s
+     * @return
+     */
+    public static double getChineseLength(String s) {
+        double valueLength = 0;
+        String chinese = "[\u4e00-\u9fa5]";
+        // 获取字段值的长度，如果含中文字符，则每个中文字符长度为2，否则为1
+        for (int i = 0; i < s.length(); i++) {
+            // 获取一个字符
+            String temp = s.substring(i, i + 1);
+            // 判断是否为中文字符
+            if (temp.matches(chinese)) {
+                // 中文字符长度为1
+                valueLength += 1;
+            } else {
+                // 其他字符长度为0.5
+                valueLength += 0.5;
+            }
+        }
+        // 进位取整
+        return Math.ceil(valueLength);
+    }
+
+    /**
+     * add by sunwei 是否包括些对象
+     *
+     * @param eList
+     * @param e
+     * @param <E>
+     * @return
+     */
+    public static <E> boolean contains(List<E> eList, E e) {
+        if (CollectionUtils.isEmpty(eList) || e == null) {
+            return false;
+        }
+        if (eList.contains(e)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static String formatDateTime(Date date) {
+        return formatDate(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public static boolean equals(Object o, Object value) {
+        if (o == null || value == null) {
+            return false;
+        }
+        if (o == value) {
+            return true;
+        }
+        if (o.getClass() == value.getClass()) {
+            return o.equals(value);
+        }
+        return String.valueOf(o).equals(String.valueOf(value));
+    }
+
+    public static boolean equals(Object o, String columnName, Object value) {
+        try {
+            if (null == o || StringUtils.isBlank(columnName) || value == null) {
+                return false;
+            }
+            PropertyDescriptor pd = new PropertyDescriptor(columnName, o.getClass());
+            Object resultValue = pd.getReadMethod().invoke(o);
+            if (resultValue != null) {
+                if (String.valueOf(value).equals(String.valueOf(resultValue))) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            logger.trace(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public static String get(Integer value, Integer scale) {
+        if (value == null || value == 0) {
+            return "0";
+        }
+        if (scale <= 0) {
+            return "0";
+        }
+        return "" + (value / scale);
+    }
+
+    public static boolean firstEquals(String source, String target) {
+        if (StringUtils.isBlank(source) || StringUtils.isBlank(target))
+            return false;
+        return source.substring(0, 1).equals(target);
+    }
+
+    public static String getFirstAfterString(String source) {
+        if (StringUtils.isEmpty(source) || source.length() == 1) {
+            return "";
+        }
+        return source.substring(1);
+    }
+
+    public static Integer sub(Integer a, Integer b) {
+        if (a == null || b == null) {
+            return 0;
+        }
+        return a - b;
+    }
+
+    public static String sub(Integer a, Integer b, Integer scale) {
+        if (a == null || b == null || (scale == null || scale <= 0)) {
+            return "0";
+        }
+        return DECIMAL_FORMAT.format((Double.valueOf(a) - Double.valueOf(b)) / scale);
+    }
+
+    public static boolean isNull(Object o) {
+        if (o == null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isNotNull(Object o) {
+        return !isNull(o);
+    }
+
+    public static <E> boolean isNotEmpty(List<E> eList) {
+        return !CollectionUtils.isEmpty(eList);
+    }
+
+    public static String getTwoDecimalNumber(Double value) {
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        if (value == null) {
+            return "0";
+        }
+        return decimalFormat.format(value);
+
+    }
+
+    public static String getScaleValue(Integer value, Integer scale) {
+        if (value == null || (scale == null || scale <= 0)) {
+            return "0";
+        }
+        return DECIMAL_FORMAT.format(Double.valueOf(value) / Double.valueOf(scale));
+    }
+
+    /**
+     * 两个日期间的天数，向上取天数
+     */
+    public static int formatTime2Day(long time) {
+        int days = 0;
+        if (time == 0) {
+            return days;
+        }
+
+        int second = (int) (time / 1000);
+        int minute = second / 60;
+        int hour = minute / 60;
+        int day = hour / 24;
+
+        second = second % 60;
+        minute = minute % 60;
+        hour = hour % 24;
+        days = day;
+
+        if (second > 0 || minute > 0 || hour > 0) {
+            days += 1;
+        }
+
+        return days;
+    }
+
+    public static String objectToString(Object value) {
+        String strValue = "";
+
+        if (value == null) {
+            strValue = "";
+        } else if (value instanceof String) {
+            strValue = (String) value;
+        } else if (value instanceof Integer) {
+            strValue = ((Integer) value).toString();
+        } else if (value instanceof Long) {
+            strValue = ((Long) value).toString();
+        } else if (value instanceof Float) {
+            strValue = ((Float) value).toString();
+        } else if (value instanceof Double) {
+            strValue = ((Double) value).toString();
+        } else if (value instanceof Boolean) {
+            strValue = ((Boolean) value).toString();
+        } else if (value instanceof Date) {
+            strValue = Utils.formatDateTime((Date) value);
+        } else {
+            strValue = value.toString();
+        }
+
+        return strValue;
+    }
+
+    /**
+     * 判断是否是合法的手机号码. 当前判断规则为1开头的11位号码
+     *
+     * @param mobile
+     * @return
+     */
+    public static boolean isValidMobileNumber(String mobile) {
+        if (StringUtils.isBlank(mobile)) {
+            return false;
+        }
+        return Pattern.matches("^1\\d{10}$", mobile);
+    }
+
+    /**
+     * 判断是否是合法的时间戳. 当前判断规则为10位精确到秒的时间戳，13位是精确到毫秒的时间戳
+     * @param timestamp
+     * @return
+     */
+    public static boolean isValidTimestamp(String timestamp) {
+        if (StringUtils.isBlank(timestamp)) {
+            return false;
+        }
+        return Pattern.matches("^\\d{10}|\\d{13}$", timestamp);
+    }
+
+    /**
+     * 把输入的金额转换为汉语中人民币的大写
+     */
+    public static String formatChineseAmount(long amount) {
+        StringBuffer sb = new StringBuffer();
+        BigDecimal numberOfMoney = new BigDecimal(amount);
+        numberOfMoney = numberOfMoney.divide(new BigDecimal(100));
+        // -1, 0, or 1 as the value of this BigDecimal is negative, zero, or
+        // positive.
+        int signum = numberOfMoney.signum();
+        // 零元整的情况
+        if (signum == 0) {
+            return CN_ZEOR_FULL;
+        }
+        // 这里会进行金额的四舍五入
+        long number = numberOfMoney.movePointRight(MONEY_PRECISION).setScale(0, RoundingMode.HALF_UP).abs().longValue();
+        // 得到小数点后两位值
+        long scale = number % 100;
+        int numUnit = 0;
+        int numIndex = 0;
+        boolean getZero = false;
+        // 判断最后两位数，一共有四中情况：00 = 0, 01 = 1, 10, 11
+        if (!(scale > 0)) {
+            numIndex = 2;
+            number = number / 100;
+            getZero = true;
+        }
+        if ((scale > 0) && (!(scale % 10 > 0))) {
+            numIndex = 1;
+            number = number / 10;
+            getZero = true;
+        }
+        int zeroSize = 0;
+        while (true) {
+            if (number <= 0) {
+                break;
+            }
+            // 每次获取到最后一个数
+            numUnit = (int) (number % 10);
+            if (numUnit > 0) {
+                if ((numIndex == 9) && (zeroSize >= 3)) {
+                    sb.insert(0, CN_UPPER_MONETRAY_UNIT[6]);
+                }
+                if ((numIndex == 13) && (zeroSize >= 3)) {
+                    sb.insert(0, CN_UPPER_MONETRAY_UNIT[10]);
+                }
+                sb.insert(0, CN_UPPER_MONETRAY_UNIT[numIndex]);
+                sb.insert(0, CN_UPPER_NUMBER[numUnit]);
+                getZero = false;
+                zeroSize = 0;
+            } else {
+                ++zeroSize;
+                if (!(getZero)) {
+                    sb.insert(0, CN_UPPER_NUMBER[numUnit]);
+                }
+                if (numIndex == 2) {
+                    if (number > 0) {
+                        sb.insert(0, CN_UPPER_MONETRAY_UNIT[numIndex]);
+                    }
+                } else if (((numIndex - 2) % 4 == 0) && (number % 1000 > 0)) {
+                    sb.insert(0, CN_UPPER_MONETRAY_UNIT[numIndex]);
+                }
+                getZero = true;
+            }
+            // 让number每次都去掉最后一个数
+            number = number / 10;
+            ++numIndex;
+        }
+        // 如果signum == -1，则说明输入的数字为负数，就在最前面追加特殊字符：负
+        if (signum == -1) {
+            sb.insert(0, CN_NEGATIVE);
+        }
+        // 输入的数字小数点后两位为"00"的情况，则要在最后追加特殊字符：整
+        if (!(scale > 0)) {
+            sb.append(CN_FULL);
+        }
+        return sb.toString();
+    }
+    /**
+     * 对原文通过秘钥进行加密
+     * @param password
+     * @param strKey
+     * @return
+     */
+    public static String aesEncrypt(String password, String strKey) {
+        try {
+            byte[] raw = Arrays.copyOf(strKey.getBytes("utf-8"), 16);// Arrays.copyOf(strKey.getBytes("ASCII"), 16);//strKey.getBytes("utf-8");// strKey.getBytes("ASCII");
+            SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
+            Cipher cipher = Cipher.getInstance("AES");//"算法/模式/补码方式"
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+            byte[] encrypted = cipher.doFinal(password.getBytes("utf-8"));
+            //return Hex.encodeHexString(encrypted);//此处使用BASE64做转码功能，同时能起到2次加密的作用。
+            String result = Hex.encodeHexString(encrypted);
+            if (StringUtils.isNotBlank(result)) {
+                result = result.toUpperCase();
+            }
+            return result;
+        } catch (Exception ex) {
+            logger.warn(ex.getMessage(),ex);
+//            ex.printStackTrace();
+            //System.out.println(ex.toString());
+            return null;
+        }
+    }
+
+    /**
+     * 根据密文及秘钥反向解密
+     * @param passwordHex
+     * @param strKey
+     * @return
+     */
+    public static String aesDecrypt(String passwordHex, String strKey) {
+        try {
+            byte[] keyBytes = Arrays.copyOf(strKey.getBytes("utf-8"), 16);//Arrays.copyOf(strKey.getBytes("ASCII"), 16);// strKey.getBytes("utf-8");//Arrays.copyOf(strKey.getBytes("ASCII"), 16);
+            SecretKey key = new SecretKeySpec(keyBytes, "AES");
+            Cipher decipher = Cipher.getInstance("AES");
+            decipher.init(Cipher.DECRYPT_MODE, key);
+            char[] cleartext = passwordHex.toCharArray();
+            byte[] decodeHex = Hex.decodeHex(cleartext);
+            byte[] cipherTextBytes = decipher.doFinal(decodeHex);
+            return new String(cipherTextBytes);
+        } catch (Exception ex) {
+            logger.warn(ex.getMessage(),ex);
+//            ex.printStackTrace();
+            //System.out.println(ex.toString());
+        }
+        return null;
+    }
+   /* public static void main(String[] args) throws Exception {
+
+        logger.info("---------->"+StringUtils.join(PrefixRedis,"b221","TTTTTT"));
+        logger.info("---------->"+StringUtils.join(PrefixRedis,"system_params","88888888888"));
+        String[] str = { "1", "2", "a", "b" };
+        logger.info("---------->"+StringUtils.join(str));
+        logger.info("---------->"+StringUtils.join(str, ","));
+//        logger.info("---------->"+StringUtils.join("a","b"));
+//        logger.info("---------->"+StringUtils.join("a","b"));
+        String key = "0123456789012345";
+        String result = Utils.aesEncrypt("password",key);
+        System.out.println("--result:"+result);
+        System.out.println("--result:E75C7C56AFB3EA4360A9856456F1C8A2");
+        System.out.println("<-password:"+Utils.aesDecrypt(result,key));
+//        SELECT HEX(aesEncrypt("我的天呀", "0123456789012345"));
+//        077052FF868476DC90277BF3C9A73845
+
+        result = Utils.aesEncrypt("我的天呀",key);
+        System.out.println("--result:"+result);
+        System.out.println("--result:077052FF868476DC90277BF3C9A73845");
+        System.out.println("<-password:"+Utils.aesDecrypt(result,key));
+
+
+
+        key = "1234ABCd12345678";
+        result = Utils.aesEncrypt("白宝鹏名字",key);
+        System.out.println("--result:"+result);
+        System.out.println("--result:D008DE5A74A15FA27A52D7340F3166EC");
+        System.out.println("<-password:"+Utils.aesDecrypt(result,key));
+        System.out.println("<-password:"+Utils.aesDecrypt(result,"key"));
+
+    }*/
+}

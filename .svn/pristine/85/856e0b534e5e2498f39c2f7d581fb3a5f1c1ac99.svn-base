@@ -1,0 +1,255 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import java.util.Date;
+
+public class ApiAround extends BaseJsonObject {
+    private Long id;
+
+    private String typeId;
+
+    private String userId;
+
+    private String token;
+
+    private String osType;
+
+    private String appKey;
+
+    private String nonce;
+
+    private String timeStamp;
+
+    private String signature;
+
+    private String apiVersion;
+
+    private String methodPath;
+
+    private String methodArgs;
+
+    private String requestRemoteAddress;
+
+    private String requestPath;
+
+    private String requestParams;
+
+    private String requestMethod;
+
+    private String requestUserAgent;
+
+    private Long duration;
+
+    private String status;
+
+    private Date gmtCreate;
+
+    private Date gmtModified;
+
+    private String remarks;
+
+    public ApiAround(Long id, String typeId, String userId, String token, String osType, String appKey, String nonce, String timeStamp, String signature, String apiVersion, String methodPath, String methodArgs, String requestRemoteAddress, String requestPath, String requestParams, String requestMethod, String requestUserAgent, Long duration, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.typeId = typeId;
+        this.userId = userId;
+        this.token = token;
+        this.osType = osType;
+        this.appKey = appKey;
+        this.nonce = nonce;
+        this.timeStamp = timeStamp;
+        this.signature = signature;
+        this.apiVersion = apiVersion;
+        this.methodPath = methodPath;
+        this.methodArgs = methodArgs;
+        this.requestRemoteAddress = requestRemoteAddress;
+        this.requestPath = requestPath;
+        this.requestParams = requestParams;
+        this.requestMethod = requestMethod;
+        this.requestUserAgent = requestUserAgent;
+        this.duration = duration;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public ApiAround() {
+        super();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getOsType() {
+        return osType;
+    }
+
+    public void setOsType(String osType) {
+        this.osType = osType;
+    }
+
+    public String getAppKey() {
+        return appKey;
+    }
+
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getApiVersion() {
+        return apiVersion;
+    }
+
+    public void setApiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
+    }
+
+    public String getMethodPath() {
+        return methodPath;
+    }
+
+    public void setMethodPath(String methodPath) {
+        this.methodPath = methodPath;
+    }
+
+    public String getMethodArgs() {
+        return methodArgs;
+    }
+
+    public void setMethodArgs(String methodArgs) {
+        this.methodArgs = methodArgs;
+    }
+
+    public String getRequestRemoteAddress() {
+        return requestRemoteAddress;
+    }
+
+    public void setRequestRemoteAddress(String requestRemoteAddress) {
+        this.requestRemoteAddress = requestRemoteAddress;
+    }
+
+    public String getRequestPath() {
+        return requestPath;
+    }
+
+    public void setRequestPath(String requestPath) {
+        this.requestPath = requestPath;
+    }
+
+    public String getRequestParams() {
+        return requestParams;
+    }
+
+    public void setRequestParams(String requestParams) {
+        this.requestParams = requestParams;
+    }
+
+    public String getRequestMethod() {
+        return requestMethod;
+    }
+
+    public void setRequestMethod(String requestMethod) {
+        this.requestMethod = requestMethod;
+    }
+
+    public String getRequestUserAgent() {
+        return requestUserAgent;
+    }
+
+    public void setRequestUserAgent(String requestUserAgent) {
+        this.requestUserAgent = requestUserAgent;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

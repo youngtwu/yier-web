@@ -1,0 +1,26 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.Pharmacy;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface PharmacyMapper {
+
+    Pharmacy selectPharmacyByHospitalId(Long hospitalId);
+
+
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(Pharmacy record);
+
+    int insertSelective(Pharmacy record);
+
+    Pharmacy selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(Pharmacy record);
+
+    int updateByPrimaryKeyWithBLOBs(Pharmacy record);
+
+    int updateByPrimaryKey(Pharmacy record);
+}

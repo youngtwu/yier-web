@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.OrderDrugsMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.OrderDrugs">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="order_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="prescription_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="drug_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="drug_code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="drug_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="drug_image" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="drug_count" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="drug_unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cost_price" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="drug_spec" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="form_code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="total_dose" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="route_code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="dose" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="dose_unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="rate" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="rate_unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="exceed_quota" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, order_no, prescription_id, drug_id, drug_code, drug_name, drug_image, drug_count, 
+    drug_unit, cost_price, drug_spec, form_code, total_dose, route_code, dose, dose_unit, 
+    rate, rate_unit, exceed_quota, status, gmt_create, gmt_modified, remarks
+  </sql>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listOrderDrugs" parameterType="com.yier.platform.common.requestParam.OrderDrugsRequest" resultMap="BaseResultMap">
+    select t.* from t_order_drugs t
+    <where>
+      <if test="orderDrugsId != null">
+        and t.id = #{orderDrugsId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="prescriptionId != null">
+        and t.prescriptionId = #{prescriptionId}
+      </if>
+      <if test="drugCode != null">
+        and t.drug_code = #{drugCode}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listOrderDrugsCount" parameterType="com.yier.platform.common.requestParam.OrderDrugsRequest" resultType="Integer">
+    select count(t.id) from t_order_drugs t
+    <where>
+      <if test="orderDrugsId != null">
+        and t.id = #{orderDrugsId}
+      </if>
+      <if test="orderNo != null">
+        and t.order_no = #{orderNo}
+      </if>
+      <if test="prescriptionId != null">
+        and t.prescriptionId = #{prescriptionId}
+      </if>
+      <if test="drugCode != null">
+        and t.drug_code = #{drugCode}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_drugs
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_order_drugs
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.OrderDrugs">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_order_drugs (order_no, prescription_id, drug_id, 
+      drug_code, drug_name, drug_image, 
+      drug_count, drug_unit, cost_price, 
+      drug_spec, form_code, total_dose, 
+      route_code, dose, dose_unit, 
+      rate, rate_unit, exceed_quota, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{orderNo,jdbcType=VARCHAR}, #{prescriptionId,jdbcType=VARCHAR}, #{drugId,jdbcType=VARCHAR}, 
+      #{drugCode,jdbcType=VARCHAR}, #{drugName,jdbcType=VARCHAR}, #{drugImage,jdbcType=VARCHAR}, 
+      #{drugCount,jdbcType=INTEGER}, #{drugUnit,jdbcType=VARCHAR}, #{costPrice,jdbcType=INTEGER}, 
+      #{drugSpec,jdbcType=VARCHAR}, #{formCode,jdbcType=VARCHAR}, #{totalDose,jdbcType=VARCHAR}, 
+      #{routeCode,jdbcType=VARCHAR}, #{dose,jdbcType=VARCHAR}, #{doseUnit,jdbcType=VARCHAR}, 
+      #{rate,jdbcType=VARCHAR}, #{rateUnit,jdbcType=VARCHAR}, #{exceedQuota,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.OrderDrugs">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_order_drugs
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id,
+      </if>
+      <if test="drugId != null">
+        drug_id,
+      </if>
+      <if test="drugCode != null">
+        drug_code,
+      </if>
+      <if test="drugName != null">
+        drug_name,
+      </if>
+      <if test="drugImage != null">
+        drug_image,
+      </if>
+      <if test="drugCount != null">
+        drug_count,
+      </if>
+      <if test="drugUnit != null">
+        drug_unit,
+      </if>
+      <if test="costPrice != null">
+        cost_price,
+      </if>
+      <if test="drugSpec != null">
+        drug_spec,
+      </if>
+      <if test="formCode != null">
+        form_code,
+      </if>
+      <if test="totalDose != null">
+        total_dose,
+      </if>
+      <if test="routeCode != null">
+        route_code,
+      </if>
+      <if test="dose != null">
+        dose,
+      </if>
+      <if test="doseUnit != null">
+        dose_unit,
+      </if>
+      <if test="rate != null">
+        rate,
+      </if>
+      <if test="rateUnit != null">
+        rate_unit,
+      </if>
+      <if test="exceedQuota != null">
+        exceed_quota,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="orderNo != null">
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionId != null">
+        #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="drugId != null">
+        #{drugId,jdbcType=VARCHAR},
+      </if>
+      <if test="drugCode != null">
+        #{drugCode,jdbcType=VARCHAR},
+      </if>
+      <if test="drugName != null">
+        #{drugName,jdbcType=VARCHAR},
+      </if>
+      <if test="drugImage != null">
+        #{drugImage,jdbcType=VARCHAR},
+      </if>
+      <if test="drugCount != null">
+        #{drugCount,jdbcType=INTEGER},
+      </if>
+      <if test="drugUnit != null">
+        #{drugUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="costPrice != null">
+        #{costPrice,jdbcType=INTEGER},
+      </if>
+      <if test="drugSpec != null">
+        #{drugSpec,jdbcType=VARCHAR},
+      </if>
+      <if test="formCode != null">
+        #{formCode,jdbcType=VARCHAR},
+      </if>
+      <if test="totalDose != null">
+        #{totalDose,jdbcType=VARCHAR},
+      </if>
+      <if test="routeCode != null">
+        #{routeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="dose != null">
+        #{dose,jdbcType=VARCHAR},
+      </if>
+      <if test="doseUnit != null">
+        #{doseUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="rate != null">
+        #{rate,jdbcType=VARCHAR},
+      </if>
+      <if test="rateUnit != null">
+        #{rateUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="exceedQuota != null">
+        #{exceedQuota,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.OrderDrugs">
+    update t_order_drugs
+    <set>
+      <if test="orderNo != null">
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="prescriptionId != null">
+        prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      </if>
+      <if test="drugId != null">
+        drug_id = #{drugId,jdbcType=VARCHAR},
+      </if>
+      <if test="drugCode != null">
+        drug_code = #{drugCode,jdbcType=VARCHAR},
+      </if>
+      <if test="drugName != null">
+        drug_name = #{drugName,jdbcType=VARCHAR},
+      </if>
+      <if test="drugImage != null">
+        drug_image = #{drugImage,jdbcType=VARCHAR},
+      </if>
+      <if test="drugCount != null">
+        drug_count = #{drugCount,jdbcType=INTEGER},
+      </if>
+      <if test="drugUnit != null">
+        drug_unit = #{drugUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="costPrice != null">
+        cost_price = #{costPrice,jdbcType=INTEGER},
+      </if>
+      <if test="drugSpec != null">
+        drug_spec = #{drugSpec,jdbcType=VARCHAR},
+      </if>
+      <if test="formCode != null">
+        form_code = #{formCode,jdbcType=VARCHAR},
+      </if>
+      <if test="totalDose != null">
+        total_dose = #{totalDose,jdbcType=VARCHAR},
+      </if>
+      <if test="routeCode != null">
+        route_code = #{routeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="dose != null">
+        dose = #{dose,jdbcType=VARCHAR},
+      </if>
+      <if test="doseUnit != null">
+        dose_unit = #{doseUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="rate != null">
+        rate = #{rate,jdbcType=VARCHAR},
+      </if>
+      <if test="rateUnit != null">
+        rate_unit = #{rateUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="exceedQuota != null">
+        exceed_quota = #{exceedQuota,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.OrderDrugs">
+    update t_order_drugs
+    set order_no = #{orderNo,jdbcType=VARCHAR},
+      prescription_id = #{prescriptionId,jdbcType=VARCHAR},
+      drug_id = #{drugId,jdbcType=VARCHAR},
+      drug_code = #{drugCode,jdbcType=VARCHAR},
+      drug_name = #{drugName,jdbcType=VARCHAR},
+      drug_image = #{drugImage,jdbcType=VARCHAR},
+      drug_count = #{drugCount,jdbcType=INTEGER},
+      drug_unit = #{drugUnit,jdbcType=VARCHAR},
+      cost_price = #{costPrice,jdbcType=INTEGER},
+      drug_spec = #{drugSpec,jdbcType=VARCHAR},
+      form_code = #{formCode,jdbcType=VARCHAR},
+      total_dose = #{totalDose,jdbcType=VARCHAR},
+      route_code = #{routeCode,jdbcType=VARCHAR},
+      dose = #{dose,jdbcType=VARCHAR},
+      dose_unit = #{doseUnit,jdbcType=VARCHAR},
+      rate = #{rate,jdbcType=VARCHAR},
+      rate_unit = #{rateUnit,jdbcType=VARCHAR},
+      exceed_quota = #{exceedQuota,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,152 @@
+package com.yier.platform.web;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.yingzhuo.carnival.restful.security.Logical;
+import com.github.yingzhuo.carnival.restful.security.RequiresAuthentication;
+import com.github.yingzhuo.carnival.restful.security.RequiresRoles;
+import com.google.common.collect.Lists;
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.Messages;
+import com.yier.platform.common.model.News;
+import com.yier.platform.common.po.Image;
+import com.yier.platform.common.requestParam.NewsRequest;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.service.NewsService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "新闻资讯相关的请求接口")
+@RestController
+@RequestMapping("/newsManager")
+@Slf4j
+public class NewsManagerController {
+    private static final Logger logger = LoggerFactory.getLogger(NewsManagerController.class);
+    @Autowired
+    private NewsService newsService;
+
+    @ApiOperation(value = "查询新闻资讯分页列表")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getNewsList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<News> getNewsList(HttpServletRequest request, HttpServletResponse response, @RequestBody NewsRequest params) {
+        params.doWithSortOrStart();
+        logger.info("查询新闻资讯分页列表, 请求参数：{}", params);
+        List<News> newsList = newsService.listNews(params);
+        for (News item : newsList) {
+            String images = item.getImages();//json存储的图片信息，转换成列表对象
+            List<Image> imageLists = JsonUtils.fromJson(images, new TypeReference<List<Image>>() {
+            });
+            if (imageLists == null) {
+                item.setImagesList(Lists.newArrayList());
+            } else {
+                item.setImagesList(imageLists);
+            }
+        }
+
+        int count = newsService.listNewsCount(params);
+        ListResponse<News> res = new ListResponse<News>();
+        res.setData(newsList);
+        res.setTotal(count);
+        logger.debug("-结果为->" + res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "根据id查询新闻资讯")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/getNewsById.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<News> getNewsById(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "公告消息请求接口类") @RequestBody NewsRequest params) {
+        logger.info("根据id查询新闻资讯, 请求参数：{}", params);
+        CommonResponse<News> res = new CommonResponse<News>();
+        News news = this.newsService.getNewsById(params);
+        res.setData(news);
+        logger.info(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "新增新闻资讯")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/insertNews.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<News> insertNews(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "公告消息请求接口类") @RequestBody News news) {
+        logger.info("新增新闻资讯, 请求参数：{}", news);
+        CommonResponse<News> res = new CommonResponse<News>();
+        String userIdStr = request.getHeader("userId");
+        Assert.isTrue(StringUtils.isNotBlank(userIdStr), "用户名不能为空！");
+        Long userId = Long.parseLong(userIdStr);
+        this.newsService.insertNews(news, userId);
+        res.setData(news);
+        logger.info(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "更新新闻资讯")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/updateNews.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<News> updateNews(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "公告消息请求接口类") @RequestBody News news) {
+        logger.info("更新新闻资讯, 请求参数：{}", news);
+        CommonResponse<News> res = new CommonResponse<News>();
+        String userIdStr = request.getHeader("userId");
+        Assert.isTrue(StringUtils.isNotBlank(userIdStr), "用户名不能为空！");
+        Long userId = Long.parseLong(userIdStr);
+        this.newsService.updateNews(news, userId);
+        res.setData(news);
+        logger.info(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "删除新闻资讯息")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/deleteNews.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Messages> deleteNews(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "公告消息请求接口类") @RequestBody NewsRequest params) {
+        logger.info("删除新闻资讯, 请求参数：{}", params);
+        CommonResponse<Messages> res = new CommonResponse<Messages>();
+        this.newsService.deleteByPrimaryKey(params);
+        Messages messages = new Messages();
+        messages.setId(params.getNewId());
+        res.setData(messages);
+        logger.info(res.toJsonString());
+        return res;
+    }
+
+    @ApiOperation(value = "启用/停用新闻资讯")
+    @ApiCheck(check = false)
+    @RequiresAuthentication
+    @RequiresRoles(value = {"Super"}, logical = Logical.AND)
+    @RequestMapping(value = "/enableOrDisableNews.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public CommonResponse<Messages> enableOrDisableNews(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "公告消息请求接口类") @RequestBody News news) {
+        logger.info("启用/停用新闻资讯, 请求参数：{}", news);
+        CommonResponse<Messages> res = new CommonResponse<Messages>();
+        this.newsService.enableOrDisableNews(news);
+        Messages messages = new Messages();
+        messages.setId(news.getId());
+        res.setData(messages);
+        logger.info(res.toJsonString());
+        return res;
+    }
+}

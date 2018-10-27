@@ -1,0 +1,18 @@
+package com.yier.platform.common.requestParam;
+
+import io.swagger.annotations.ApiModelProperty;
+
+public class MedicalPrescriptionRequest extends BaseRequest {
+    @ApiModelProperty(value = "处方编号ID")
+    private String medicalPrescriptionId;
+    @ApiModelProperty(value = "订单号")
+    private String orderNo;
+    @ApiModelProperty(value = "医院ID")
+    private Long hospitalId;
+    @ApiModelProperty(value = "患者ID")
+    private Long patientId;
+    @ApiModelProperty(value = "医生ID")
+    private Long doctorId;
+    @ApiModelProperty(value = "药师ID")
+    private Long pharmacistId;
+}

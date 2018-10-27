@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="test.css" type="text/css">
+</head>
+<body>
+<div class="div1" style="margin-top: 40px;">
+    <span class="div1_sp1">医院名称&nbsp;&nbsp;:</span>
+    <input type="text" name="inp2" id="inp2" value="" placeholder="请输入名称"/>
+</div>
+<div class="div2">
+    <span class="div2_sp1">医院图片&nbsp;&nbsp;:</span>
+    <input type="file" name="inp7" id="inp7" value=""/>
+</div>
+<div class="div9">
+    <button id="sure" class="sure1">确认</button>
+    <button id="cancel" class="cancel1">取消</button>
+</div>
+</body>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript">
+    var aaa;
+    $('#inp7').change(function () {
+        var file = $(this)[0].files[0];
+        aaa = file;
+        $('.div2_sp2').html(file.name);
+        console.log(aaa)
+    });
+
+    $('#sure').click(function () {
+        var form = new FormData();
+        form.append('files', aaa);
+        form.append('name', "测试医院");
+        form.append('levelId', "310000");
+        form.append('businessType', "310120");
+        form.append('provinceId', "310120");
+        form.append('cityId', "1");
+        form.append('address', "上海市青浦区青湖东地方大幅度");
+        $.ajax({
+            type: "post",
+            url: '/hospitalManager/hospital/insertHospital.json',
+            processData: false,
+            contentType: false,
+            data: form,
+            async: true,
+            success: function (res) {
+                console.log(res)
+            }
+        });
+    })
+
+</script>
+</html>

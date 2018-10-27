@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.PracticeWorkTimeMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.PracticeWorkTime">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="practice_point_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="doctor_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="work_day" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="work_time" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, practice_point_id, type_id, doctor_id, work_day, work_time, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listPracticeWorkTime" parameterType="com.yier.platform.common.requestParam.PracticeRequest" resultMap="BaseResultMap">
+    select t.*  from t_practice_work_time t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.work_time like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="practicePointId != null">
+        and t.practice_point_id = #{practicePointId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="workDay != null">
+        and t.work_day = #{workDay}
+      </if>
+      <if test="workTime != null">
+        and t.work_time = #{workTime}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.type_id ASC, t.doctor_id ASC, t.work_day ASC, t.work_time desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listPracticeWorkTimeCount" parameterType="com.yier.platform.common.requestParam.PracticeRequest" resultType="Integer">
+    select count(t.id) from t_practice_work_time t
+    <where>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.work_time like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="practicePointId != null">
+        and t.practice_point_id = #{practicePointId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and t.doctor_id = #{doctorId}
+      </if>
+      <if test="workDay != null">
+        and t.work_day = #{workDay}
+      </if>
+      <if test="workTime != null">
+        and t.work_time = #{workTime}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+  <!-- 根据条件批量删除 -->
+  <delete id="deleteByCondition" parameterType="com.yier.platform.common.requestParam.PracticeRequest">
+    delete from t_practice_work_time
+    <where>
+      <if test="practicePointId != null">
+        and practice_point_id = #{practicePointId}
+      </if>
+      <if test="typeId != null">
+        and type_id = #{typeId}
+      </if>
+      <if test="doctorId != null">
+        and doctor_id = #{doctorId}
+      </if>
+      <if test="workDay != null">
+        and work_day = #{workDay}
+      </if>
+      <if test="workTime != null">
+        and work_time = #{workTime}
+      </if>
+    </where>
+  </delete>
+
+
+
+
+
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_practice_work_time
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_practice_work_time
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.PracticeWorkTime">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_practice_work_time (practice_point_id, type_id, doctor_id, 
+      work_day, work_time, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{practicePointId,jdbcType=BIGINT}, #{typeId,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, 
+      #{workDay,jdbcType=CHAR}, #{workTime,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.PracticeWorkTime">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_practice_work_time
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="practicePointId != null">
+        practice_point_id,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="doctorId != null">
+        doctor_id,
+      </if>
+      <if test="workDay != null">
+        work_day,
+      </if>
+      <if test="workTime != null">
+        work_time,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="practicePointId != null">
+        #{practicePointId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorId != null">
+        #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="workDay != null">
+        #{workDay,jdbcType=CHAR},
+      </if>
+      <if test="workTime != null">
+        #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.PracticeWorkTime">
+    update t_practice_work_time
+    <set>
+      <if test="practicePointId != null">
+        practice_point_id = #{practicePointId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="doctorId != null">
+        doctor_id = #{doctorId,jdbcType=BIGINT},
+      </if>
+      <if test="workDay != null">
+        work_day = #{workDay,jdbcType=CHAR},
+      </if>
+      <if test="workTime != null">
+        work_time = #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.PracticeWorkTime">
+    update t_practice_work_time
+    set practice_point_id = #{practicePointId,jdbcType=BIGINT},
+      type_id = #{typeId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      work_day = #{workDay,jdbcType=CHAR},
+      work_time = #{workTime,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

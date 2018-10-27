@@ -1,0 +1,288 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "用户信息")
+public class User extends BaseJsonObject {
+    @ApiModelProperty(value = "主键ID")
+    private Long id;
+    @ApiModelProperty(value = "用户类型,端口类型 4 亿尔APP后台管理 6 医药信息后台管理")
+    private Long type;//端口类型 4 亿尔APP后台管理 6 医药信息后台管理
+    @ApiModelProperty(value = "用户姓名")
+    private String trueName;
+    @ApiModelProperty(value = "用户昵称")
+    private String userName;
+    @ApiModelProperty(value = "身份证号码")
+    private String idCardNo;
+    @ApiModelProperty(value = "头像URL")
+    private String avatarUrl;
+    @ApiModelProperty(value = "随机字符串，加盐使用")
+    private String passSalt;
+    @ApiModelProperty(value = "密码")
+    private String password;
+    @ApiModelProperty(value = "出生日期")
+    private Date birthday;
+    @ApiModelProperty(value = "微信openId")
+    private String wxid;
+    @ApiModelProperty(value = "电子邮箱")
+    private String email;
+    @ApiModelProperty(value = "手机号码")
+    private String phoneNumber;
+    @ApiModelProperty(value = "用户性别")
+    private String sex;
+    @ApiModelProperty(value = "领域")
+    private String field;
+    @ApiModelProperty(value = "个人简介")
+    private String profile;
+    @ApiModelProperty(value = "审核URL")
+    private String checkUrl;
+    @ApiModelProperty(value = "第三方即时通讯工具token")
+    private String imtoken;
+    @ApiModelProperty(value = "聊天状态（0开通 1不开通））")
+    private String chat;
+    @ApiModelProperty(value = "状态（0正常 1删除 2停用 3冻结 4 审核中 5审核未通过）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+
+    public User(Long id, Long type, String trueName, String userName, String idCardNo, String avatarUrl, String passSalt, String password, Date birthday, String wxid, String email, String phoneNumber, String sex, String field, String profile, String checkUrl, String imtoken, String chat, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.type = type;
+        this.trueName = trueName;
+        this.userName = userName;
+        this.idCardNo = idCardNo;
+        this.avatarUrl = avatarUrl;
+        this.passSalt = passSalt;
+        this.password = password;
+        this.birthday = birthday;
+        this.wxid = wxid;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.sex = sex;
+        this.field = field;
+        this.profile = profile;
+        this.checkUrl = checkUrl;
+        this.imtoken = imtoken;
+        this.chat = chat;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+    public User(User info){
+        this.id = info.id;
+        this.type = info.type;
+        this.trueName = info.trueName;
+        this.userName = info.userName;
+        this.idCardNo = info.idCardNo;
+        this.avatarUrl = info.avatarUrl;
+        this.passSalt = info.passSalt;
+        this.password = info.password;
+        this.birthday = info.birthday;
+        this.wxid = info.wxid;
+        this.email = info.email;
+        this.phoneNumber = info.phoneNumber;
+        this.sex = info.sex;
+        this.field = info.field;
+        this.profile = info.profile;
+        this.checkUrl = info.checkUrl;
+        this.imtoken = info.imtoken;
+        this.chat = info.chat;
+        this.status = info.status;
+        this.gmtCreate = info.gmtCreate;
+        this.gmtModified = info.gmtModified;
+        this.remarks = info.remarks;
+    }
+    public User() {
+        super();
+    }
+    /**
+     * 思考特殊域操作功能
+     */
+    public void thinkField(){
+        this.password = "密码被覆盖";
+    }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getType() {
+        return type;
+    }
+
+    public void setType(Long type) {
+        this.type = type;
+    }
+
+    public String getTrueName() {
+        return trueName;
+    }
+
+    public void setTrueName(String trueName) {
+        this.trueName = trueName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getIdCardNo() {
+        return idCardNo;
+    }
+
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getPassSalt() {
+        return passSalt;
+    }
+
+    public void setPassSalt(String passSalt) {
+        this.passSalt = passSalt;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getWxid() {
+        return wxid;
+    }
+
+    public void setWxid(String wxid) {
+        this.wxid = wxid;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public String getCheckUrl() {
+        return checkUrl;
+    }
+
+    public void setCheckUrl(String checkUrl) {
+        this.checkUrl = checkUrl;
+    }
+
+    public String getImtoken() {
+        return imtoken;
+    }
+
+    public void setImtoken(String imtoken) {
+        this.imtoken = imtoken;
+    }
+
+    public String getChat() {
+        return chat;
+    }
+
+    public void setChat(String chat) {
+        this.chat = chat;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+}

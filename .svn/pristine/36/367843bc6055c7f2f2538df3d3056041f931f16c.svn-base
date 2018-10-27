@@ -1,0 +1,100 @@
+package com.yier.platform.common.po;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+
+@ApiModel(value = "职业点信息")
+public class PracticePoint   extends BaseJsonObject {
+    private String provinceId;
+    private String provinceName = "";
+    private String cityId;
+    private String cityName = "";
+    private Long hospitalId = 0L;
+    private String hospitalName = "";
+    private Long catalogId = 0L;
+    private String catalogName ="";
+    private Long hospitalDepartmentId = 0L;
+    private String hospitalDepartmentName = "";
+
+    public PracticePoint(){}
+
+    public String getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(String provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public String getProvinceName() {
+        return provinceName;
+    }
+
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
+    }
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public Long getHospitalId() {
+        return hospitalId;
+    }
+
+    public void setHospitalId(Long hospitalId) {
+        this.hospitalId = hospitalId;
+    }
+
+    public String getHospitalName() {
+        return hospitalName;
+    }
+
+    public void setHospitalName(String hospitalName) {
+        this.hospitalName = hospitalName;
+    }
+
+    public Long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(Long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public String getCatalogName() {
+        return catalogName;
+    }
+
+    public void setCatalogName(String catalogName) {
+        this.catalogName = catalogName;
+    }
+
+    public Long getHospitalDepartmentId() {
+        return hospitalDepartmentId;
+    }
+
+    public void setHospitalDepartmentId(Long hospitalDepartmentId) {
+        this.hospitalDepartmentId = hospitalDepartmentId;
+    }
+
+    public String getHospitalDepartmentName() {
+        return hospitalDepartmentName;
+    }
+
+    public void setHospitalDepartmentName(String hospitalDepartmentName) {
+        this.hospitalDepartmentName = hospitalDepartmentName;
+    }
+}

@@ -1,0 +1,223 @@
+package com.yier.platform.service;
+
+import com.alibaba.fastjson.JSONObject;
+import com.yier.platform.TestBase;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.*;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
+@ApiModel(value = "审核信息管理相关的请求接口测试类")
+public class AuditInfoServiceTest extends TestBase {
+    private static final Logger logger = LoggerFactory.getLogger(AuditInfoServiceTest.class);
+
+    @Autowired
+    private AuditInfoService auditInfoService;
+    @Autowired
+    private HospitalService serviceHospitalService;
+    @Autowired
+    private DoctorService serviceDoctorService;
+    @Autowired
+    private PharmacistService pharmacistService;
+
+    @ApiOperation(value = "获取医院审核信息列表")
+    @Test
+    public void selectAuditInfoList() {
+        HospitalRequest params = new HospitalRequest();
+        params.doWithSortOrStart();
+        logger.info("获取医院审核信息列表, 请求参数：{}", params);
+        ListResponse<HospitalPo> res = new ListResponse<HospitalPo>();
+        List<HospitalPo> list = this.serviceHospitalService.listHospital(params);
+        int count = this.serviceHospitalService.listHospitalCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        logger.info("获取医院审核信息列表, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "获取医生审核信息列表")
+    @Test
+    public void selectDoctorAuditInfoList() {
+        DoctorRequest params = new DoctorRequest();
+        params.doWithSortOrStart();
+        logger.info("获取医生审核信息列表, 请求参数：{}", params);
+        ListResponse<DoctorPo> res = new ListResponse<DoctorPo>();
+        List<DoctorPo> list = this.serviceDoctorService.listDoctorPo(params);
+        int count = this.serviceDoctorService.listDoctorCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        logger.info("获取医生审核信息列表, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "获取药师审核信息列表")
+    @Test
+    public void selectPharmacistAuditInfoList() {
+        PharmacistRequest params = new PharmacistRequest();
+        params.doWithSortOrStart();
+        logger.info("获取药师审核信息列表, 请求参数：{}", params);
+        ListResponse<PharmacistPo> res = new ListResponse<PharmacistPo>();
+        List<PharmacistPo> list = this.pharmacistService.listPharmacistPo(params);
+        int count = this.pharmacistService.listPharmacistCount(params);
+        res.setData(list);
+        res.setTotal(count);
+        logger.info("获取药师审核信息列表, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据id获取医院审核信息")
+    @Test
+    public void selectAuditInfoByHospistalId() {
+        String json = "{\"hospitalId\":61}";
+        HospitalRequest params = JSONObject.parseObject(json, HospitalRequest.class);
+        logger.info("根据id获取医院审核信息, 请求参数：{}", params);
+        CommonResponse<MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectHospitalAuditInfo(params);
+        res.setData(mutableTriple);
+        logger.info("根据id获取医院审核信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据id获取医生审核信息")
+    @Test
+    public void selectAuditInfoByDoctorId() {
+        String json = "{\"doctorId\":500}";
+        DoctorRequest params = JSONObject.parseObject(json, DoctorRequest.class);
+        logger.info("根据id获取医生审核信息, 请求参数：{}", params);
+        CommonResponse<MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectDoctorAuditInfo(params);
+        res.setData(mutableTriple);
+        logger.info("根据id获取医生审核信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据id获取药师审核信息")
+    @Test
+    public void selectAuditInfoByPharmacistId() {
+        String json = "{\"doctorId\":502}";
+        PharmacistRequest params = JSONObject.parseObject(json, PharmacistRequest.class);
+        logger.info("根据id获取药师审核信息, 请求参数：{}", params);
+        CommonResponse<MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectPharmacistAuditInfo(params);
+        res.setData(mutableTriple);
+        logger.info("根据id获取药师审核信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据id获取公告审核信息")
+    @Test
+    public void selectAuditInfoByMassagesId() {
+        String json = "{\"messageId\":1}";
+        MessagesRequest params = JSONObject.parseObject(json, MessagesRequest.class);
+        logger.info("根据id获取公告审核信息, 请求参数：{}", params);
+        CommonResponse<MutableTriple<MessagesPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<MessagesPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<MessagesPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectMessageAuditInfo(params);
+        res.setData(mutableTriple);
+        logger.info("根据id获取公告审核信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据id获取新闻资讯审核信息")
+    @Test
+    public void selectAuditInfoByNewsId() {
+        String json = "{\"newId\":1}";
+        NewsRequest params = JSONObject.parseObject(json, NewsRequest.class);
+        logger.info("根据id获取新闻资讯审核信息, 请求参数：{}", params);
+        CommonResponse<MutableTriple<NewsPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<NewsPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<NewsPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectNewsAuditInfo(params);
+        res.setData(mutableTriple);
+        logger.info("根据id获取公告审核信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "根据用户id和端口类型获取用户手机号审核信息")
+    @Test
+    public void selectAuditInfoByUserIdAndClientType() {
+        String json = "{\"userId\":500, \"clientType\":1}";
+        UserRequest params = JSONObject.parseObject(json, UserRequest.class);
+        logger.info("根据用户id和端口类型获取用户手机号审核信息, 请求参数：{}", params);
+        CommonResponse<MutableTriple<UserPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<UserPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<UserPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.selectAuditInfoByUserIdAndClientType(params);
+        res.setData(mutableTriple);
+        logger.info("根据用户id和端口类型获取用户手机号审核信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "审核医院信息")
+    @Test
+    public void auditHospital() {
+        String json = "{\"id\":61,\"hospitalCodeNo\":\"1539777770030H1263032309\",\"name\":\"7分院\",\"levelId\":9,\"businessType\":\"私立\",\"webSite\":\"\",\"provinceId\":\"320000\",\"cityId\":\"320600\",\"areaId\":\"320612\",\"address\":\"123\",\"contact\":\"\",\"status\":\"2\",\"remarks\":\"新增医院信息\",\"profile\":\"\",\"levelInfo\":\"三级甲等\",\"distance\":null,\"distanceDisplay\":\"\",\"visitDisplay\":\"\",\"provinceName\":\"江苏省\",\"cityName\":\"南通市\",\"hospitalName\":\"\",\"catalogName\":\"\",\"hospitalDepartmentName\":\"\",\"areaName\":\"通州区\"}";
+        Hospital hospital = JSONObject.parseObject(json, Hospital.class);
+        String content = "测试审核医院";
+        logger.info("审核医院信息, 请求参数：hospital==={}, content==={}", hospital, content);
+        CommonResponse<MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<HospitalPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.auditHospital(hospital, 8L, content);
+        res.setData(mutableTriple);
+        logger.info("审核医院信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "审核医生信息")
+    @Test
+    public void auditDoctor() {
+        String json = "{\"id\":500,\"trueName\":\"张杰医生\",\"avatarUrl\":\"\",\"idCardNo\":\"131025198804103050\",\"doctorCardNo\":\"123456\",\"phoneNumber\":\"16666666666\",\"hospitalId\":1,\"catalogId\":1,\"departmentId\":5,\"titleId\":1,\"field\":\"擅长\",\"visit\":0.0,\"practicePoint\":\"[]\",\"birthday\":576604800000,\"sex\":\"男\",\"chat\":\"1\",\"medical\":\"1\",\"medicalPayment\":0,\"medicalNum\":0,\"checkUrl\":\"\",\"photoUrl\":\"\",\"status\":\"A\",\"remarks\":\"测试审核\",\"profile\":\"介绍\",\"selectWorkTimeList\":null,\"doctorTitle\":\"医士\",\"practicePointList\":[{\"id\":3,\"provinceId\":\"310000\",\"cityId\":\"310120\",\"areaId\":\"310120\",\"hospitalId\":11,\"catalogId\":1,\"departmentId\":11,\"typeId\":2,\"doctorId\":500,\"address\":null,\"defaultPoint\":\"1\",\"status\":\"0\",\"gmtCreate\":1537434322000,\"gmtModified\":1537434322000,\"remarks\":\"\",\"selectWorkTimeList\":[],\"provinceName\":\"上海市\",\"cityName\":\"奉贤区\",\"areaName\":\"奉贤区\",\"hospitalName\":\"\",\"catalogName\":\"\",\"hospitalDepartmentName\":\"\",\"doctorName\":\"张杰医生\"}],\"visitDisplay\":\"0\",\"hospitalDepartmentPo\":null,\"evaluationTypeList\":[],\"appKey\":\"\",\"nonce\":\"\",\"timestamp\":\"\",\"signature\":\"\",\"token\":\"\",\"attention\":0,\"attentionTotal\":0,\"patientEvaluationTotal\":0,\"shareTitle\":\"分享标题\",\"shareSummary\":\"分享简介\",\"shareImageUrl\":\"http://www.ccae.cc/upload/201801/1514960822.jpg\",\"shareUrl\":\"http://www.ccae.cc/\",\"chatState\":\"\",\"auditInfos\":null,\"planTime\":null,\"appointmentNum\":0}";
+        Doctor doctor = JSONObject.parseObject(json, Doctor.class);
+        String content = "测试审核医生信息";
+        logger.info("审核医生信息, 请求参数：doctor==={}, content==={}", doctor, content);
+        CommonResponse<MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<DoctorPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.auditDoctor(doctor, 8L, content);
+        res.setData(mutableTriple);
+        logger.info("审核医生信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "审核药师信息")
+    @Test
+    public void auditPharmacist() {
+        String json = "{\"id\":500,\"trueName\":\"测试1\",\"avatarUrl\":\"http://192.168.0.215:7070/group1/M00/00/07/wKgA11ujYtKAZJdgAABMeU9s_3E921.jpg\",\"idCardNo\":\"123123123123123123\",\"doctorCardNo\":\"222\",\"phoneNumber\":\"11111111111\",\"passHash\":\"\",\"passSalt\":\"\",\"hospitalId\":11,\"catalogId\":1,\"departmentId\":11,\"titleId\":0,\"field\":\"\",\"visit\":0,\"practicePoint\":\"\",\"birthday\":null,\"sex\":\"男\",\"chat\":\"1\",\"checkUrl\":\"http://192.168.0.215:7070/group1/M00/00/07/wKgA11ujYtKAICzOAABECDXKKRo390.jpg\",\"photoUrl\":\"http://192.168.0.215:7070/group1/M00/00/07/wKgA11ujYtKAPHNNAABd4s4ciwM568.jpg\",\"imtoken\":\"\",\"platType\":null,\"status\":\"0\",\"remarks\":\"复审中\",\"profile\":\"测试\",\"selectWorkTimeList\":null,\"doctorTitle\":\"\",\"practicePointList\":[],\"visitDisplay\":\"0\",\"hospitalDepartmentPo\":null,\"evaluationTypeList\":[],\"appKey\":\"\",\"nonce\":\"\",\"timestamp\":\"\",\"signature\":\"\",\"attention\":0,\"attentionTotal\":0,\"patientEvaluationTotal\":0,\"token\":\"\",\"shareTitle\":\"分享标题\",\"shareSummary\":\"分享简介\",\"shareImageUrl\":\"http://www.ccae.cc/upload/201801/1514960822.jpg\",\"shareUrl\":\"http://www.ccae.cc/\",\"chatState\":\"\"}";
+        Pharmacist pharmacist = JSONObject.parseObject(json, Pharmacist.class);
+        String content = "测试审核药师信息";
+        logger.info("审核药师信息, 请求参数：pharmacist==={}, content==={}", pharmacist, content);
+        CommonResponse<MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<PharmacistPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.auditPharmacist(pharmacist, 8L, content);
+        res.setData(mutableTriple);
+        logger.info("审核药师信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "审核公告信息")
+    @Test
+    public void auditMessages() {
+        String json = "{\"id\":500,\"trueName\":\"测试1\",\"avatarUrl\":\"http://192.168.0.215:7070/group1/M00/00/07/wKgA11ujYtKAZJdgAABMeU9s_3E921.jpg\",\"idCardNo\":\"123123123123123123\",\"doctorCardNo\":\"222\",\"phoneNumber\":\"11111111111\",\"passHash\":\"\",\"passSalt\":\"\",\"hospitalId\":11,\"catalogId\":1,\"departmentId\":11,\"titleId\":0,\"field\":\"\",\"visit\":0,\"practicePoint\":\"\",\"birthday\":null,\"sex\":\"男\",\"chat\":\"1\",\"checkUrl\":\"http://192.168.0.215:7070/group1/M00/00/07/wKgA11ujYtKAICzOAABECDXKKRo390.jpg\",\"photoUrl\":\"http://192.168.0.215:7070/group1/M00/00/07/wKgA11ujYtKAPHNNAABd4s4ciwM568.jpg\",\"imtoken\":\"\",\"platType\":null,\"status\":\"0\",\"remarks\":\"复审中\",\"profile\":\"测试\",\"selectWorkTimeList\":null,\"doctorTitle\":\"\",\"practicePointList\":[],\"visitDisplay\":\"0\",\"hospitalDepartmentPo\":null,\"evaluationTypeList\":[],\"appKey\":\"\",\"nonce\":\"\",\"timestamp\":\"\",\"signature\":\"\",\"attention\":0,\"attentionTotal\":0,\"patientEvaluationTotal\":0,\"token\":\"\",\"shareTitle\":\"分享标题\",\"shareSummary\":\"分享简介\",\"shareImageUrl\":\"http://www.ccae.cc/upload/201801/1514960822.jpg\",\"shareUrl\":\"http://www.ccae.cc/\",\"chatState\":\"\"}";
+        Messages messages = JSONObject.parseObject(json, Messages.class);
+        String content = "测试审核公告信息";
+        logger.info("审核公告信息, 请求参数：messages==={}, content==={}", messages, content);
+        CommonResponse<MutableTriple<MessagesPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<MessagesPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<MessagesPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.auditMessages(messages, 8L, content);
+        res.setData(mutableTriple);
+        logger.info("审核公告信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "审核新闻资讯信息")
+    @Test
+    public void auditNews() {
+        String json = "{\"id\":1,\"typeId\":1,\"otherTypeId\":1,\"title\":\"互联网医疗如何惠及基层医患\",\"content\":\"审核公告信息\",\"contentUrl\":\"http://news.163.com/17/1128/05/D4AAN15O00018AOP.html\",\"images\":\"[{\\\"name\\\":\\\"名字\\\",\\\"description\\\":\\\"描述\\\",\\\"url\\\":\\\"http://img.51daifu.com/image/doctor/20160422/doctor_20160422_sy.jpg\\\",\\\"height\\\":500,\\\"width\\\":800,\\\"type\\\":1},{\\\"name\\\":\\\"介绍\\\",\\\"description\\\":\\\"具体描述\\\",\\\"url\\\":\\\"http://img.51daifu.com/image/doctor/20160422/doctor_20160422_sy.jpg\\\",\\\"height\\\":500,\\\"width\\\":800,\\\"type\\\":1},{\\\"name\\\":\\\"介绍1\\\",\\\"description\\\":\\\"具体描述2\\\",\\\"url\\\":\\\"http://img.51daifu.com/image/doctor/20160422/doctor_20160422_sy.jpg\\\",\\\"height\\\":500,\\\"width\\\":800,\\\"type\\\":1}]\",\"status\":\"0\",\"gmtCreate\":1536713301000,\"gmtModified\":1539311087000,\"remarks\":\"新创建导入数据\",\"imagesList\":null,\"auditInfos\":null}";
+        NewsPo newsPo = JSONObject.parseObject(json, NewsPo.class);
+        String content = "审核新闻资讯信息";
+        logger.info("审核新闻资讯信息, 请求参数：news==={}, content==={}", newsPo, content);
+        CommonResponse<MutableTriple<NewsPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<NewsPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<NewsPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.auditNews(newsPo, 8L, content);
+        res.setData(mutableTriple);
+        logger.info("审核新闻资讯信息, 测试结果：{}", res.toJsonString());
+    }
+
+    @ApiOperation(value = "审核用户手机号信息")
+    @Test
+    public void auditMobilePhoneNumber() {
+        String json = "{\"userId\":500,\"type\":null,\"trueName\":\"张杰医生\",\"userName\":null,\"idCardNo\":\"131025198804103050\",\"wxid\":null,\"email\":null,\"phoneNumber\":\"16666666666\",\"sex\":null,\"clientType\":\"1\"}";
+        UserRequest params = JSONObject.parseObject(json, UserRequest.class);
+        String content = "审核用户手机号信息";
+        logger.info("审核用户手机号信息, 请求参数：params==={},content==={}", params, content);
+        CommonResponse<MutableTriple<UserPo, AuditInfo, List<AuditInfo>>> res = new CommonResponse<MutableTriple<UserPo, AuditInfo, List<AuditInfo>>>();
+        MutableTriple<UserPo, AuditInfo, List<AuditInfo>> mutableTriple = this.auditInfoService.auditMobilePhoneNumber(params, 8L, content);
+        res.setData(mutableTriple);
+        logger.info("审核新闻资讯信息, 测试结果：{}", res.toJsonString());
+    }
+}

@@ -1,0 +1,101 @@
+package com.yier.platform.common.model;
+
+import com.yier.platform.common.jsonResponse.BaseJsonObject;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
+
+@ApiModel(value = "省/直辖市信息")
+public class Provinces extends BaseJsonObject {
+    @ApiModelProperty(value = "主键标识Id")
+    private Integer id;
+    @ApiModelProperty(value = "省市ID")
+    private String provinceId;
+    @ApiModelProperty(value = "省/市")
+    private String province;
+    @ApiModelProperty(value = "状态（0正常 1删除 2停用 3冻结 4 审核中 5审核未通过）")
+    private String status;
+    @ApiModelProperty(value = "创建时间")
+    private Date gmtCreate;
+    @ApiModelProperty(value = "修改时间")
+    private Date gmtModified;
+    @ApiModelProperty(value = "备注信息")
+    private String remarks;
+
+    public Provinces(Integer id, String provinceId, String province) {
+        this.id = id;
+        this.provinceId = provinceId;
+        this.province = province;
+    }
+
+    public Provinces(Integer id, String provinceId, String province, String status, Date gmtCreate, Date gmtModified, String remarks) {
+        this.id = id;
+        this.provinceId = provinceId;
+        this.province = province;
+        this.status = status;
+        this.gmtCreate = gmtCreate;
+        this.gmtModified = gmtModified;
+        this.remarks = remarks;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public Provinces() {
+        super();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(String provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+}

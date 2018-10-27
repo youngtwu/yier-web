@@ -1,0 +1,432 @@
+package com.yier.platform.service.medical;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.MedicalDate;
+import com.yier.platform.common.model.MedicalDatePo;
+import com.yier.platform.common.model.MedicalOrder;
+import com.yier.platform.common.model.RedisLog;
+import com.yier.platform.common.requestParam.MedicalDateRequest;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.MedicalDateMapper;
+import com.yier.platform.service.AppPushService;
+import com.yier.platform.service.RedisLogService;
+import com.yier.platform.service.RedisService;
+import com.yier.platform.service.ToolShareService;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+/**
+ * 上门问诊医生时间编排 service
+ */
+@Service
+public class MedicalDateService {
+    private final Logger logger = LoggerFactory.getLogger(MedicalDateService.class);
+    @Autowired
+    private MedicalDateMapper daoMedicalDate;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+    @Autowired
+    private ToolShareService toolShareService;
+    @Autowired
+    private AppPushService appPushService;
+    @Autowired
+    private RedisLogService redisLogService;//缓存log记录情况
+
+
+    @ApiOperation(value = "查询获取支付剩余时间")
+    public void getAppointRemainPaymentTime(MedicalOrder record) {
+        String key = ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER + record.getPatientId() + ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER_PART_ORDER + record.getId();
+        MutableTriple<Long, MedicalDate, String> result = JsonUtils.fromJson(redisService.getValueRedisByKey(key), new TypeReference<MutableTriple<Long, MedicalDate, String>>() {
+        });
+        Assert.isTrue(result != null , "支付已经超期,不能进行有效支付");
+        Date currentDate = new Date();
+        long differMicroSecond = result.middle.getGmtModified().getTime() - currentDate.getTime();
+        long remin = ConstantAll.VALUE_PAYMENT_LOCK + differMicroSecond /ConstantAll.VALUE_MICROSECOND_1000;
+        logger.info("支付时间情况 下单时间:{} 目前时间:{} 相隔:{}秒 剩余:{}秒 总支付锁定{}秒时间",Utils.formatDate(result.middle.getGmtModified(),"yyyy-MM-dd HH:mm:ss"),Utils.formatDate(currentDate,"yyyy-MM-dd HH:mm:ss"),differMicroSecond /ConstantAll.VALUE_MICROSECOND_1000,remin,ConstantAll.VALUE_PAYMENT_LOCK );
+        Assert.isTrue(remin>0 , "支付超期,不能进行有效支付");
+
+        record.setGmtModified(currentDate);
+        record.setRemind(""+remin);//给出剩余时间
+    }
+    @Transactional
+    @ApiOperation(value = "付款成功 由锁定值升级到预约值")
+    public void paymentOk(MedicalOrder record){
+        logger.info("目前传递的ID是 record:{}",record);
+        Assert.isTrue(record.getPatientId() != null , "请传递参数 patientId");
+        Assert.isTrue(record.getId() != null , "请传递参数 订单 id");
+        String key = ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER + record.getPatientId() + ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER_PART_ORDER + record.getId();
+
+        MutableTriple<Long, MedicalDate, String> result = JsonUtils.fromJson(redisService.getValueRedisByKey(key), new TypeReference<MutableTriple<Long, MedicalDate, String>>() {
+        });
+        Date currentDate = new Date();
+        Assert.isTrue(result != null , "支付已经超期,不能进行有效支付");
+        long differMicroSecond = result.middle.getGmtModified().getTime() - currentDate.getTime();
+        long remin = ConstantAll.VALUE_PAYMENT_LOCK + differMicroSecond /ConstantAll.VALUE_MICROSECOND_1000;
+        logger.info("支付时间情况 下单时间:{} 目前时间:{} 相隔:{}秒 剩余:{}秒 总支付锁定{}秒时间",Utils.formatDate(result.middle.getGmtModified(),"yyyy-MM-dd HH:mm:ss"),Utils.formatDate(currentDate,"yyyy-MM-dd HH:mm:ss"),differMicroSecond /ConstantAll.VALUE_MICROSECOND_1000,remin,ConstantAll.VALUE_PAYMENT_LOCK );
+        Assert.isTrue(remin>0 , "支付超期,不能进行有效支付");
+
+        redisService.deleteRedisByKey(key);
+        redisLogService.insertSelective(new RedisLog(ConstantAll.LOG_MEDICAL_ORDER,ConstantAll.LOG_MEDICAL_ORDER_SUB_PAYMENT_LOCK,key,JsonUtils.toJsonString(result),0L,ConstantAll.STRING_EMPTY,ConstantAll.LOG_REMARK_DELETE+"--患者点击支付"));
+
+        MedicalOrder redisMedicalOrder = this.medicalOrderService.getRedisMedicalOrderFirstUpdateById(record.getId());
+        Assert.isTrue(StringUtils.equalsIgnoreCase(redisMedicalOrder.getStatus(),ConstantAll.ORDER_STATUS_APPPOINT),"只有待支付的订单方可进行支付!");
+
+
+        record.setGmtModified(currentDate);
+        MedicalDate medicalDate = new MedicalDate();
+        medicalDate.setId(redisMedicalOrder.getMedicalDateId());
+        medicalDate.setAppointment(1);//添加预约量 appointment = appointment + #{appointment} 作用  此时要统筹考虑 订单锁定超时的问题
+        medicalDate.setLockNum(-1);//释放锁 lock_num = lock_num + #{lockNum} 作用
+        medicalDate.setGmtModified(record.getGmtModified());
+        medicalDate.setRemarks("释放锁-1 但搁置预约+1");
+        this.updateLockNumSelective(medicalDate);
+
+        MedicalOrder medicalOrder = new MedicalOrder();
+        medicalOrder.setId(record.getId());
+        medicalOrder.setStatus(ConstantAll.ORDER_STATUS_APPPOINT_PAYMENT);//预约成功
+        medicalOrder.setStatusDetail(ConstantAll.ORDER_STATUS_APPPOINT_PAYMENT);//预约成功
+        medicalOrder.setRemarks("付款成功");
+        medicalOrder.setGmtModified(currentDate);
+        medicalOrderService.updateByPrimaryKeySelective(medicalOrder);
+
+        List<String> listPushUserId = Lists.newArrayList();
+        listPushUserId.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_DOCTOR)+redisMedicalOrder.getDoctorId());
+        appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_DOCTOR,"患者已经预约","请及时确认预约",listPushUserId);
+    }
+    @Transactional
+    @ApiOperation(value = "30分钟以上时间还没有支付,需要释放锁定的医生出诊时间资源")
+    public void unLockForCondition(Date currentDate){
+        Set<String> stringSet = redisService.getRedisKeysByPattern(ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER+"*");
+        logger.info("目前患者刚预约的订单列表是:{}",stringSet);
+        if(stringSet.size()>0){
+            logger.debug(">>如果有 redis 刚下的订单锁定支付");//REDIS_DOCTOR_APPOINT_LOCK_PATIENT
+            stringSet.forEach(key->{
+                MutableTriple<Long, MedicalDate, String> result = JsonUtils.fromJson(redisService.getValueRedisByKey(key, false), new TypeReference<MutableTriple<Long, MedicalDate, String>>() {
+                });
+                if(result!=null){
+                    logger.info("目前查询到的支付,需要释放锁定：{}",result);
+                    long differMicroSecond = result.middle.getGmtModified().getTime() - currentDate.getTime();
+                    long remain = ConstantAll.VALUE_PAYMENT_LOCK + differMicroSecond /ConstantAll.VALUE_MICROSECOND_1000;
+                    logger.debug("缓存支付时间情况 下单时间:{} 目前时间:{} 相隔:{}秒 剩余:{}秒 总支付锁定{}秒时间",Utils.formatDate(result.middle.getGmtModified(),"yyyy-MM-dd HH:mm:ss"),Utils.formatDate(currentDate,"yyyy-MM-dd HH:mm:ss"),differMicroSecond /ConstantAll.VALUE_MICROSECOND_1000,remain,ConstantAll.VALUE_PAYMENT_LOCK );
+                    if(remain<=1 ){
+                        logger.info("-->满足{}秒以上时间还没有支付,[需要去掉锁定,并释放此资源]",ConstantAll.VALUE_PAYMENT_LOCK);//REDIS_PHARMACIST_PLAT
+                        Date nowDate = new Date();
+                        result.middle.setLockNum(-1);//释放此资源
+                        result.middle.setGmtModified(currentDate);
+                        result.middle.setRemarks("满足"+ConstantAll.VALUE_PAYMENT_LOCK+"秒以上时间还没有支付,需要去掉锁定,并释放此资源->");
+                        this.updateLockNumSelective(result.middle);
+                        MedicalOrder medicalOrder = new MedicalOrder();
+                        medicalOrder.setId(result.left);
+                        medicalOrder.setStatus(ConstantAll.ORDER_STATUS_PATIENT_PAST_DUE);//支付超期
+                        medicalOrder.setRemarks("满足"+ConstantAll.VALUE_PAYMENT_LOCK+"秒以上时间还没有支付,支付超期");
+                        medicalOrder.setOverTime(nowDate);
+                        medicalOrder.setOverType(ConstantAll.ORDER_END_TYPE_PAST_DUE);
+                        medicalOrder.setGmtModified(nowDate);
+                        medicalOrderService.updateByPrimaryKeySelective(medicalOrder);
+                        redisService.deleteRedisByKey(key,false);
+                        redisLogService.insertSelective(new RedisLog(ConstantAll.LOG_MEDICAL_ORDER,ConstantAll.LOG_MEDICAL_ORDER_SUB_PAYMENT_LOCK,key,JsonUtils.toJsonString(result),0L,ConstantAll.STRING_EMPTY,ConstantAll.LOG_REMARK_DELETE+"--系统检测患者迟迟没有支付"));
+                    }
+                }
+            });
+        }
+    }
+    @Transactional
+    @ApiOperation(value = "锁定医生的出诊时间资源")
+    public void lockForCondition(MedicalOrder record){
+        String key = ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER+record.getPatientId()+ConstantAll.REDIS_DOCTOR_APPOINT_LOCK_ORDER_PART_ORDER+record.getId();
+        String remark ="医生"+record.getDoctorId()+" 被患者"+record.getPatientId()+"预约";
+        MedicalDate medicalDate = new MedicalDate();
+        medicalDate.setId(record.getMedicalDateId());
+        medicalDate.setLockNum(1);//锁定1个
+        medicalDate.setGmtModified(new Date());
+        medicalDate.setRemarks(remark);
+        this.updateLockNumSelective(medicalDate);
+        MutableTriple<Long, MedicalDate, String> mutable = new MutableTriple<Long, MedicalDate, String>();
+        mutable.left = record.getId();
+        mutable.middle = medicalDate;
+        mutable.right = "没有付款及取消将锁定一定时间";
+        redisService.setJsonObjectBy(key,mutable,ConstantAll.VALUE_CONSIDER_DAY_TIME,TimeUnit.DAYS);//考虑
+        redisLogService.insertSelective(new RedisLog(ConstantAll.LOG_MEDICAL_ORDER,ConstantAll.LOG_MEDICAL_ORDER_SUB_PAYMENT_LOCK,key,JsonUtils.toJsonString(mutable),ConstantAll.VALUE_CONSIDER_DAY_TIME,TimeUnit.DAYS.toString(),ConstantAll.LOG_REMARK_SET+"--患者选择点击预约医生"));
+        record.setRemarks("Remind 放置的是倒计时秒,以后根据系统来进行");
+        record.setRemind(""+ConstantAll.VALUE_PAYMENT_LOCK);
+    }
+
+    @Transactional
+    public int insertOneMedicalDate(MedicalDate record){
+        try {
+            Assert.isTrue(Utils.daysBetween(new Date(),record.getPlanTime())>=0,"开始日期需要在今天之后");
+        } catch (ParseException e) {
+            Assert.isTrue(false,"无效日期:"+record.getPlanTime());
+        }
+        MedicalDateRequest params = new MedicalDateRequest();
+        params.setTypeId(record.getTypeId());
+        params.setUserId(record.getUserId());
+        params.setPlanTimeBegin(Utils.getQueryStrtDate(new Date(),0));
+        params.setStatus("0");
+        List<MedicalDate> listMedicalDate = this.listMedicalDate(params);
+        Assert.isTrue(record.getWorkFrom().compareTo(record.getWorkTo())<0 ,"就诊时间区间Form必须小于To!");
+        boolean isPlanTime = listMedicalDate.stream().filter(t->t.getPlanTime().compareTo(record.getPlanTime())==0
+                //&& StringUtils.equalsIgnoreCase(t.getWorkTime(),record.getWorkTime())
+                && ((Utils.formatDate(record.getWorkFrom(),"HHmmss").compareTo(Utils.formatDate(t.getWorkFrom(),"HHmmss"))<=0 && Utils.formatDate(t.getWorkFrom(),"HHmmss").compareTo(Utils.formatDate(record.getWorkTo(),"HHmmss"))< 0 )
+                || (Utils.formatDate(record.getWorkFrom(),"HHmmss").compareTo(Utils.formatDate(t.getWorkTo(),"HHmmss"))<0 && Utils.formatDate(t.getWorkTo(),"HHmmss").compareTo(Utils.formatDate(record.getWorkTo(),"HHmmss"))<= 0) )
+        ).count()==0; //具体到那天的上下午不重复
+        Assert.isTrue(isPlanTime  ,Utils.formatDate(record.getPlanTime(),"yyy-MM-dd")+"就诊日期已经设定过或者时间区间有重复!");
+        return this.insertSelective(record);
+    }
+
+    @Transactional
+    public int insertMedicalDates(MedicalDatePo record){
+        Date nowStart = null;
+        Date planTimeBeginDate = null;
+        try {
+            nowStart = Utils.getToday();
+            logger.info("nowStart:{}",Utils.dateToString(nowStart,"yyyy.MM.dd HH:mm:ss"));
+            planTimeBeginDate = DateUtils.parseDate(record.getPlanTimeBegin(),"yyyy-MM-dd");
+        } catch (ParseException e) {
+            Assert.isTrue(false,"无效日期:"+record.getPlanTimeBegin());
+        }
+        Date planTimeEndDate = null;
+        try {
+            planTimeEndDate = DateUtils.parseDate(record.getPlanTimeEnd(),"yyyy-MM-dd");
+        } catch (ParseException e) {
+            Assert.isTrue(false,"无效日期:"+record.getPlanTimeBegin());
+        }
+        Assert.isTrue(planTimeBeginDate.before(planTimeEndDate),record.getPlanTimeBegin()+" 应小于日期 "+record.getPlanTimeBegin());
+        try {
+            Assert.isTrue(Utils.daysBetween(new Date(),planTimeBeginDate)>=0,"开始日期需要在今天之后");
+            Assert.isTrue(Utils.daysBetween(new Date(),planTimeEndDate)<60,"结束日期需要在目前两个月内");
+        } catch (ParseException e) {
+            Assert.isTrue(false,"无效日期:"+record.getPlanTimeEnd());
+        }
+        Assert.isTrue(record.getNumAm().intValue()+record.getNumPm().intValue()>0,"预约人数无效");
+
+
+        List<MedicalDate> planMedicalDateList = Lists.newArrayList();
+        List<Date> planDateList = Lists.newArrayList();
+
+
+
+
+        Calendar tempStart = Calendar.getInstance();
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date samllDate = null;
+        Date endBigDate = null;
+        try {
+            samllDate = format.parse(record.getPlanTimeBegin());
+            endBigDate = format.parse(record.getPlanTimeEnd());
+            tempStart.setTime(samllDate);
+            while(samllDate.getTime()<=endBigDate.getTime()) {
+                Date currentDate = tempStart.getTime();
+                int currentWeek = Utils.getWeekInt(currentDate);
+                String currentDateString = format.format(currentDate);
+                logger.info("currentDate:{} currentWeek:{} currentDateString:{}",Utils.formatDate(currentDate,"yyyy年MM月dd日 HH:mm:ss"),currentWeek,currentDateString);
+                if(record.getWeekTimeList().stream().filter(t->StringUtils.equalsIgnoreCase(t,""+currentWeek)).count()==0
+                    && record.getExceptTimeList().stream().filter(t->StringUtils.equalsIgnoreCase(t,currentDateString)).count()==0){
+                    planDateList.add(currentDate);
+
+                    if(record.getNumAm().intValue()>0){
+                        MedicalDate planMedicalDate = new MedicalDate(record);
+                        planMedicalDate.setPlanTime(currentDate);
+                        planMedicalDate.setNum(record.getNumAm());
+                        planMedicalDate.setWorkTime("上午");
+                        planMedicalDate.setWorkFrom(Utils.getDayTimeHHmmss(currentDate,8,0,0));
+                        planMedicalDate.setWorkTo(Utils.getDayTimeHHmmss(currentDate,12,0,0));
+                        planMedicalDateList.add(planMedicalDate);
+                    }
+                    if(record.getNumPm().intValue()>0){
+                        MedicalDate planMedicalDate = new MedicalDate(record);
+                        planMedicalDate.setPlanTime(currentDate);
+                        planMedicalDate.setNum(record.getNumPm());
+                        planMedicalDate.setWorkTime("下午");
+                        planMedicalDate.setWorkFrom(Utils.getDayTimeHHmmss(currentDate,13,0,0));
+                        planMedicalDate.setWorkTo(Utils.getDayTimeHHmmss(currentDate,17,0,0));
+                        planMedicalDateList.add(planMedicalDate);
+                    }
+                    logger.info("添加目前日期:{}",Utils.formatDate(currentDate,"yyyy年MM月dd日 HH:mm:ss"));
+                }
+                tempStart.add(Calendar.DAY_OF_YEAR, 1);
+                samllDate = tempStart.getTime();
+            }
+        } catch (Exception e) {
+            logger.error("日期格式转换错误"+e.getMessage());
+        }
+        Assert.isTrue(record!=null && planDateList!=null && planDateList.size()>0,"请传递有效的就诊日期!");
+        MedicalDateRequest params = new MedicalDateRequest();
+        params.setTypeId(record.getTypeId());
+        params.setUserId(record.getUserId());
+        params.setPlanTimeBegin(Utils.getQueryStrtDate(new Date(),0));
+        params.setStatus("0");
+        List<MedicalDate> listMedicalDate = this.listMedicalDate(params);
+        List<MedicalDate> insertList = Lists.newArrayList();
+        planMedicalDateList.forEach(medicalDate->{
+            logger.info("目前比较:插入日期{}----{}",Utils.formatDate(medicalDate.getWorkFrom(),"yyyy年MM月dd日 HH:mm:ss"),Utils.formatDate(medicalDate.getWorkTo(),"yyyy年MM月dd日 HH:mm:ss"));
+            boolean isPlanTime = listMedicalDate.stream().filter(t->t.getPlanTime().compareTo(medicalDate.getPlanTime())==0
+//                    && StringUtils.equalsIgnoreCase(t.getWorkTime(),medicalDate.getWorkTime())
+                    && ((Utils.formatDate(medicalDate.getWorkFrom(),"HHmmss").compareTo(Utils.formatDate(t.getWorkFrom(),"HHmmss"))<=0 && Utils.formatDate(t.getWorkFrom(),"HHmmss").compareTo(Utils.formatDate(medicalDate.getWorkTo(),"HHmmss"))< 0 )
+                    || (Utils.formatDate(medicalDate.getWorkFrom(),"HHmmss").compareTo(Utils.formatDate(t.getWorkTo(),"HHmmss"))<0 && Utils.formatDate(t.getWorkTo(),"HHmmss").compareTo(Utils.formatDate(medicalDate.getWorkTo(),"HHmmss"))<= 0) )
+            ).count()==0; //具体到那天的上下午不重复
+            Assert.isTrue(isPlanTime  ,Utils.formatDate(medicalDate.getPlanTime(),"yyy-MM-dd")+medicalDate.getWorkTime()+" 就诊日期已经设定过了!");
+            medicalDate.setWeekInfo(Utils.getWeekInfo(medicalDate.getPlanTime()));
+            insertList.add(new MedicalDate(medicalDate));
+        });
+//        planDateList.forEach(date->{
+//            MedicalDate medicalDate = new MedicalDate(record);
+//            medicalDate.setPlanTime(date);
+//            Assert.isTrue(listMedicalDate.stream().filter(t->t.getPlanTime().compareTo(medicalDate.getPlanTime())==0).count()==0,Utils.formatDate(medicalDate.getPlanTime(),"yyy-MM-dd")+"就诊日期已经存在!");
+//            medicalDate.setWeekInfo(Utils.getWeekInfo(medicalDate.getPlanTime()));
+//            insertList.add(new MedicalDate(medicalDate));
+//        });
+        insertList.forEach(t->{
+            logger.info("时间:{} 区间[{}-{}] 目前插入:{}",Utils.formatDate(t.getPlanTime(),"yyyy.MM.dd HH:mm:ss"),Utils.formatDate(t.getWorkFrom(),"yyyy年MM月dd日 HH:mm:ss"),Utils.formatDate(t.getWorkTo(),"yyyy年MM月dd日 HH:mm:ss"), t);
+            this.insertSelective(t);
+        });
+        return insertList.size();
+    }
+    //获取某个医生上门就诊时间列表
+    public ListResponse<MedicalDatePo> getDoctorListMedicalDatePo(MedicalDateRequest params){
+        ListResponse<MedicalDatePo> listResponse = new ListResponse<>();
+        List<MedicalDatePo> medicalDatePoList = daoMedicalDate.listMedicalDatePo(params);
+        List<MedicalDatePo> medicalDatePoListAll = Lists.newArrayList();
+        Date date = null;
+        medicalDatePoList.forEach(t->{
+            MedicalDatePo currentInfo = medicalDatePoListAll.stream().filter(ma->t.getPlanTime().compareTo(ma.getPlanTime())==0).findFirst().orElse(new MedicalDatePo());
+            if(currentInfo.getId()==null || currentInfo.getId().longValue()==0){
+                if( StringUtils.equalsIgnoreCase(t.getWorkTime(),"上午")){
+                    t.setNumAm(t.getAppointmentNum());
+                    t.setPaymentAm(t.getPayment());
+                }
+                else{
+                    t.setNumPm(t.getAppointmentNum());
+                    t.setPaymentPm(t.getPayment());
+                }
+                t.setAppointmentNum(0);
+                t.setNum(0);
+                medicalDatePoListAll.add(t);
+            }
+            else{
+                currentInfo.setWorkTime("全天");
+                if( StringUtils.equalsIgnoreCase(t.getWorkTime(),"下午")){
+                    currentInfo.setNumPm(t.getAppointmentNum());
+                    currentInfo.setPaymentPm(t.getPayment());
+                }
+                else{
+                    currentInfo.setNumAm(t.getAppointmentNum());
+                    currentInfo.setPaymentAm(t.getPayment());
+                }
+                currentInfo.setAppointmentNum(0);
+                currentInfo.setNum(0);
+            }
+        });
+        listResponse.setData(medicalDatePoListAll);
+        listResponse.setTotal(medicalDatePoListAll.size());
+        return listResponse;
+
+
+/*        ListResponse<MedicalDatePo> listResponse = new ListResponse<>();
+        Integer start = params.getStart();
+        Integer size = params.getSize();
+        params.setSize(null);
+        params.setPage(null);
+        params.setStart(null);
+        int total = this.listMedicalDateGroupCount(params);
+        listResponse.setTotal(total);
+        List<MedicalDatePo> medicalDatePoList = daoMedicalDate.listMedicalDatePo(params);
+        List<MedicalDatePo> medicalDatePoListAll = Lists.newArrayList();
+        Date date = null;
+        medicalDatePoList.forEach(t->{
+            MedicalDatePo currentInfo = medicalDatePoListAll.stream().filter(ma->t.getPlanTime().compareTo(ma.getPlanTime())==0).findFirst().orElse(new MedicalDatePo());
+            if(currentInfo.getId()==null || currentInfo.getId().longValue()==0){
+                if( StringUtils.equalsIgnoreCase(t.getWorkTime(),"上午")){
+                    t.setNumAm(t.getAppointmentNum());
+                    t.setPaymentAm(t.getPayment());
+                }
+                else{
+                    t.setNumPm(t.getAppointmentNum());
+                    t.setPaymentPm(t.getPayment());
+                }
+                t.setAppointmentNum(0);
+                t.setNum(0);
+                medicalDatePoListAll.add(t);
+            }
+            else{
+                currentInfo.setWorkTime("全天");
+                if( StringUtils.equalsIgnoreCase(t.getWorkTime(),"下午")){
+                    currentInfo.setNumPm(t.getAppointmentNum());
+                    currentInfo.setPaymentPm(t.getPayment());
+                }
+                else{
+                    currentInfo.setNumAm(t.getAppointmentNum());
+                    currentInfo.setPaymentAm(t.getPayment());
+                }
+                currentInfo.setAppointmentNum(0);
+                currentInfo.setNum(0);
+            }
+        });
+        listResponse.setData(medicalDatePoListAll.stream().skip(start).limit(size).collect(Collectors.toList()));
+        return listResponse;*/
+    }
+    //查询到全天的信息
+    public int listMedicalDateGroupCount(MedicalDateRequest params){
+        return daoMedicalDate.listMedicalDateGroupCount(params);
+    }
+    public List<MedicalDatePo> listMedicalDatePo(MedicalDateRequest params){
+        return daoMedicalDate.listMedicalDatePo(params);
+    }
+    public int listMedicalDatePoCount(MedicalDateRequest params){
+        return daoMedicalDate.listMedicalDatePoCount(params);
+    }
+    public List<MedicalDate> listMedicalDate(MedicalDateRequest params){
+        return daoMedicalDate.listMedicalDate(params);
+    }
+    public int listMedicalDateCount(MedicalDateRequest params){
+        return daoMedicalDate.listMedicalDateCount(params);
+    }
+    public int deleteByPrimaryKey(Long id){
+        return daoMedicalDate.deleteByPrimaryKey(id);
+    }
+
+    public int insertSelective(MedicalDate record){
+        return daoMedicalDate.insertSelective(record);
+    }
+
+    public MedicalDate selectByPrimaryKey(Long id){
+        return daoMedicalDate.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(MedicalDate record){
+        return daoMedicalDate.updateByPrimaryKeySelective(record);
+    }
+    //更新锁定数据
+    public int updateLockNumSelective(MedicalDate record){
+        return daoMedicalDate.updateLockNumSelective(record);
+    }
+
+    //获取并锁定查询就诊日期
+    public MedicalDatePo getLockMedicalDatePoByIdRequest(MedicalDateRequest params){
+        return daoMedicalDate.getLockMedicalDatePoByIdRequest(params);
+    }
+}

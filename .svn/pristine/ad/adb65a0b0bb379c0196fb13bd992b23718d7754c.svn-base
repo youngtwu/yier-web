@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.ChatRecordMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.ChatRecord">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="send_type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="send_user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="receive_type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="receive_user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="chat_space" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="chat_type" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="text_content" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="image_url" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, send_type_id, send_user_id, receive_type_id, receive_user_id, chat_space, chat_type, 
+    text_content, image_url, status, gmt_create, gmt_modified, remarks
+  </sql>
+
+
+
+  <!-- 根据条件查询聊天记录列表 -->
+  <select id="listChatRecordPo" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="com.yier.platform.common.model.ChatRecordPo">
+    select t.send_type_id sendTypeId,t.send_user_id sendUserId, if(t.send_type_id = 1,p1.true_name,d1.true_name ) sendUserName,
+    t.receive_type_id receiveTypeId,t.receive_user_id receiveUserId, if(t.receive_type_id = 1,p2.true_name,d2.true_name ) receiveUserName,
+    t.chat_space chatSpace,t.chat_type chatType,t. text_content textContent,t.image_url imageUrl,
+    t.status,t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_chat_record t
+    LEFT JOIN t_doctor d1 ON t.send_type_id = 2 and t.send_user_id = d1.id
+    LEFT JOIN t_patient p1 ON t.send_type_id = 1 and t.send_user_id = p1.id
+    LEFT JOIN t_doctor d2 ON t.receive_type_id = 2 and t.receive_user_id = d2.id
+    LEFT JOIN t_patient p2 ON t.receive_type_id = 1 and t.receive_user_id = p2.id
+    <where>
+      <if test="sendTypeId != null">
+        and t.send_type_id = #{sendTypeId}
+      </if>
+      <if test="sendUserId != null">
+        and t.send_user_id = #{sendUserId}
+      </if>
+      <if test="receiveTypeId != null">
+        and t.receive_type_id = #{receiveTypeId}
+      </if>
+      <if test="receiveUserId != null">
+        and t.receive_user_id = #{receiveUserId}
+      </if>
+      <if test="chatSpace != null">
+        and t.chat_space = #{chatSpace}
+      </if>
+      <if test="chatType != null">
+        and t.chat_type = #{chatType}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`text_content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询聊天记录列表 总和 -->
+  <select id="listChatRecordPoCount" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="Integer">
+    select count(t.id) from t_chat_record t
+    <where>
+      <if test="sendTypeId != null">
+        and t.send_type_id = #{sendTypeId}
+      </if>
+      <if test="sendUserId != null">
+        and t.send_user_id = #{sendUserId}
+      </if>
+      <if test="receiveTypeId != null">
+        and t.receive_type_id = #{receiveTypeId}
+      </if>
+      <if test="receiveUserId != null">
+        and t.receive_user_id = #{receiveUserId}
+      </if>
+      <if test="chatSpace != null">
+        and t.chat_space = #{chatSpace}
+      </if>
+      <if test="chatType != null">
+        and t.chat_type = #{chatType}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`text_content` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+
+  <!-- 根据聊天记录表条件查询对药师的我的咨询列表 -->
+  <select id="listChatRecordPharmacistPo" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="com.yier.platform.common.model.PharmacistPo">
+    SELECT  tc.status chatState,count(de.id) patientEvaluationTotal , dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+    t.sex, tc.chat, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_chat_state tc INNER JOIN t_pharmacist t ON tc.chat_space = concat('',#{chatSpace},t.id) LEFT JOIN t_doctor_title dt ON  t.title_id = dt.id
+    LEFT JOIN t_pharmacist_evaluation de on concat('patient',de.patient_id,'pharmacist') = #{chatSpace} and de.doctor_id = t.id
+    <where>
+      <if test="chatSpace != null">
+        and tc.chat_space LIKE concat('',#{chatSpace},'%')
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="catalogId != null">
+        and t.catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chatState )">
+        and tc.status = #{chatState}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    GROUP BY tc.last_id,tc.status,dt.`name`  ,t.imtoken,t.doctor_card_no , t.hospital_id , t.catalog_id  ,t.birthday,
+    t.sex, tc.chat, t.check_url , t.photo_url , t.id, t.true_name , t.avatar_url , t.id_card_no , t.phone_number , t.pass_hash , t.pass_salt , t.department_id ,
+    t.title_id , t.field, t.visit, t.status, t.gmt_create , t.gmt_modified , t.remarks
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by tc.last_id DESC
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询对药师的我的咨询列表 总和 -->
+  <select id="listChatRecordPharmacistPoCount" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="Integer">
+    select count(tc.id)
+    from t_chat_state tc INNER JOIN t_pharmacist t ON tc.chat_space = concat('',#{chatSpace},t.id)
+    <where>
+      <if test="chatSpace != null">
+        and tc.chat_space LIKE concat('',#{chatSpace},'%')
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="catalogId != null">
+        and t.catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chatState )">
+        and tc.status = #{chatState}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+
+  <!-- 根据聊天记录表条件查询对医生的我的咨询列表 -->
+  <select id="listChatRecordDoctorPo" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="com.yier.platform.common.model.DoctorPo">
+    SELECT tc.status chatState,count(de.id) patientEvaluationTotal , dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+    t.sex, tc.chat, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_chat_state tc INNER JOIN t_doctor t ON tc.chat_space = concat('',#{chatSpace},t.id) LEFT JOIN t_doctor_title dt ON  t.title_id = dt.id
+    LEFT JOIN t_doctor_evaluation de on concat('patient',de.patient_id,'doctor') = #{chatSpace} and de.doctor_id = t.id
+    <where>
+      <if test="chatSpace != null">
+        and tc.chat_space LIKE concat('',#{chatSpace},'%')
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="catalogId != null">
+        and t.catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chatState )">
+        and tc.status = #{chatState}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    GROUP BY tc.last_id,tc.status,dt.`name`  ,t.imtoken,t.doctor_card_no , t.hospital_id , t.catalog_id  ,t.birthday,
+    t.sex, tc.chat, t.check_url , t.photo_url , t.id, t.true_name , t.avatar_url , t.id_card_no , t.phone_number , t.pass_hash , t.pass_salt , t.department_id ,
+    t.title_id , t.field, t.visit, t.status, t.gmt_create , t.gmt_modified , t.remarks
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by tc.last_id DESC
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询对医生的我的咨询列表 总和 -->
+  <select id="listChatRecordDoctorPoCount" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="Integer">
+    select count(tc.id)
+    from t_chat_state tc INNER JOIN t_doctor t ON tc.chat_space = concat('',#{chatSpace},t.id)
+    <where>
+      <if test="chatSpace != null">
+        and tc.chat_space LIKE concat('',#{chatSpace},'%')
+      </if>
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="catalogId != null">
+        and t.catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chatState )">
+        and tc.status = #{chatState}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+  <!-- 根据条件查询对患者聊天列表 -->
+  <select id="listChatRecordPatientPo" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="com.yier.platform.common.model.PatientPo">
+    SELECT tc.status chatState,t.id, t.true_name trueName, t.user_name userName, t.id_card_no idCardNo, t.avatar_url avatarUrl, t.password, t.birthday, t.email, t.phone_number phoneNumber,
+    t.sex, t.check_url checkUrl, t.imtoken, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_chat_state tc INNER JOIN t_patient t ON tc.chat_space = concat('patient',t.id,#{chatSpace})
+    <where>
+      <if test="chatSpace != null">
+        and tc.chat_space LIKE concat('patient','%',#{chatSpace})
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chatState )">
+        and tc.status = #{chatState}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        or t.`user_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    GROUP BY tc.last_id,tc.status,t.id, t.true_name, t.user_name, t.id_card_no, t.avatar_url, t.password, t.birthday, t.email, t.phone_number,
+    t.sex, t.check_url, t.imtoken, t.status, t.gmt_create, t.gmt_modified, t.remarks
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by tc.last_id DESC
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询患者聊天列表 总和 -->
+  <select id="listChatRecordPatientPoCount" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="Integer">
+    select count(tc.id)
+    from t_chat_state tc INNER JOIN t_patient t ON tc.chat_space = concat('patient',t.id,#{chatSpace})
+    <where>
+      <if test="chatSpace != null">
+        and tc.chat_space LIKE concat('patient','%',#{chatSpace})
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( chatState )">
+        and tc.status = #{chatState}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        or t.`user_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+  <!-- 根据条件查询对医生的我的咨询列表 -->
+  <select id="listChatRecordDoctorPo_Old" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="com.yier.platform.common.model.DoctorPo">
+    select dt.`name` doctorTitle ,t.imtoken,t.doctor_card_no doctorCardNo, t.hospital_id hospitalId, t.catalog_id catalogId ,t.birthday,
+    t.sex, t.chat, t.check_url checkUrl, t.photo_url photoUrl, t.id, t.true_name trueName, t.avatar_url avatarUrl, t.id_card_no idCardNo, t.phone_number phoneNumber, t.pass_hash passHash, t.pass_salt passSalt, t.department_id departmentId,
+    t.title_id titleId, t.field, t.visit, t.practice_point practicePoint, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks
+    from t_doctor t LEFT JOIN t_doctor_title dt ON t.title_id = dt.id
+    <where>
+      t.id in (
+        SELECT tt.doctorId FROM(
+          SELECT  replace(ttt.chat_space,#{chatSpace}, '') doctorId ,Max(ttt.id) maxId
+          from t_chat_record ttt
+          where ttt.chat_space LIKE concat('',#{chatSpace},'%')  and ttt.status = '0'
+          GROUP BY ttt.chat_space
+          ORDER BY maxId desc
+        ) tt
+      )
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="catalogId != null">
+        and t.catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询对医生的我的咨询列表 总和 -->
+  <select id="listChatRecordDoctorPoCount_Old" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="Integer">
+    select count(t.id) from t_doctor t
+    <where>
+      t.id in (
+        SELECT tt.doctorId FROM(
+          SELECT  replace(ttt.chat_space,#{chatSpace}, '') doctorId ,Max(ttt.id) maxId
+          from t_chat_record ttt
+          where ttt.chat_space LIKE concat('',#{chatSpace},'%')  and ttt.status = '0'
+          GROUP BY ttt.chat_space
+          ORDER BY maxId desc
+        ) tt
+      )
+      <if test="hospitalId != null">
+        and t.hospital_id = #{hospitalId}
+      </if>
+      <if test="catalogId != null">
+        and t.catalog_id = #{catalogId}
+      </if>
+      <if test="hospitalDepartmentId != null">
+        and t.department_id = #{hospitalDepartmentId}
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+  <!-- 根据条件查询患者聊天列表 -->
+  <select id="listChatRecordPatientPo_old" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="com.yier.platform.common.model.PatientPo">
+    select t.id, t.true_name trueName, t.user_name userName, t.id_card_no idCardNo, t.avatar_url avatarUrl, t.password, t.birthday, t.email, t.phone_number phoneNumber,
+    t.sex, t.check_url checkUrl, t.imtoken, t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks from t_patient t
+    <where>
+      t.id in (
+      SELECT tt.patientId FROM(
+      SELECT  replace(replace(ttt.chat_space,#{chatSpace}, ''),'patient','') patientId ,Max(ttt.id) maxId
+      from t_chat_record ttt
+      where ttt.chat_space LIKE concat('patient','%',#{chatSpace})  and ttt.status = '0'
+      GROUP BY ttt.chat_space
+      ORDER BY maxId desc
+      ) tt
+      )
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        or t.`user_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+  <!-- 根据条件查询患者聊天列表 总和 -->
+  <select id="listChatRecordPatientPoCount_old" parameterType="com.yier.platform.common.requestParam.ChatRecordRequest" resultType="Integer">
+    select count(t.id) from t_patient t
+    <where>
+      t.id in (
+      SELECT tt.patientId FROM(
+      SELECT  replace(replace(ttt.chat_space,#{chatSpace}, ''),'patient','') patientId ,Max(ttt.id) maxId
+      from t_chat_record ttt
+      where ttt.chat_space LIKE concat('patient','%',#{chatSpace})  and ttt.status = '0'
+      GROUP BY ttt.chat_space
+      ORDER BY maxId desc
+      ) tt
+      )
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`true_name` like concat('%',#{searchKey},'%')
+        or t.`user_name` like concat('%',#{searchKey},'%')
+        )
+      </if>
+    </where>
+  </select>
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_chat_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_chat_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.ChatRecord">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_chat_record (send_type_id, send_user_id, receive_type_id, 
+      receive_user_id, chat_space, chat_type, 
+      text_content, image_url, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{sendTypeId,jdbcType=BIGINT}, #{sendUserId,jdbcType=BIGINT}, #{receiveTypeId,jdbcType=BIGINT}, 
+      #{receiveUserId,jdbcType=BIGINT}, #{chatSpace,jdbcType=VARCHAR}, #{chatType,jdbcType=CHAR}, 
+      #{textContent,jdbcType=VARCHAR}, #{imageUrl,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.ChatRecord">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_chat_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="sendTypeId != null">
+        send_type_id,
+      </if>
+      <if test="sendUserId != null">
+        send_user_id,
+      </if>
+      <if test="receiveTypeId != null">
+        receive_type_id,
+      </if>
+      <if test="receiveUserId != null">
+        receive_user_id,
+      </if>
+      <if test="chatSpace != null">
+        chat_space,
+      </if>
+      <if test="chatType != null">
+        chat_type,
+      </if>
+      <if test="textContent != null">
+        text_content,
+      </if>
+      <if test="imageUrl != null">
+        image_url,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="sendTypeId != null">
+        #{sendTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="sendUserId != null">
+        #{sendUserId,jdbcType=BIGINT},
+      </if>
+      <if test="receiveTypeId != null">
+        #{receiveTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="receiveUserId != null">
+        #{receiveUserId,jdbcType=BIGINT},
+      </if>
+      <if test="chatSpace != null">
+        #{chatSpace,jdbcType=VARCHAR},
+      </if>
+      <if test="chatType != null">
+        #{chatType,jdbcType=CHAR},
+      </if>
+      <if test="textContent != null">
+        #{textContent,jdbcType=VARCHAR},
+      </if>
+      <if test="imageUrl != null">
+        #{imageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.ChatRecord">
+    update t_chat_record
+    <set>
+      <if test="sendTypeId != null">
+        send_type_id = #{sendTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="sendUserId != null">
+        send_user_id = #{sendUserId,jdbcType=BIGINT},
+      </if>
+      <if test="receiveTypeId != null">
+        receive_type_id = #{receiveTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="receiveUserId != null">
+        receive_user_id = #{receiveUserId,jdbcType=BIGINT},
+      </if>
+      <if test="chatSpace != null">
+        chat_space = #{chatSpace,jdbcType=VARCHAR},
+      </if>
+      <if test="chatType != null">
+        chat_type = #{chatType,jdbcType=CHAR},
+      </if>
+      <if test="textContent != null">
+        text_content = #{textContent,jdbcType=VARCHAR},
+      </if>
+      <if test="imageUrl != null">
+        image_url = #{imageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.ChatRecord">
+    update t_chat_record
+    set send_type_id = #{sendTypeId,jdbcType=BIGINT},
+      send_user_id = #{sendUserId,jdbcType=BIGINT},
+      receive_type_id = #{receiveTypeId,jdbcType=BIGINT},
+      receive_user_id = #{receiveUserId,jdbcType=BIGINT},
+      chat_space = #{chatSpace,jdbcType=VARCHAR},
+      chat_type = #{chatType,jdbcType=CHAR},
+      text_content = #{textContent,jdbcType=VARCHAR},
+      image_url = #{imageUrl,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

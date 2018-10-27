@@ -1,0 +1,206 @@
+package com.yier.platform.annotation;
+
+import com.yier.platform.common.exception.Constants;
+import com.yier.platform.common.exception.ServiceException;
+import com.yier.platform.common.model.ApiAround;
+import com.yier.platform.common.typeEnum.SystemParameterKey;
+import com.yier.platform.common.util.IPUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.service.ApiAroundService;
+import com.yier.platform.service.JwtTokenService;
+import com.yier.platform.service.SignatureService;
+import com.yier.platform.service.SystemParametersService;
+import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
+import java.util.Map;
+
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
+
+@Component
+@Aspect
+public class ApiCheckAround {
+    private final Logger logger = LoggerFactory.getLogger(ApiCheckAround.class);
+    @Autowired
+    private JwtTokenService jwtTokenService;
+    @Autowired
+    private SignatureService signatureService;//签名方面的生成
+    @Autowired
+    private ApiAroundService apiAroundService;//应用执行记录
+    @Autowired
+    private SystemParametersService systemParametersService;//系统参数方面(带有缓存)
+
+    @Around("@annotation(com.yier.platform.annotation.ApiCheck)")
+    public Object around(ProceedingJoinPoint point) throws Throwable {
+        return aroundX(point);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private Object aroundX(ProceedingJoinPoint point) throws Throwable { //throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        String typeId = null;
+        String userId = null;
+        String token = null;
+        String osType = null;
+        String appKey = null;
+        String nonce = null;
+        String timestamp = null;
+        String signature = null;
+        String apiVersion = null;
+        String methodPath = point.getSignature().getDeclaringTypeName() + "." + point.getSignature().getName();
+        HttpServletRequest request = null;
+        StringBuilder methodArgs = new StringBuilder();
+        for(Object object:point.getArgs()){
+            if( object instanceof HttpServletRequest ){
+                request = (HttpServletRequest) object;
+                continue;
+            }
+            else if( object instanceof HttpServletResponse){
+                continue;
+            }
+            else if( object instanceof MultipartFile){
+                methodArgs.append(object==null?" 文件为空 ":" 文件对象 ");
+            }
+            else if(object != null ){
+                methodArgs.append(object.toString()).append(" | ");
+            }
+            else{
+                methodArgs.append(" 参数为null ");
+            }
+        }
+        logger.info("Enter Case-------> {},方法参数:{}", methodPath, methodArgs.toString());
+
+        long start = System.currentTimeMillis();
+        Assert.isTrue((point.getSignature() instanceof MethodSignature),"该注解只能用于方法");
+        Assert.isTrue(request!=null,"该注解方法 需要是个有效的HttpServletRequest请求体");
+        Method method = ((MethodSignature) point.getSignature()).getMethod();
+        Object objRt = null;
+        ApiCheck shelter = method.getAnnotation(ApiCheck.class);
+        boolean checkLogin = shelter.check();
+        if(request != null){
+            typeId = request.getHeader("typeId");//request.getParameter("typeId");//端口
+            userId = request.getHeader("userId");
+            token =  request.getHeader("token");
+            osType = request.getHeader("osType");
+            appKey = request.getHeader("appKey");//Access-Key 亿尔云平台分配的Access Key
+            nonce = request.getHeader("nonce");//Nonce 随机数，长度8位
+            timestamp = request.getHeader("timestamp");//Timestamp 时间戳，从1970年1月1日0点0分0秒开始到现在的毫秒数
+            signature = request.getHeader("signature");//Signature 数据签名
+            apiVersion = request.getHeader("apiVersion");//Nonce 随机数，长度8位
+//            record.setTypeId(request.getHeader("typeId"));
+//            record.setUserId(request.getHeader("userId"));
+//            record.setToken(request.getHeader("token"));
+//            record.setOsType(request.getHeader("osType"));
+//            record.setAppKey(request.getHeader("appKey"));
+//            record.setNonce(request.getHeader("nonce"));
+//            record.setTimeStamp(request.getHeader("timestamp"));
+//            record.setSignature(request.getHeader("signature"));
+//            record.setApiVersion(request.getHeader("apiVersion"));
+        }
+        if (checkLogin) {
+
+            if (StringUtils.isBlank(typeId)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "请提供应用端口[来自统一身份验证]");
+            }
+            if(StringUtils.isNotBlank(userId)||StringUtils.isNotBlank(token)){
+                if (StringUtils.isBlank(userId)) {
+                    throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "请提供应用userId[来自统一身份验证]");
+                }
+                if (StringUtils.isBlank(token)) {
+                    throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "请提供应用token[来自统一身份验证]");
+                }
+                this.jwtTokenService.loginVeriferToken(token,typeId,userId);
+            }
+
+            if (StringUtils.isBlank(apiVersion)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "请提供apiVersion 版本信息[来自统一身份验证]");
+            }
+            if (StringUtils.isBlank(osType)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "请提供应用类型[来自统一身份验证]");
+            }
+            if (StringUtils.isBlank(appKey)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "appKey不能为空[来自统一身份验证]");
+            }
+            if (StringUtils.isBlank(nonce)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "nonce不能为空[来自统一身份验证]");
+            }
+            if (StringUtils.isBlank(timestamp)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "timestamp不能为空[来自统一身份验证]");
+            }
+            if (StringUtils.isBlank(signature)) {
+                throw new ServiceException(Constants.RESPONSE_CODE_TOKEN_ERROR, "signature不能为空[来自统一身份验证]");
+            }
+            this.signatureService.veriferSign(typeId,appKey,nonce,timestamp,signature);//数字签名验证
+            logger.debug("报文信息：端口:{} 应用类型:{} 平台分配的appKey:{}------nonce:{}--timestamp：{}---userId:{} token:{} signature：{} apiVersion:{}",typeId,osType,appKey,nonce,timestamp,userId,token,signature,apiVersion);
+        }
+        objRt = point.proceed(point.getArgs());
+        long duration = System.currentTimeMillis() - start;
+        logger.debug("切面监控<< {} 耗时：{}", methodPath, duration);
+        long minCheckLong = 1000;
+        String minCheck = systemParametersService.getParameter(SystemParameterKey.APP_API_AROUND_MIN_CHECK);
+        minCheckLong = Long.parseLong(minCheck);
+        if(duration > minCheckLong){
+            ApiAround record = new ApiAround();
+            record.setTypeId(typeId);
+            record.setUserId(userId);
+            record.setToken(token);
+            record.setOsType(osType);
+            record.setAppKey(appKey);
+            record.setNonce(nonce);
+            record.setTimeStamp(timestamp);
+            record.setSignature(signature);
+            record.setApiVersion(apiVersion);
+            record.setMethodPath(methodPath);
+            String methodArgsString = methodArgs.toString();
+            if(methodArgsString.length()>500){
+                methodArgsString = methodArgsString.substring(0,500);
+            }
+            record.setMethodArgs(methodArgsString);
+            record.setDuration(duration);
+            if(request!=null){
+                String requestPath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()+ request.getRequestURI();
+                record.setRequestPath(requestPath);
+                StringBuilder params = new StringBuilder();
+                if(request.getParameterMap() != null){
+                    for (Map.Entry<String, String[]> param : ((Map<String, String[]>)request.getParameterMap()).entrySet()){
+                        params.append(("".equals(params.toString()) ? "" : "&") + param.getKey() + "=");
+                        String paramValue = (param.getValue() != null && param.getValue().length > 0 ? param.getValue()[0] : "");
+                        params.append(paramValue);
+                        //params.append(StringUtils.abbreviate(StringUtils.endsWithIgnoreCase(param.getKey(), "password") ? "" : paramValue, 100));
+                    }
+                }
+                String requestParamsString = params.toString();
+                if(methodArgsString.length()>300){
+                    methodArgsString = methodArgsString.substring(0,300);
+                }
+                record.setRequestParams(methodArgsString);
+                String getRemoteAddr = IPUtils.getRemoteAddr(request);
+                String remoteAddress = IPUtils.getIpAddress(request);
+                record.setRequestRemoteAddress(getRemoteAddr+"|"+remoteAddress);
+                String userAgent = request.getHeader("user-agent");
+                if(userAgent.length()>100){
+                    userAgent = userAgent.substring(0,100);
+                }
+                record.setRequestUserAgent(userAgent);
+                String methodInfo = request.getMethod();
+                record.setRequestMethod(methodInfo);
+            }
+            record.setRemarks("记录请求情况");
+            apiAroundService.insertSelective(record);
+        }
+        return objRt;
+
+    }
+}

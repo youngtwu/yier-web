@@ -1,0 +1,340 @@
+package com.yier.platform.service.medical;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.po.IdCardClass;
+import com.yier.platform.common.requestParam.MedicalDateRequest;
+import com.yier.platform.common.requestParam.MedicalOrderRequest;
+import com.yier.platform.common.requestParam.MedicalPrescriptionRequest;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.common.util.OrderIdUtils;
+import com.yier.platform.common.util.RandomUtils;
+import com.yier.platform.common.util.Utils;
+import com.yier.platform.dao.MedicalOrderMapper;
+import com.yier.platform.dao.MedicalPrescriptionMapper;
+import com.yier.platform.service.*;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 上门问诊医生时间编排 service
+ */
+@Service
+public class MedicalPrescriptionService {
+    private final Logger logger = LoggerFactory.getLogger(MedicalPrescriptionService.class);
+    @Autowired
+    private MedicalPrescriptionMapper daoMedicalPrescriptionMapper;
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+    @Autowired
+    private OrderDrugsService orderDrugsService;
+    @Autowired
+    private PharmacistService pharmacistService;
+    @Autowired
+    private AppPushService appPushService;
+    @Autowired
+    private ToolShareService toolShareService;
+    @Autowired
+    private CommonService commonService;
+    @Autowired
+    private RedisService redisService;
+
+    @ApiOperation(value = "药师审方 不通过")
+    @Transactional
+    public MedicalPrescription createPrescriptionCheckKO(MedicalPrescription record) {
+        logger.info("传递数据为:{}", record);
+        Assert.isTrue(record.getId()!=null,"请传递ID");
+        Assert.isTrue(record.getMedicalOrderId()!=null,"请传递MedicalOrderId");
+        Assert.isTrue(record.getPharmacistId()!=null,"请传递PharmacistId");
+//        redisService.deleteRedisByKey(ConstantAll.REDIS_PHARMACIST_GRAB_ORDER+record.getPharmacistId()+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+record.getId());//去除对应的抓单锁定
+
+        Date currentDate = new Date();
+        record.setViewInfo("药师审方 不通过");
+        record.setGmtModified(currentDate);
+        record.setRemarks("药师审方 不通过");
+        this.updateByPrimaryKeySelective(record);
+
+        MedicalOrder medicalOrder1 = new MedicalOrder();
+        medicalOrder1.setId(record.getMedicalOrderId());
+        medicalOrder1.setStatus(ConstantAll.ORDER_STATUS_PRESCRIPTION_CHECK);//患者 审核中
+        medicalOrder1.setStatusDetail(ConstantAll.ORDER_STATUS_PRESCRIPTION_CHECK_FAIL);//审核 不通过
+        medicalOrder1.setRemarks("药师审方 不通过");
+        medicalOrder1.setGmtModified(new Date());
+        medicalOrderService.updateByPrimaryKeySelective(medicalOrder1);
+        return record;
+    }
+
+    @ApiOperation(value = "药师审方通过")
+    @Transactional
+    public MedicalPrescription createPrescriptionCheckOk(MedicalPrescription record) {
+        logger.info("传递数据为:{}", record);
+        Assert.isTrue(record.getId()!=null,"请传递ID");
+        Assert.isTrue(record.getMedicalOrderId()!=null,"请传递MedicalOrderId");
+        Assert.isTrue(record.getPharmacistId()!=null,"请传递PharmacistId");
+        redisService.deleteRedisByKey(ConstantAll.REDIS_PHARMACIST_GRAB_ORDER+record.getPharmacistId()+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+record.getId());//去除对应的抓单锁定
+        redisService.deleteRedisByKey(ConstantAll.REDIS_PRESCRIPTION_ORDER+record.getId());//去除对应处方处理
+
+        Date currentDate = new Date();
+        record.setViewTime(currentDate);
+        record.setViewInfo("药师审方通过");
+        record.setPrescriptionStatus(ConstantAll.STATUS_2);// 待支付 1  待取药 2  已取药 3
+        record.setGmtModified(currentDate);
+        record.setRemarks("药师审方通过");
+        this.updateByPrimaryKeySelective(record);
+
+        MedicalOrder medicalOrder1 = new MedicalOrder();
+        medicalOrder1.setId(record.getMedicalOrderId());
+        medicalOrder1.setStatus(ConstantAll.ORDER_STATUS_OK);//患者 完成
+        medicalOrder1.setStatusDetail(ConstantAll.ORDER_STATUS_OK);//完成
+        medicalOrder1.setRemarks("药师审方 完成");
+        medicalOrder1.setGmtModified(new Date());
+        medicalOrderService.updateByPrimaryKeySelective(medicalOrder1);
+
+
+        return record;
+    }
+    @ApiOperation(value = "药师抢单审方")
+    @Transactional
+    public MedicalPrescription createPrescriptionGrapCheck(MedicalPrescription record) {
+        logger.info("传递数据为:{}", record);
+        Assert.isTrue(record.getId()!=null,"请传递ID");
+        Assert.isTrue(record.getPharmacistId()!=null,"请传递PharmacistId");
+        Set<String> otherPharmacistGrapThisOrderCaseSet = redisService.getRedisKeysByPattern(ConstantAll.REDIS_PHARMACIST_GRAB_ORDER+"*"+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+record.getId());//查看redis 有处方新订单列表
+        Assert.isTrue(otherPharmacistGrapThisOrderCaseSet.isEmpty(),"很抱歉,已经被其他药师抢单,调试阶段:具体信息-->"+otherPharmacistGrapThisOrderCaseSet.toString());
+        Date currentDate = new Date();
+        MutableTriple<Long, Date, Long> mutableTriple = new MutableTriple<Long, Date, Long>();
+        mutableTriple.left = record.getId();
+        mutableTriple.middle = currentDate;
+        mutableTriple.right = record.getPharmacistId();
+        redisService.setJsonObjectBy(ConstantAll.REDIS_PHARMACIST_GRAB_ORDER+record.getPharmacistId()+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+record.getId(),mutableTriple,ConstantAll.VALUE_CONSIDER_DAY_TIME,TimeUnit.DAYS);
+        record.setGmtModified(currentDate);
+        record.setRemarks("药师抢单审方");
+        this.updateByPrimaryKeySelective(record);
+        return record;
+    }
+    @ApiOperation(value = "创建处方")
+    @Transactional
+    public MedicalPrescription createPrescription(MedicalPrescription record){
+        logger.info("插入数据为:{}",record);
+        if(StringUtils.isBlank(record.getPharmacyId())){
+            MedicalOrder medicalOrder1 = new MedicalOrder();
+            medicalOrder1.setId(record.getMedicalOrderId());
+            medicalOrder1.setStatus(ConstantAll.ORDER_STATUS_OK);//患者 完成
+            medicalOrder1.setStatusDetail(ConstantAll.ORDER_STATUS_OK);//完成
+            medicalOrder1.setRemarks("完成");
+            medicalOrder1.setGmtModified(new Date());
+            medicalOrderService.updateByPrimaryKeySelective(medicalOrder1);
+        }
+        else{
+            MedicalOrderRequest medicalOrderRequest = new MedicalOrderRequest();
+            medicalOrderRequest.setOrderNo(record.getOrderNo());
+            MedicalOrder medicalOrder = medicalOrderService.selectMedicalOrderByIdKey(medicalOrderRequest);
+//        String prescriptionId = "PP"+ RandomUtils.randomNumeric(4) + UUID.randomUUID().toString().replace("-","").toUpperCase();
+            String prescriptionId = OrderIdUtils.genOrderIdWithDateUserId(StringUtils.leftPad(medicalOrder.getDoctorId().toString(),5,"P"));
+            record.setOrderNo(record.getOrderNo());
+            record.setPrescriptionTime(new Date());
+            record.setPrescriptionId(prescriptionId);
+            record.setOrganizationId(medicalOrder.getHospitalId().toString());
+            record.setOrganizationName(medicalOrder.getHospitalName());
+            record.setHospitalAddress(medicalOrder.getHospitalAddress());
+            record.setHospitalContact(medicalOrder.getHospitalContact());
+            record.setCatalogId(medicalOrder.getCatalogId());
+            record.setDepartmentId(medicalOrder.getDepartmentId());
+            record.setPatientId(medicalOrder.getPatientId());
+            record.setPatientIdCardNo(medicalOrder.getPatientIdCardNo());
+            record.setPatientName(medicalOrder.getPatientName());
+            record.setPatientAddress(medicalOrder.getPatientAddress());
+            record.setPatientContact(medicalOrder.getPatientContact());
+            record.setDoctorId(medicalOrder.getDoctorId());
+            record.setDoctorTitle(medicalOrder.getDoctorTitle());
+            record.setDoctorName(medicalOrder.getDoctorName());
+            record.setServiceFee(1000);
+            record.setDoctorSignature(medicalOrder.getDoctorSignature());
+            record.getDrugList().forEach(drug->{
+                drug.setOrderNo(medicalOrder.getOrderNo());
+                drug.setPrescriptionId(prescriptionId);
+                orderDrugsService.insertSelective(drug);
+            });
+            daoMedicalPrescriptionMapper.insertSelective(record);
+
+            MedicalOrder medicalOrder1 = new MedicalOrder();
+            medicalOrder1.setId(medicalOrder.getId());
+            medicalOrder1.setStatus(ConstantAll.ORDER_STATUS_PRESCRIPTION_CHECK);//患者 完成
+            medicalOrder1.setStatusDetail(ConstantAll.ORDER_STATUS_PRESCRIPTION_CHECK);//完成
+            medicalOrder1.setRemarks("处方审核中");
+            medicalOrder1.setGmtModified(new Date());
+            medicalOrderService.updateByPrimaryKeySelective(medicalOrder1);
+
+
+            String keyForNewPrescription = ConstantAll.REDIS_PRESCRIPTION_ORDER+record.getId();//有处方产生
+            redisService.setJsonObjectBy(keyForNewPrescription,record,ConstantAll.VALUE_CONSIDER_DAY_TIME,TimeUnit.DAYS);//一个处方最长考虑5整天[无限制也不能有效释放资源]
+
+            List<Pharmacist> pharmacistList = pharmacistService.getListAllCheck();
+            List<String> listPushUserId = Lists.newArrayList();
+            pharmacistList.forEach(t->{
+                listPushUserId.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_PHARMACIST)+t.getId());
+            });
+            appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_PHARMACIST,"医生处方已经产生","请抢单进行审核",listPushUserId);
+
+        }
+        return record;
+    }
+
+    @ApiOperation(value = "抓单3分钟内并没有处理,需要强制给平台人员处理")
+    @Transactional
+    public void doWithPharmacistExtent3Minute(Set<String> stringSet,Date currentDate) {
+        if(stringSet.size()>0) {//存在要考虑的处方
+            Set<String> pharmacistGrapSet = redisService.getRedisKeysByPattern(ConstantAll.REDIS_PHARMACIST_GRAB_ORDER+"*");//查看redis 有处方新订单列表
+            pharmacistGrapSet.forEach(grapKey->{
+                MutableTriple<Long, Date, Long> result = JsonUtils.fromJson(redisService.getValueRedisByKey(grapKey,false), new TypeReference<MutableTriple<Long, Date, Long>>() {
+                });
+                logger.info(">>如果redis 有处方新订单列表 并且有药师锁定");//REDIS_PHARMACIST_GRAB_ORDER
+                if(currentDate.getTime() - result.middle.getTime() > ConstantAll.VALUE_CHECK_GRAP*ConstantAll.VALUE_MICROSECOND_1000){
+                    logger.info(">>如果该药师还存在 说明在规定的"+ConstantAll.VALUE_CHECK_GRAP+"秒内没有核定，记录惩罚表，移交并分配给平台药师列表 t_reward_punishment_log");
+
+                    redisService.deleteRedisByKey(grapKey,false);//去除对应的抓单锁定
+                    List<String> listPushUserIdOld = Lists.newArrayList();
+                    listPushUserIdOld.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_PHARMACIST)+result.right);
+                    appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_PHARMACIST,"处方审核时间"+ConstantAll.VALUE_CHECK_GRAP+"秒您竟然还没有审核完成","将有其他平台人员要是进行审核",listPushUserIdOld);
+
+
+                    List<Pharmacist> pharmacistList = pharmacistService.getListAllPlat();
+                    int totalPlat = pharmacistList.size();
+                    if(totalPlat>0){
+                        List<String> listPushUserId = Lists.newArrayList();
+                        Pharmacist platPharmacist = pharmacistList.get(0);
+                        //更新处方信息
+                        MedicalPrescription medicalPrescription = new MedicalPrescription();
+                        medicalPrescription.setId(result.left);
+                        medicalPrescription.setPharmacistId(platPharmacist.getId());
+                        medicalPrescription.setPharmacistName(platPharmacist.getTrueName());
+                        medicalPrescription.setGmtModified(currentDate);
+                        medicalPrescription.setRemarks("跟换平台药师加速处理,为:"+platPharmacist.getTrueName()+" 之前为:"+result.right);
+                        this.updateByPrimaryKeySelective(medicalPrescription);
+                        //todo: 惩罚药师,没有完成处方审核
+                        //设定抓期时间
+                        String keyPlat = ConstantAll.REDIS_PHARMACIST_PLAT+platPharmacist.getId()+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+result.left;
+                        MutableTriple<Long, Date, Long> mutableTriple = new MutableTriple<Long, Date, Long>();
+                        mutableTriple.left = result.left;
+                        mutableTriple.middle = currentDate;
+                        mutableTriple.right = platPharmacist.getId();
+                        redisService.setJsonObjectBy(keyPlat,mutableTriple,ConstantAll.VALUE_CONSIDER_DAY_TIME,TimeUnit.DAYS);//考虑一整天
+                        //推送给新的平台
+                        listPushUserId.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_PHARMACIST)+platPharmacist.getId());
+                        appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_PHARMACIST,"处方审核时间达到" +ConstantAll.VALUE_CHECK_GRAP,"转向您这个平台人员要是进行审核",listPushUserId);
+                    }
+                }
+
+
+
+            });
+        }
+    }
+
+    @ApiOperation(value = "30分钟内并没有处理,需要强制给平台人员处理")
+    @Transactional
+    public void doWithDecisionExtent30Minute(Set<String> stringSet,Date currentDate){
+        if(stringSet.size()>0){//存在要考虑的处方
+            logger.info(">>如果redis 有处方新订单列表 或配置强硬要 考虑 才浪费去DB查询");
+            logger.info(">>用于定期查看订单 条件status=0 prescription_status= now()-gmt_create>30 view_time is null");
+            logger.info(">>平台药师列表中，分配个给处方，推送信息给药师；比较如果pharmacist_id 已经一直，相当于反复提醒，没有尽快处理");
+
+            MedicalPrescriptionRequest medicalPrescriptionRequest = new MedicalPrescriptionRequest();
+            medicalPrescriptionRequest.setStatus(ConstantAll.STATUS_0);
+            medicalPrescriptionRequest.setViewTimeNull("ViewTimeIsNull");
+            medicalPrescriptionRequest.setLimitTime(ConstantAll.VALUE_CHECK_LIMIT_TIME);//目前考虑30分钟内需要处理完毕
+            //以后可能要考虑处方订单状态 medicalPrescriptionRequest.setPrescriptionStatus(ConstantAll.STATUS_0);
+            List<MedicalPrescription> medicalPrescriptionList = this.listMedicalPrescription(medicalPrescriptionRequest);
+            medicalPrescriptionList.forEach(prescription->{
+
+                List<Pharmacist> pharmacistList = pharmacistService.getListAllPlat();
+                int totalPlat = pharmacistList.size();
+                if(totalPlat>0){
+                    List<String> listPushUserId = Lists.newArrayList();
+                    Pharmacist platPharmacist = pharmacistList.get(0);
+                    //更新处方信息
+                    prescription.setPharmacistId(platPharmacist.getId());
+                    prescription.setPharmacistName(platPharmacist.getTrueName());
+                    prescription.setGmtModified(currentDate);
+                    prescription.setRemarks("跟换平台药师加速处理,为:"+platPharmacist.getTrueName()+" 之前为:"+prescription.getPharmacistName());
+                    this.updateByPrimaryKeySelective(prescription);
+                    //设定抓期时间
+                    String keyPlat = ConstantAll.REDIS_PHARMACIST_PLAT+platPharmacist.getId()+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+prescription.getId();
+                    MutableTriple<Long, Date, Long> mutableTriple = new MutableTriple<Long, Date, Long>();
+                    mutableTriple.left = prescription.getId();
+                    mutableTriple.middle = currentDate;
+                    mutableTriple.right = platPharmacist.getId();
+                    redisService.setJsonObjectBy(keyPlat,mutableTriple,ConstantAll.VALUE_CONSIDER_DAY_TIME,TimeUnit.DAYS);//考虑一整天
+                    //推送给新的平台
+                    listPushUserId.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_PHARMACIST)+platPharmacist.getId());
+                    appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_DOCTOR,"处方产生到审核时间超期","将有您这个平台人员要进行审核",listPushUserId);
+                }
+                Long pharmacistId =prescription.getPharmacistId();
+                if(pharmacistId!=null){
+                    redisService.deleteRedisByKey(ConstantAll.REDIS_PHARMACIST_GRAB_ORDER+pharmacistId+ConstantAll.REDIS_PHARMACIST_GRAB_ORDER_PART_ORDERID+prescription.getId());//去除对应的抓单锁定
+                    List<String> listPushUserId = Lists.newArrayList();
+                    listPushUserId.add(toolShareService.getAppInfoByTypeId(ConstantAll.TYPE_ID_PHARMACIST)+pharmacistId);
+                    appPushService.pushListUserIdApp(ConstantAll.TYPE_ID_DOCTOR,"处方产生到审核时间超期","将有其他平台人员进行审核",listPushUserId);
+                 }
+
+
+            });
+        }
+
+    }
+
+    // 根据条件查询列表
+    public List<MedicalPrescription> listMedicalPrescriptionWithYearOld(MedicalPrescriptionRequest params){
+        List<MedicalPrescription> medicalPrescriptionList = this.listMedicalPrescription(params);
+
+        medicalPrescriptionList.forEach(t->{
+            IdCardClass idCardClass = this.commonService.getIdCardClass(t.getPatientIdCardNo());
+
+            String sex = idCardClass.getResult().getSex();
+            String birthday = idCardClass.getResult().getBirthday();
+            Date birthdayDate = Utils.parseDate(birthday, "yyyy年MM月dd日");
+            String yearOld = "";
+            if(birthdayDate!=null){
+                Calendar cal = Calendar.getInstance();
+                int iCurrYear = cal.get(Calendar.YEAR);
+                cal.setTime(birthdayDate);
+                int userYear = cal.get(Calendar.YEAR);
+                int yearInfo = iCurrYear - userYear;
+                yearOld = yearInfo==0?"":yearInfo+"岁";
+            }
+            t.setYearOldInfo(sex+" "+yearOld);
+        });
+        return medicalPrescriptionList;
+    }
+    // 根据条件查询列表
+    public List<MedicalPrescription> listMedicalPrescription(MedicalPrescriptionRequest params){
+        return daoMedicalPrescriptionMapper.listMedicalPrescription(params);
+    }
+    // 根据条件查询列表 总数
+    public int listMedicalPrescriptionCount(MedicalPrescriptionRequest params){
+        return daoMedicalPrescriptionMapper.listMedicalPrescriptionCount(params);
+    }
+    public int insertSelective(MedicalPrescription record){
+        return daoMedicalPrescriptionMapper.insertSelective(record);
+    }
+
+    public MedicalPrescription selectByPrimaryKey(Long id){
+        return daoMedicalPrescriptionMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(MedicalPrescription record){
+        return daoMedicalPrescriptionMapper.updateByPrimaryKeySelective(record);
+    }
+}

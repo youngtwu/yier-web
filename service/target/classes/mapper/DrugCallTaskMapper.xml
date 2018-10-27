@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DrugCallTaskMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DrugCallTask">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="task_type" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="drug_call_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="drug_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="drug_info" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="caption" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="caption_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="schedule" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="current_status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="task_result" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, user_id, task_type, drug_call_id, drug_id, drug_info, caption, caption_time, 
+    schedule, current_status, task_result, status, gmt_create, gmt_modified, remarks
+  </sql>
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDrugCallTask" parameterType="com.yier.platform.common.requestParam.TaskScheduleRequest" resultMap="BaseResultMap">
+    select t.* from t_drug_call_task t
+    <where>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="drugCallId != null">
+        and t.drug_call_id = #{drugCallId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="drugId != null">
+        and t.drug_id = #{drugId}
+      </if>
+      <if test="drugInfo != null">
+        and t.drug_info = #{drugInfo}
+      </if>
+      <if test="caption != null">
+        and t.caption = #{caption}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`task_description` like concat('%',#{searchKey},'%')
+        or t.`task_result` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="startDate!=null">
+        <![CDATA[	 and t.schedule >= #{startDate} ]]>
+      </if>
+      <if test="endDate!=null">
+        <![CDATA[	 and t.schedule < #{endDate} ]]>
+      </if>
+      <if test="schedule!=null">
+        <![CDATA[	 and timestampdiff(MINUTE,t.schedule,#{schedule}) = 0 ]]>
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.id desc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+    FOR UPDATE
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDrugCallTaskCount" parameterType="com.yier.platform.common.requestParam.TaskScheduleRequest" resultType="Integer">
+    select count(t.id) from t_drug_call_task t
+    <where>
+      <if test="status != null">
+        and t.`status` = #{status}
+      </if>
+      <if test="status == null">
+        and t.`status` = '0'
+      </if>
+      <if test="drugCallId != null">
+        and t.drug_call_id = #{drugCallId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="drugId != null">
+        and t.drug_id = #{drugId}
+      </if>
+      <if test="drugInfo != null">
+        and t.drug_info = #{drugInfo}
+      </if>
+      <if test="caption != null">
+        and t.caption = #{caption}
+      </if>
+      <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+        and (t.`task_description` like concat('%',#{searchKey},'%')
+        or t.`task_result` like concat('%',#{searchKey},'%')
+        )
+      </if>
+      <if test="startDate!=null">
+        <![CDATA[	 and t.schedule >= #{startDate} ]]>
+      </if>
+      <if test="endDate!=null">
+        <![CDATA[	 and t.schedule < #{endDate} ]]>
+      </if>
+      <if test="schedule!=null">
+        <![CDATA[	 and timestampdiff(MINUTE,t.schedule,#{schedule}) = 0 ]]>
+      </if>
+    </where>
+  </select>
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_drug_call_task
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_drug_call_task
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DrugCallTask">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_drug_call_task (type_id, user_id, task_type, 
+      drug_call_id, drug_id, drug_info, 
+      caption, caption_time, schedule, 
+      current_status, task_result, status, 
+      gmt_create, gmt_modified, remarks
+      )
+    values (#{typeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{taskType,jdbcType=BIGINT}, 
+      #{drugCallId,jdbcType=BIGINT}, #{drugId,jdbcType=BIGINT}, #{drugInfo,jdbcType=VARCHAR}, 
+      #{caption,jdbcType=VARCHAR}, #{captionTime,jdbcType=TIMESTAMP}, #{schedule,jdbcType=TIMESTAMP}, 
+      #{currentStatus,jdbcType=CHAR}, #{taskResult,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, 
+      #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DrugCallTask">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_drug_call_task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="taskType != null">
+        task_type,
+      </if>
+      <if test="drugCallId != null">
+        drug_call_id,
+      </if>
+      <if test="drugId != null">
+        drug_id,
+      </if>
+      <if test="drugInfo != null">
+        drug_info,
+      </if>
+      <if test="caption != null">
+        caption,
+      </if>
+      <if test="captionTime != null">
+        caption_time,
+      </if>
+      <if test="schedule != null">
+        schedule,
+      </if>
+      <if test="currentStatus != null">
+        current_status,
+      </if>
+      <if test="taskResult != null">
+        task_result,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="taskType != null">
+        #{taskType,jdbcType=BIGINT},
+      </if>
+      <if test="drugCallId != null">
+        #{drugCallId,jdbcType=BIGINT},
+      </if>
+      <if test="drugId != null">
+        #{drugId,jdbcType=BIGINT},
+      </if>
+      <if test="drugInfo != null">
+        #{drugInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="caption != null">
+        #{caption,jdbcType=VARCHAR},
+      </if>
+      <if test="captionTime != null">
+        #{captionTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="schedule != null">
+        #{schedule,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currentStatus != null">
+        #{currentStatus,jdbcType=CHAR},
+      </if>
+      <if test="taskResult != null">
+        #{taskResult,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DrugCallTask">
+    update t_drug_call_task
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="taskType != null">
+        task_type = #{taskType,jdbcType=BIGINT},
+      </if>
+      <if test="drugCallId != null">
+        drug_call_id = #{drugCallId,jdbcType=BIGINT},
+      </if>
+      <if test="drugId != null">
+        drug_id = #{drugId,jdbcType=BIGINT},
+      </if>
+      <if test="drugInfo != null">
+        drug_info = #{drugInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="caption != null">
+        caption = #{caption,jdbcType=VARCHAR},
+      </if>
+      <if test="captionTime != null">
+        caption_time = #{captionTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="schedule != null">
+        schedule = #{schedule,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currentStatus != null">
+        current_status = #{currentStatus,jdbcType=CHAR},
+      </if>
+      <if test="taskResult != null">
+        task_result = #{taskResult,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DrugCallTask">
+    update t_drug_call_task
+    set type_id = #{typeId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      task_type = #{taskType,jdbcType=BIGINT},
+      drug_call_id = #{drugCallId,jdbcType=BIGINT},
+      drug_id = #{drugId,jdbcType=BIGINT},
+      drug_info = #{drugInfo,jdbcType=VARCHAR},
+      caption = #{caption,jdbcType=VARCHAR},
+      caption_time = #{captionTime,jdbcType=TIMESTAMP},
+      schedule = #{schedule,jdbcType=TIMESTAMP},
+      current_status = #{currentStatus,jdbcType=CHAR},
+      task_result = #{taskResult,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

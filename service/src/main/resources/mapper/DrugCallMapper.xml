@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.DrugCallMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.DrugCall">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="drug_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="drug_info" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="count_pre_day" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="each_have" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="each_have_unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="caption_time" javaType="java.util.Date" jdbcType="TIME" />
+      <arg column="caption" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="start_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="end_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="call_type" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="call_type_values" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="remind_minutes" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="remind_minutes_display" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="current_status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type_id, user_id, drug_id, drug_info, count_pre_day, each_have, each_have_unit, 
+    caption_time, caption, start_date, end_date, call_type, call_type_values, remind_minutes, 
+    remind_minutes_display, description, display_order, current_status, status, gmt_create, 
+    gmt_modified, remarks
+  </sql>
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+  <!-- 根据条件查询列表 -->
+  <select id="listDrugCall" parameterType="com.yier.platform.common.requestParam.DrugCallRequest" resultMap="BaseResultMap">
+    select t.* from t_drug_call t
+    <where>
+      <if test="drugCallId != null">
+        and t.id = #{drugCallId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="drugId != null">
+        and t.drug_id = #{drugId}
+      </if>
+      <if test="drugInfo != null">
+        and t.drug_info = #{drugInfo}
+      </if>
+      <if test="caption != null">
+        and t.caption = #{caption}
+      </if>
+      <if test="callType != null">
+        and t.call_type = #{callType}
+      </if>
+      <if test="startDate!=null ">
+        <![CDATA[	 and t.start_date >= #{startDate} ]]>
+      </if>
+      <if test="endDate!=null ">
+        <![CDATA[	 and t.start_date < #{startDate} ]]>
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+    <choose>
+      <when test="sort!=null and order!=null">
+        order by ${sort} ${order}
+      </when>
+      <otherwise>
+        order by t.display_order asc
+      </otherwise>
+    </choose>
+    <choose>
+      <when test="start!=null and size!=null">
+        limit #{start},#{size}
+      </when>
+      <when test="start==null and size!=null">
+        limit #{size}
+      </when>
+    </choose>
+  </select>
+
+  <!-- 根据条件查询列表 总和 -->
+  <select id="listDrugCallCount" parameterType="com.yier.platform.common.requestParam.DrugCallRequest" resultType="Integer">
+    select count(t.id) from t_drug_call t
+    <where>
+      <if test="drugCallId != null">
+        and t.id = #{drugCallId}
+      </if>
+      <if test="typeId != null">
+        and t.type_id = #{typeId}
+      </if>
+      <if test="userId != null">
+        and t.user_id = #{userId}
+      </if>
+      <if test="drugId != null">
+        and t.drug_id = #{drugId}
+      </if>
+      <if test="drugInfo != null">
+        and t.drug_info = #{drugInfo}
+      </if>
+      <if test="caption != null">
+        and t.caption = #{caption}
+      </if>
+      <if test="callType != null">
+        and t.call_type = #{callType}
+      </if>
+      <if test="startDate!=null ">
+        <![CDATA[	 and t.start_date >= #{startDate} ]]>
+      </if>
+      <if test="endDate!=null ">
+        <![CDATA[	 and t.start_date < #{startDate} ]]>
+      </if>
+      <if test="status != null">
+        and t.status = #{status}
+      </if>
+    </where>
+  </select>
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_drug_call
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_drug_call
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.DrugCall">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_drug_call (type_id, user_id, drug_id, 
+      drug_info, count_pre_day, each_have, 
+      each_have_unit, caption_time, caption, 
+      start_date, end_date, call_type, 
+      call_type_values, remind_minutes, remind_minutes_display, 
+      description, display_order, current_status, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{typeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{drugId,jdbcType=BIGINT}, 
+      #{drugInfo,jdbcType=VARCHAR}, #{countPreDay,jdbcType=INTEGER}, #{eachHave,jdbcType=INTEGER}, 
+      #{eachHaveUnit,jdbcType=VARCHAR}, #{captionTime,jdbcType=TIME}, #{caption,jdbcType=VARCHAR}, 
+      #{startDate,jdbcType=TIMESTAMP}, #{endDate,jdbcType=TIMESTAMP}, #{callType,jdbcType=BIGINT}, 
+      #{callTypeValues,jdbcType=VARCHAR}, #{remindMinutes,jdbcType=VARCHAR}, #{remindMinutesDisplay,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{displayOrder,jdbcType=INTEGER}, #{currentStatus,jdbcType=CHAR}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.DrugCall">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_drug_call
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="drugId != null">
+        drug_id,
+      </if>
+      <if test="drugInfo != null">
+        drug_info,
+      </if>
+      <if test="countPreDay != null">
+        count_pre_day,
+      </if>
+      <if test="eachHave != null">
+        each_have,
+      </if>
+      <if test="eachHaveUnit != null">
+        each_have_unit,
+      </if>
+      <if test="captionTime != null">
+        caption_time,
+      </if>
+      <if test="caption != null">
+        caption,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="endDate != null">
+        end_date,
+      </if>
+      <if test="callType != null">
+        call_type,
+      </if>
+      <if test="callTypeValues != null">
+        call_type_values,
+      </if>
+      <if test="remindMinutes != null">
+        remind_minutes,
+      </if>
+      <if test="remindMinutesDisplay != null">
+        remind_minutes_display,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="displayOrder != null">
+        display_order,
+      </if>
+      <if test="currentStatus != null">
+        current_status,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="drugId != null">
+        #{drugId,jdbcType=BIGINT},
+      </if>
+      <if test="drugInfo != null">
+        #{drugInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="countPreDay != null">
+        #{countPreDay,jdbcType=INTEGER},
+      </if>
+      <if test="eachHave != null">
+        #{eachHave,jdbcType=INTEGER},
+      </if>
+      <if test="eachHaveUnit != null">
+        #{eachHaveUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="captionTime != null">
+        #{captionTime,jdbcType=TIME},
+      </if>
+      <if test="caption != null">
+        #{caption,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="callType != null">
+        #{callType,jdbcType=BIGINT},
+      </if>
+      <if test="callTypeValues != null">
+        #{callTypeValues,jdbcType=VARCHAR},
+      </if>
+      <if test="remindMinutes != null">
+        #{remindMinutes,jdbcType=VARCHAR},
+      </if>
+      <if test="remindMinutesDisplay != null">
+        #{remindMinutesDisplay,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="displayOrder != null">
+        #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="currentStatus != null">
+        #{currentStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.DrugCall">
+    update t_drug_call
+    <set>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="drugId != null">
+        drug_id = #{drugId,jdbcType=BIGINT},
+      </if>
+      <if test="drugInfo != null">
+        drug_info = #{drugInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="countPreDay != null">
+        count_pre_day = #{countPreDay,jdbcType=INTEGER},
+      </if>
+      <if test="eachHave != null">
+        each_have = #{eachHave,jdbcType=INTEGER},
+      </if>
+      <if test="eachHaveUnit != null">
+        each_have_unit = #{eachHaveUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="captionTime != null">
+        caption_time = #{captionTime,jdbcType=TIME},
+      </if>
+      <if test="caption != null">
+        caption = #{caption,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="callType != null">
+        call_type = #{callType,jdbcType=BIGINT},
+      </if>
+      <if test="callTypeValues != null">
+        call_type_values = #{callTypeValues,jdbcType=VARCHAR},
+      </if>
+      <if test="remindMinutes != null">
+        remind_minutes = #{remindMinutes,jdbcType=VARCHAR},
+      </if>
+      <if test="remindMinutesDisplay != null">
+        remind_minutes_display = #{remindMinutesDisplay,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="displayOrder != null">
+        display_order = #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="currentStatus != null">
+        current_status = #{currentStatus,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.DrugCall">
+    update t_drug_call
+    set type_id = #{typeId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      drug_id = #{drugId,jdbcType=BIGINT},
+      drug_info = #{drugInfo,jdbcType=VARCHAR},
+      count_pre_day = #{countPreDay,jdbcType=INTEGER},
+      each_have = #{eachHave,jdbcType=INTEGER},
+      each_have_unit = #{eachHaveUnit,jdbcType=VARCHAR},
+      caption_time = #{captionTime,jdbcType=TIME},
+      caption = #{caption,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      end_date = #{endDate,jdbcType=TIMESTAMP},
+      call_type = #{callType,jdbcType=BIGINT},
+      call_type_values = #{callTypeValues,jdbcType=VARCHAR},
+      remind_minutes = #{remindMinutes,jdbcType=VARCHAR},
+      remind_minutes_display = #{remindMinutesDisplay,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      display_order = #{displayOrder,jdbcType=INTEGER},
+      current_status = #{currentStatus,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

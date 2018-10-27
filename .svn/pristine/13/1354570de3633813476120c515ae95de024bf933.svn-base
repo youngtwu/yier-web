@@ -1,0 +1,64 @@
+package com.yier.platform.service.medical;
+
+import com.yier.platform.common.model.DrugAcceptOrder;
+import com.yier.platform.common.model.DrugAcceptOrderPo;
+import com.yier.platform.common.requestParam.DrugSendOrderRequest;
+import com.yier.platform.dao.DrugAcceptOrderMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * 药师接受订单 service
+ */
+@Service
+public class DrugAcceptOrderService {
+    private final Logger logger = LoggerFactory.getLogger(DrugAcceptOrderService.class);
+    @Autowired
+    private DrugAcceptOrderMapper daoDrugAcceptOrderMapper;
+
+
+    // 根据条件查询送药的列表
+    public List<DrugAcceptOrderPo> listDrugAcceptOrderPo(DrugSendOrderRequest params){
+        return daoDrugAcceptOrderMapper.listDrugAcceptOrderPo(params);
+    }
+    // 根据条件查询送药的列表 总数
+    public int listDrugAcceptOrderPoCount(DrugSendOrderRequest params){
+        return daoDrugAcceptOrderMapper.listDrugAcceptOrderPoCount(params);
+    }
+
+    public DrugAcceptOrderPo getDrugAcceptOrderPoById(DrugSendOrderRequest params){
+        return daoDrugAcceptOrderMapper.getDrugAcceptOrderPoById(params);
+    }
+    // 根据条件查询列表
+    public List<DrugAcceptOrder> listDrugAcceptOrder(DrugSendOrderRequest params){
+        return daoDrugAcceptOrderMapper.listDrugAcceptOrder(params);
+    }
+    // 根据条件查询列表 总数
+    public int listDrugAcceptOrderCount(DrugSendOrderRequest params){
+        return daoDrugAcceptOrderMapper.listDrugAcceptOrderCount(params);
+    }
+    //可能批量更新
+    public int updateBatchByCondition(DrugAcceptOrder record){
+        return daoDrugAcceptOrderMapper.updateBatchByCondition(record);
+    }
+
+    public int deleteByPrimaryKey(Long id){
+        return daoDrugAcceptOrderMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insertSelective(DrugAcceptOrder record){
+        return daoDrugAcceptOrderMapper.insertSelective(record);
+    }
+
+    public DrugAcceptOrder selectByPrimaryKey(Long id){
+        return daoDrugAcceptOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(DrugAcceptOrder record){
+        return daoDrugAcceptOrderMapper.updateByPrimaryKeySelective(record);
+    }
+}

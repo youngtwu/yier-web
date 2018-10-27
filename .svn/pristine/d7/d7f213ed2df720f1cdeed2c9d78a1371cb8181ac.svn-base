@@ -1,0 +1,345 @@
+package com.yier.platform.controller;
+
+import com.yier.platform.annotation.ApiCheck;
+import com.yier.platform.common.jsonResponse.CommonResponse;
+import com.yier.platform.common.jsonResponse.ListResponse;
+import com.yier.platform.common.model.*;
+import com.yier.platform.common.requestParam.*;
+import com.yier.platform.service.feign.RemoteService;
+import com.yier.platform.service.medical.*;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+@ApiModel(value = "上门就诊相关的请求接口")
+@RestController
+@RequestMapping("/medicalOrder")
+@Slf4j
+public class MedicalOrderController {
+    @Autowired
+    private MedicalOrderService medicalOrderService;
+    @Autowired
+    private MedicalDateService serviceMedicalDateService;
+    @Autowired
+    private MedicalPrescriptionService medicalPrescriptionService;
+    @Autowired
+    private DiseaseCodeService diseaseCodeService;
+    @Autowired
+    private DoctorDiseaseService doctorDiseaseService;
+    @Autowired
+    private RemoteService remoteService;
+
+
+    @ApiOperation(value = "根据条件名字查询药库药品列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getPharmacyDrugsList.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<OrderDrugs> getPharmacyDrugsList(HttpServletRequest request, HttpServletResponse response,@ApiParam(value = "基本请求接口类") @RequestBody OrderDrugsRequest parms){
+        ListResponse<OrderDrugs> res = new ListResponse<OrderDrugs>();
+        parms.doWithSortOrStart();
+        res.setData(remoteService.getListDrugs(parms));
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "1-患者预约上门就诊：创建订单 图片提前成URL -->进入待支付状态 1")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createAppointment.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createAppointment(HttpServletRequest request, HttpServletResponse response,
+                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        result.setData(medicalOrderService.createAppointment(record,null));
+        return result;
+    }
+
+    @ApiOperation(value = "1-患者预约上门就诊：创建订单 整个图片包上传 -->进入待支付状态 1")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createAppointmentWithPictureObject.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createAppointmentWithPictureObject(HttpServletRequest request, HttpServletResponse response,
+                                                          @ApiParam(value = "上门就诊请求接口，非body体") MedicalOrder record,@RequestParam(value = "file", required = false) MultipartFile[] file) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        log.info("record:{} file:{}",record,file);
+        result.setData(medicalOrderService.createAppointment(record,file));
+        return result;
+    }
+
+
+    @ApiOperation(value = "2-患者支付成功 -->进入预约成功状态 2")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createAppointPaymentOk.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createAppointPaymentOk(HttpServletRequest request, HttpServletResponse response,
+                                                  @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        serviceMedicalDateService.paymentOk(record);
+        result.setData(record);
+        return result;
+    }
+
+    @ApiOperation(value = " 患者支付时间信息 -->查询获取支付剩余时间")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getAppointRemainPaymentTime.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> getAppointRemainPaymentTime(HttpServletRequest request, HttpServletResponse response,
+                                                               @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        serviceMedicalDateService.getAppointRemainPaymentTime(record);
+        result.setData(record);
+        return result;
+    }
+
+    @ApiOperation(value = "3-医生确认预约 -->进入确认预约状态 3")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createAppointConfirm.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createAppointConfirm(HttpServletRequest request, HttpServletResponse response,
+                                                               @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.createAppointConfirm(record);
+        result.setData(record);
+        return result;
+    }
+    @ApiOperation(value = "4-医生确认预约 -->开始服务  4")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createStartService.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createStartService(HttpServletRequest request, HttpServletResponse response,
+                                                             @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.createStartService(record);
+        result.setData(record);
+        return result;
+    }
+
+    @ApiOperation(value = "医生患者没有在家  消失掉  预约过期 V")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPatientDisappearConfirm.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createPatientDisappearConfirm(HttpServletRequest request, HttpServletResponse response,
+                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.createPatientDisappearConfirm(record);
+        result.setData(record);
+        return result;
+    }
+
+    @ApiOperation(value = "5-患者确认预约 -->确认上门  5")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createStartServiceConfirm.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createStartServiceConfirm(HttpServletRequest request, HttpServletResponse response,
+                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.createStartServiceConfirm(record);
+        result.setData(record);
+        return result;
+    }
+
+    @ApiOperation(value = "6-医生上门就诊 医生开处方-->处方审核中 6")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPrescription.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalPrescription> createPrescription(HttpServletRequest request, HttpServletResponse response,
+                                                                  @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalPrescription record) {
+        CommonResponse<MedicalPrescription> result = new CommonResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.createPrescription(record));
+        return result;
+    }
+
+    @ApiOperation(value = "6-医生上门就诊-->处方审核中 6 药师抢单审方 ")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPrescriptionGrapCheck.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalPrescription> createPrescriptionGrapCheck(HttpServletRequest request, HttpServletResponse response,
+                                                                    @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalPrescription record) {
+        CommonResponse<MedicalPrescription> result = new CommonResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.createPrescriptionGrapCheck(record));
+        return result;
+    }
+
+    @ApiOperation(value = "6-医生上门就诊-->处方审核中 6 药师审方 不通过")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPrescriptionCheckKO.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalPrescription> createPrescriptionCheckKO(HttpServletRequest request, HttpServletResponse response,
+                                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalPrescription record) {
+        CommonResponse<MedicalPrescription> result = new CommonResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.createPrescriptionCheckKO(record));
+        return result;
+    }
+
+    @ApiOperation(value = "6-医生上门就诊-->处方审核中 6 药师审方 不通过 --> 医生修改处方")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPrescriptionModify.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalPrescription> createPrescriptionModify(HttpServletRequest request, HttpServletResponse response,
+                                                                         @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalPrescription record) {
+        CommonResponse<MedicalPrescription> result = new CommonResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.createPrescriptionModify(record));
+        return result;
+    }
+
+    @ApiOperation(value = "7-医生上门就诊-->处方审核中 药师审方 通过  上门就诊--> 完成 7")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPrescriptionCheckOK.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalPrescription> createPrescriptionCheckOk(HttpServletRequest request, HttpServletResponse response,
+                                                                         @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalPrescription record) {
+        CommonResponse<MedicalPrescription> result = new CommonResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.createPrescriptionCheckOk(record));
+        return result;
+    }
+
+
+    @ApiOperation(value = "X-患者取消 -->进入患者取消状态 X")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createPatientCancel.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createPatientCancel(HttpServletRequest request, HttpServletResponse response,
+                                                             @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.createPatientCancel(record);
+        result.setData(record);
+        return result;
+    }
+    @ApiOperation(value = "Y-医生取消 -->进入医生取消状态 Y")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/createDoctorCancel.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> createDoctorCancel(HttpServletRequest request, HttpServletResponse response,
+                                                            @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.createDoctorCancel(record);
+        result.setData(record);
+        return result;
+    }
+
+
+    @ApiOperation(value = "展现药师抢单审核处方订单列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/listGrapMedicalPrescription.json", method = {RequestMethod.POST})
+    public ListResponse<MedicalPrescription> listGrapMedicalPrescription(HttpServletRequest request, HttpServletResponse response,
+                                                                         @ApiParam(value = "处方请求接口") @RequestBody MedicalPrescriptionRequest params) {
+        ListResponse<MedicalPrescription> result = new ListResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.listMedicalPrescription(params));
+        result.setTotal(medicalPrescriptionService.listMedicalPrescriptionCount(params));
+        return result;
+    }
+    @ApiOperation(value = "展现药师我的审核处方订单列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/listMedicalPrescription.json", method = {RequestMethod.POST})
+    public ListResponse<MedicalPrescription> listMedicalPrescription(HttpServletRequest request, HttpServletResponse response,
+                                                                         @ApiParam(value = "处方请求接口") @RequestBody MedicalPrescriptionRequest params) {
+        ListResponse<MedicalPrescription> result = new ListResponse<MedicalPrescription>();
+        result.setData(medicalPrescriptionService.listMedicalPrescription(params));
+        result.setTotal(medicalPrescriptionService.listMedicalPrescriptionCount(params));
+        return result;
+    }
+
+    @ApiOperation(value = "通过ID等标识信息 获取处方目前信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getMedicalPrescriptionPoById.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalPrescriptionPo> getMedicalPrescriptionPoById(HttpServletRequest request, HttpServletResponse response,
+                                                                    @ApiParam(value = "处方请求接口") @RequestBody MedicalPrescriptionRequest params) {
+        CommonResponse<MedicalPrescriptionPo> result = new CommonResponse<MedicalPrescriptionPo>();
+        result.setData(medicalPrescriptionService.getMedicalPrescriptionPoInfoById(params));
+        return result;
+    }
+
+    @ApiOperation(value = "患者 获取上门就诊列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getListMedicalOrderPoForPatient.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MedicalOrderPo> listMedicalOrderPoWithDoctorappointmentInfo(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "上门就诊请求接口类") @RequestBody MedicalOrderRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<MedicalOrderPo> res = new ListResponse<MedicalOrderPo>();
+        List<MedicalOrderPo> list = medicalOrderService.listMedicalOrderPoWithDoctorappointmentInfo(params);
+        res.setData(list);
+        res.setTotal(list.size());
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "医生 获取上门就诊列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getListMedicalOrderPoForDoctor.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MedicalOrderPo> getListMedicalOrderPoForDoctor(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "上门就诊请求接口类") @RequestBody MedicalOrderRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<MedicalOrderPo> res = new ListResponse<MedicalOrderPo>();
+        List<MedicalOrderPo> list = medicalOrderService.listMedicalOrderPoWithPatienOldappointmentInfo(params);
+        res.setData(list);
+        res.setTotal(list.size());
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+/*    @ApiOperation(value = "插入上门就诊信息")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/insertMedicalOrder.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalOrder> insertMedicalOrder(HttpServletRequest request, HttpServletResponse response,
+                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalOrder record) {
+        CommonResponse<MedicalOrder> result = new CommonResponse<MedicalOrder>();
+        medicalOrderService.insertSelective(record);
+        result.setData(record);
+        return result;
+    }*/
+    @ApiOperation(value = "获取某个医生上门就诊时间列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getDoctorMedicalDatePo.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MedicalDatePo> getDoctorMedicalDatePo(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "上门就诊时间请求接口类") @RequestBody MedicalDateRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<MedicalDatePo> res = serviceMedicalDateService.getDoctorListMedicalDatePo(params);
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "获取上门就诊时间列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getMedicalDatePo.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<MedicalDatePo> getMedicalDatePo(HttpServletRequest request, HttpServletResponse response, @ApiParam(value = "上门就诊时间请求接口类") @RequestBody MedicalDateRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<MedicalDatePo> res = new ListResponse<MedicalDatePo>();
+        List<MedicalDatePo> list = serviceMedicalDateService.listMedicalDatePo(params);
+        res.setData(list);
+        res.setTotal(serviceMedicalDateService.listMedicalDatePoCount(params));
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "医生安排上门就诊时间列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/insertMedicalDates.json", method = {RequestMethod.POST})
+    public CommonResponse<MedicalDatePo> insertMedicalDates(HttpServletRequest request, HttpServletResponse response,
+                                                           @ApiParam(value = "上门就诊请求接口") @RequestBody MedicalDatePo record) {
+        CommonResponse<MedicalDatePo> result = new CommonResponse<MedicalDatePo>();
+        serviceMedicalDateService.insertMedicalDates(record);
+        result.setData(record);
+        return result;
+    }
+
+    //--------------------疾病相关--------------------------
+    @ApiOperation(value = "查询疾病列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getListDiseaseCode.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DiseaseCode> getListDiseaseCode(HttpServletRequest request, HttpServletResponse response,@ApiParam(value = "疾病请求接口") @RequestBody DiseaseCodeRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<DiseaseCode> res = new ListResponse<DiseaseCode>();
+        res.setData(this.diseaseCodeService.listDiseaseCode(params));
+        res.setTotal(this.diseaseCodeService.listDiseaseCodeCount(params));
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "查询医生收藏的疾病列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/getListDoctorDisease.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DoctorDisease> getListDoctorDisease(HttpServletRequest request, HttpServletResponse response,@ApiParam(value = "疾病请求接口") @RequestBody DiseaseCodeRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<DoctorDisease> res = new ListResponse<DoctorDisease>();
+        res.setData(this.doctorDiseaseService.listDoctorDisease(params));
+        res.setTotal(this.doctorDiseaseService.listDoctorDiseaseCount(params));
+        log.debug(res.toJsonString());
+        return res;
+    }
+    @ApiOperation(value = "考虑收藏疾病列表")
+    @ApiCheck(check = false)
+    @RequestMapping(value = "/doWithoutDiseaseCode.json", method = {RequestMethod.POST}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ListResponse<DiseaseCode> doWithoutDiseaseCode(HttpServletRequest request, HttpServletResponse response,@ApiParam(value = "疾病请求接口") @RequestBody DiseaseCodeRequest params) {
+        params.doWithSortOrStart();
+        ListResponse<DiseaseCode> res = new ListResponse<DiseaseCode>();
+        res.setData(this.doctorDiseaseService.doWithoutDiseaseCode(params));
+        log.debug(res.toJsonString());
+        return res;
+    }
+
+
+}

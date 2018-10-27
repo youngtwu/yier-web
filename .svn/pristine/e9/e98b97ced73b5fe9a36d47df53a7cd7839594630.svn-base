@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.UserAddressMapper">
+  <resultMap id="BaseResultMap" type="com.yier.platform.common.model.UserAddress">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="address_code_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="type_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="user_table_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="mail_code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="contact2" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
+      <arg column="other" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="default_value" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="display_order" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="status" javaType="java.lang.String" jdbcType="CHAR" />
+      <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, address_code_no, type_id, user_table_id, province_id, city_id, area_id, mail_code, 
+    address, contact, contact2, lng, lat, other, default_value, display_order, status, 
+    gmt_create, gmt_modified, remarks
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_user_address
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_user_address
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yier.platform.common.model.UserAddress">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_user_address (address_code_no, type_id, user_table_id, 
+      province_id, city_id, area_id, 
+      mail_code, address, contact, 
+      contact2, lng, lat, 
+      other, default_value, display_order, 
+      status, gmt_create, gmt_modified, 
+      remarks)
+    values (#{addressCodeNo,jdbcType=VARCHAR}, #{typeId,jdbcType=BIGINT}, #{userTableId,jdbcType=BIGINT}, 
+      #{provinceId,jdbcType=VARCHAR}, #{cityId,jdbcType=VARCHAR}, #{areaId,jdbcType=VARCHAR}, 
+      #{mailCode,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{contact,jdbcType=VARCHAR}, 
+      #{contact2,jdbcType=VARCHAR}, #{lng,jdbcType=DECIMAL}, #{lat,jdbcType=DECIMAL}, 
+      #{other,jdbcType=VARCHAR}, #{defaultValue,jdbcType=CHAR}, #{displayOrder,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
+      #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yier.platform.common.model.UserAddress">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_user_address
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="addressCodeNo != null">
+        address_code_no,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="userTableId != null">
+        user_table_id,
+      </if>
+      <if test="provinceId != null">
+        province_id,
+      </if>
+      <if test="cityId != null">
+        city_id,
+      </if>
+      <if test="areaId != null">
+        area_id,
+      </if>
+      <if test="mailCode != null">
+        mail_code,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="contact != null">
+        contact,
+      </if>
+      <if test="contact2 != null">
+        contact2,
+      </if>
+      <if test="lng != null">
+        lng,
+      </if>
+      <if test="lat != null">
+        lat,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="defaultValue != null">
+        default_value,
+      </if>
+      <if test="displayOrder != null">
+        display_order,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="remarks != null">
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="addressCodeNo != null">
+        #{addressCodeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userTableId != null">
+        #{userTableId,jdbcType=BIGINT},
+      </if>
+      <if test="provinceId != null">
+        #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null">
+        #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="mailCode != null">
+        #{mailCode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null">
+        #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="contact2 != null">
+        #{contact2,jdbcType=VARCHAR},
+      </if>
+      <if test="lng != null">
+        #{lng,jdbcType=DECIMAL},
+      </if>
+      <if test="lat != null">
+        #{lat,jdbcType=DECIMAL},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultValue != null">
+        #{defaultValue,jdbcType=CHAR},
+      </if>
+      <if test="displayOrder != null">
+        #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.UserAddress">
+    update t_user_address
+    <set>
+      <if test="addressCodeNo != null">
+        address_code_no = #{addressCodeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="userTableId != null">
+        user_table_id = #{userTableId,jdbcType=BIGINT},
+      </if>
+      <if test="provinceId != null">
+        province_id = #{provinceId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        city_id = #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="areaId != null">
+        area_id = #{areaId,jdbcType=VARCHAR},
+      </if>
+      <if test="mailCode != null">
+        mail_code = #{mailCode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null">
+        contact = #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="contact2 != null">
+        contact2 = #{contact2,jdbcType=VARCHAR},
+      </if>
+      <if test="lng != null">
+        lng = #{lng,jdbcType=DECIMAL},
+      </if>
+      <if test="lat != null">
+        lat = #{lat,jdbcType=DECIMAL},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultValue != null">
+        default_value = #{defaultValue,jdbcType=CHAR},
+      </if>
+      <if test="displayOrder != null">
+        display_order = #{displayOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null">
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.UserAddress">
+    update t_user_address
+    set address_code_no = #{addressCodeNo,jdbcType=VARCHAR},
+      type_id = #{typeId,jdbcType=BIGINT},
+      user_table_id = #{userTableId,jdbcType=BIGINT},
+      province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      mail_code = #{mailCode,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      contact2 = #{contact2,jdbcType=VARCHAR},
+      lng = #{lng,jdbcType=DECIMAL},
+      lat = #{lat,jdbcType=DECIMAL},
+      other = #{other,jdbcType=VARCHAR},
+      default_value = #{defaultValue,jdbcType=CHAR},
+      display_order = #{displayOrder,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

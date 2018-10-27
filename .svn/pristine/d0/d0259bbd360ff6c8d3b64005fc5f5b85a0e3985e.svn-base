@@ -1,0 +1,27 @@
+package com.yier.platform.common.model;
+
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
+public class DrugTakeOrderPo extends DrugTakeOrder {
+
+    private List<OrderDrugs> drugList = Lists.newArrayList();
+    private List<DrugTakePrescription> drugTakePrescriptionList = Lists.newArrayList();
+
+    public List<DrugTakePrescription> getDrugTakePrescriptionList() {
+        return drugTakePrescriptionList;
+    }
+
+    public void setDrugTakePrescriptionList(List<DrugTakePrescription> drugTakePrescriptionList) {
+        this.drugTakePrescriptionList = drugTakePrescriptionList;
+    }
+
+    public List<OrderDrugs> getDrugList() {
+        return drugList;
+    }
+    public void setDrugList(List<OrderDrugs> drugList) {
+        this.drugList = drugList;
+    }
+
+}

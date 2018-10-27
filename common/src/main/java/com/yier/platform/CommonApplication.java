@@ -1,0 +1,22 @@
+package com.yier.platform;
+
+import com.yier.platform.conf.ApplicationConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@SpringBootApplication   //包含：@EnableAutoConfiguration：开启自动配置；@ComponentScan：开启包扫描，默认扫描同级及当前包下内容
+//@MapperScan("com.yier.platform.dao")  //自动扫描注册为 Spring Bean
+@EnableTransactionManagement //事务管理
+//@Import(FdfsClientConfig.class)  //引入fdfs图片管理
+@EnableConfigurationProperties(ApplicationConfig.class)  //引进项目配置类
+//@EnableScheduling  //运行进行定时任务，发现注解@Scheduled的任务并后台执行
+//@EnableAsync //允许异步执行 注释@EventListener 事件可能以后需要
+//@EnableWebMvc
+public class CommonApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(CommonApplication.class, args);
+    }
+}

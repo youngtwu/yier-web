@@ -1,0 +1,307 @@
+package com.yier.platform.service.feign;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.yingzhuo.carnival.jsr310.group.Groups;
+import com.google.common.collect.Lists;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.MedicalPrescription;
+import com.yier.platform.common.model.MedicalPrescriptionPo;
+import com.yier.platform.common.model.OrderDrugs;
+import com.yier.platform.common.model.PharmacyPo;
+import com.yier.platform.common.requestParam.HospitalRequest;
+import com.yier.platform.common.requestParam.MedicalPrescriptionRequest;
+import com.yier.platform.common.requestParam.OrderDrugsRequest;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.service.PharmacyService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.lang.reflect.Type;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * 远程对接服务 service
+ */
+@ApiModel(value = "远程对接服务 service")
+@Service
+public class RemoteService {
+    private static final Logger logger = LoggerFactory.getLogger(RemoteService.class);
+    @Autowired
+    private RemotePharmacyService remotePharmacyService;//处方药品方面对接
+    @Autowired
+    private PharmacyService pharmacyService;//处方药品方面对接
+
+
+
+    @ApiOperation(value = "考虑某个处方在某个药库下面，库存有效，同时修正处方对应药品code的价格")
+    public void considerPrescriptionInPharmacyStockUpdatePrice(List<MedicalPrescriptionPo> medicalPrescriptionPoList, String pharmacyId) {
+        //整理所有的药物编号的库存列表,并调整对应的价格
+        List<OrderDrugs> currentDrugCodeList = Lists.newArrayList();
+        List<String> orderDrugsCode = Lists.newArrayList();
+        medicalPrescriptionPoList.forEach(p->{
+            p.getDrugList().forEach(d->{
+                OrderDrugs validOrderDrugs = currentDrugCodeList.stream().filter(od->od.getDrugCode().equalsIgnoreCase(d.getDrugCode())).findFirst().orElse(null);
+                if(validOrderDrugs==null){
+                    validOrderDrugs = new OrderDrugs();
+                    validOrderDrugs.setDrugName(d.getDrugName());
+                    validOrderDrugs.setCostPrice(d.getCostPrice());
+                    validOrderDrugs.setDrugCount(d.getDrugCount());
+                    currentDrugCodeList.add(validOrderDrugs);//考虑次编号
+                    orderDrugsCode.add(d.getDrugCode()); //if(!orderDrugsCode.contains(validOrderDrugs.getDrugCode())){}
+                }
+                else{
+                    validOrderDrugs.setDrugCount(validOrderDrugs.getDrugCount()+d.getDrugCount());
+                }
+                currentDrugCodeList.add(validOrderDrugs);
+            });
+        });
+
+        OrderDrugsRequest orderDrugsRequest = new OrderDrugsRequest();
+        orderDrugsRequest.setDrugCode(StringUtils.join(orderDrugsCode.toArray(),","));
+        orderDrugsRequest.setPharmacyId(pharmacyId);
+        //todo: 之前库存锁定,不考虑的话，还是容易出现锁定问题
+        List<OrderDrugs> stockOrderDrugs = this.checkStock(orderDrugsRequest);//目前的库存及价格
+
+        //库存验证
+        medicalPrescriptionPoList.forEach(p->{
+            p.getDrugList().forEach(d->{
+                OrderDrugs stockOrderDrug = stockOrderDrugs.stream().filter(od->od.getDrugCode().equalsIgnoreCase(d.getDrugCode())).findFirst().orElse(null);
+                Assert.isTrue(stockOrderDrug!=null,"药品编码："+ d.getDrugCode()+" 名称"+d.getDrugName()+ " 在药库"+pharmacyId+" 没有找到，异常数据，请核实！");
+                d.setCostPrice(stockOrderDrug.getCostPrice());//药品价格修正！
+            });
+        });
+        currentDrugCodeList.forEach(considerOnlyDrugCode->{
+            OrderDrugs stockOrderDrug = stockOrderDrugs.stream().filter(od->od.getDrugCode().equalsIgnoreCase(considerOnlyDrugCode.getDrugCode())).findFirst().orElse(null);
+            Assert.isTrue(stockOrderDrug!=null,"[库存验证]药品编码："+ considerOnlyDrugCode.getDrugCode()+" 名称"+considerOnlyDrugCode.getDrugName()+ " 在药库"+pharmacyId+" 没有找到，异常数据，请核实！");
+            Assert.isTrue(stockOrderDrug.getDrugCount()>=considerOnlyDrugCode.getDrugCount(),"[库存验证]药品编码："+ considerOnlyDrugCode.getDrugCode()+" 名称"+considerOnlyDrugCode.getDrugName()+ " 在药房"+pharmacyId+" 目前的库存量已经不足，请重新选择其他药房下单预约！");
+        });
+    }
+    @ApiOperation(value = "通过处方药的列表查询药库列表所有的药房信息")
+    public List<PharmacyPo> getListPharmaryByLockDrugs(MedicalPrescriptionRequest medicalPrescriptionRequest){
+        HospitalRequest params = new HospitalRequest();
+        params.setLat(medicalPrescriptionRequest.getLat());
+        params.setLng(medicalPrescriptionRequest.getLng());
+        if(medicalPrescriptionRequest.getDistance()!=null){
+            params.setDistance(medicalPrescriptionRequest.getDistance());
+        }
+        params.setIdList(this.getListPharmaryIdsByLockDrugs(medicalPrescriptionRequest));
+        params.setSort("distance");
+        params.setOrder("asc");
+        List<PharmacyPo>  pharmacyPoList = this.pharmacyService.listPharmacyPo(params);
+        if(medicalPrescriptionRequest.getPharmacyId()!=null){
+            PharmacyPo pharmacyPo = pharmacyPoList.stream().filter(t-> StringUtils.equalsIgnoreCase(medicalPrescriptionRequest.getPharmacyId(),t.getId().toString()) ).findFirst().orElse(null);
+            if(pharmacyPo!=null){
+                List<PharmacyPo>  pharmacyPoListSort = Lists.newArrayList();
+                pharmacyPoListSort.add(pharmacyPo);
+                pharmacyPoListSort.addAll(pharmacyPoList.stream().filter(t->!StringUtils.equalsIgnoreCase(medicalPrescriptionRequest.getPharmacyId(),t.getId().toString())).collect(Collectors.toList()));
+                pharmacyPoList = pharmacyPoListSort;
+            }
+        }
+        return pharmacyPoList;
+    }
+    @ApiOperation(value = "通过药的列表查询药库列表")
+    public List<String> getListPharmaryIdsByLockDrugs(MedicalPrescriptionRequest params){
+        Assert.isTrue(params.getDrugList()!=null&&params.getDrugList().size()>0,"参数drugList异常,处方药品必须有药才能对接药房!");
+//        List<PharmacyPo> pharmacyPoList = Lists.newArrayList();
+        List<String> pharmacyListId = Lists.newArrayList();
+        List<LockDrug> lockDrugList = Lists.newArrayList();
+        params.getDrugList().forEach(drug->{
+            LockDrug lockDrug = new LockDrug();
+            lockDrug.setDrugCode(drug.getDrugCode());
+            lockDrug.setPharmacyId(drug.getPharmacyId());
+            lockDrug.setCount(drug.getDrugCount());
+            lockDrugList.add(lockDrug);
+        });
+        Assert.isTrue(lockDrugList.stream().filter(t->t.getPharmacyId()!=null).count()>0,"每个药品请注意，一定要传递对应的药房ID，参数pharmacyId");
+        logger.info("合并之前的列表 ：{}",JsonUtils.toJsonString(lockDrugList));
+        List<LockDrug> lockOnlyDrugList = Lists.newArrayList();
+        lockDrugList.forEach(drug->{
+            LockDrug lockDrug = lockOnlyDrugList.stream().filter(t->StringUtils.equalsIgnoreCase(t.getDrugCode(),drug.getDrugCode())).findFirst().orElse(null);
+            if(lockDrug==null){
+                lockOnlyDrugList.add(drug);
+            }
+            else{
+                lockDrug.setCount(drug.getCount()+lockDrug.getCount());
+            }
+        });
+        logger.info("合并之后的列表 ：{}",JsonUtils.toJsonString(lockOnlyDrugList));
+        Map<String, Object>  result = remotePharmacyService.listPharmacies(lockOnlyDrugList);
+        logger.info("大结果result -->{} code:{}",result,result.get("code"));
+        int code = (int)result.get("code");
+        if(code == 0){
+            pharmacyListId = (List<String>)result.get("pharmacy_list");
+        }
+        return pharmacyListId;
+    }
+    @ApiOperation(value = "查询药品列表")
+    public List<OrderDrugs> checkStock(OrderDrugsRequest parms){
+        Assert.isTrue(StringUtils.isNotBlank(parms.getDrugCode()),"参数无效,drugCode不能是空!");
+        Assert.isTrue(StringUtils.isNotBlank(parms.getPharmacyId()),"参数无效,pharmacyId不能是空!");
+        Map<String, Object> result = remotePharmacyService.checkStock(parms.getPharmacyId(),parms.getDrugCode());
+        logger.info("大结果result -->{} code:{} 查询条件：{}",result,result.get("code"),parms);
+        List<OrderDrugs> orderDrugsList = Lists.newArrayList();
+        int code = (int)result.get("code");
+        if(code == 0){
+            List<Map<String,Object>> objectMapList = (List<Map<String,Object>>)result.get("stock_list");
+            for (int i = 0; i < objectMapList.size(); i++) {
+                Map<String,Object> drugMap = objectMapList.get(i);
+                OrderDrugs orderDrugs = new OrderDrugs();
+                for(Map.Entry<String, Object> entry : drugMap.entrySet()){
+                    switch (entry.getKey()){
+                        case "drugCode":
+                            orderDrugs.setDrugCode(entry.getValue().toString());
+                            break;
+                        case "drugStock":
+                            int drugStockInt = (int)entry.getValue();
+                            Assert.isTrue(drugStockInt>0,"药品库存不足!");
+                            orderDrugs.setDrugStock(drugStockInt);
+                            break;
+                        case "drugPrice":
+                            int drugPriceInt = (int)entry.getValue();
+                            orderDrugs.setCostPrice(drugPriceInt);
+                            break;
+                    }
+//                    logger.info("药品明细 orderDrugs -->{}",orderDrugs);
+                }
+                orderDrugsList.add(orderDrugs);
+            }
+        }
+        logger.info("目前查询的药库实际库存列表信息是：{}",orderDrugsList);
+        return orderDrugsList;
+    }
+    @ApiOperation(value = "查询药品列表")
+    public List<OrderDrugs> getListDrugs(OrderDrugsRequest parms){
+        Assert.isTrue(StringUtils.isNotBlank(parms.getDrugName()),"参数无效,drugName不能是空!");
+        Assert.isTrue(StringUtils.isNotBlank(parms.getPharmacyId()),"参数无效,pharmacyId不能是空!");
+        Map<String, Object> result = remotePharmacyService.listDrugs(parms.getPharmacyId(),parms.getDrugName(), parms.getStart(), parms.getSize());
+        List<OrderDrugs> orderDrugsList = Lists.newArrayList();
+        //logger.info("大结果result -->{} code:{}",result,result.get("code"));
+        int code = (int)result.get("code");
+        if(code == 0){
+            List<Map<String,Object>> objectMapList = (List<Map<String,Object>>)result.get("drug_list");
+            //logger.info("drug_list 结果 objectMapList:{}  长度:{}",objectMapList,objectMapList.size());
+            for (int i = 0; i < objectMapList.size(); i++) {
+                Map<String,Object> drugMap = objectMapList.get(i);
+                OrderDrugs orderDrugs = new OrderDrugs();
+                for(Map.Entry<String, Object> entry : drugMap.entrySet()){
+                    switch (entry.getKey()){
+                        case "drugCode":
+                            orderDrugs.setDrugCode(entry.getValue().toString());
+                            break;
+                        case "drugStock":
+                            int drugStockInt = (int)entry.getValue();
+                            Assert.isTrue(drugStockInt>0,"药品库存不足!");
+                            orderDrugs.setDrugStock(drugStockInt);
+                            break;
+                        case "drugPrice":
+                            int drugPriceInt = (int)entry.getValue();
+                            orderDrugs.setCostPrice(drugPriceInt);
+                            break;
+                        case "drugName":
+                            orderDrugs.setDrugName(entry.getValue().toString());
+                            break;
+                        case "cCompanyName":
+                            orderDrugs.setProductionCompanyName(entry.getValue().toString());
+                            break;
+                        case "drugForm":
+                            orderDrugs.setFormCode(entry.getValue().toString());
+                            break;
+                        case "drugSpec":
+                            orderDrugs.setDrugSpec(entry.getValue().toString());
+                            break;
+                        case "eCompanyName":
+                            if(StringUtils.isBlank(orderDrugs.getProductionCompanyName())){
+                                orderDrugs.setProductionCompanyName(entry.getValue().toString());
+                            }
+                            break;
+                    }
+//                    logger.info("药品明细 orderDrugs -->{}",orderDrugs);
+                }
+                orderDrugsList.add(orderDrugs);
+            }
+/*
+            objectMapList.forEach(drugMap->{
+//                Map<String,Object> drugMap = (Map<String,Object>)drugObject;
+                OrderDrugs orderDrugs = new OrderDrugs();
+                for(Map.Entry<String, Object> entry : drugMap.entrySet()){
+                    switch (entry.getKey()){
+                        case "drugCode":
+                            orderDrugs.setDrugCode(entry.getValue().toString());
+                            break;
+                        case "drugStock":
+                            int drugStockInt = (int)entry.getValue();
+                            Assert.isTrue(drugStockInt>0,"药品库存不足!");
+                            orderDrugs.setDrugStock(drugStockInt);
+                            break;
+                        case "drugPrice":
+                            int drugPriceInt = (int)entry.getValue();
+                            orderDrugs.setCostPrice(drugPriceInt);
+                            break;
+                        case "drugName":
+                            orderDrugs.setDrugName(entry.getValue().toString());
+                            break;
+                        case "cCompanyName":
+                            orderDrugs.setProductionCompanyName(entry.getValue().toString());
+                            break;
+                        case "drugForm":
+                            orderDrugs.setFormCode(entry.getValue().toString());
+                            break;
+                        case "drugSpec":
+                            orderDrugs.setDrugSpec(entry.getValue().toString());
+                            break;
+                        case "eCompanyName":
+                            if(StringUtils.isBlank(orderDrugs.getProductionCompanyName())){
+                                orderDrugs.setProductionCompanyName(entry.getValue().toString());
+                            }
+                            break;
+                    }
+                    logger.info("药品明细 orderDrugs -->{}",orderDrugs);
+                    orderDrugsList.add(orderDrugs);
+                }
+
+            });*/
+        }
+/*        if(code == 0){
+            Object objectList = result.get("drug_list");
+            logger.info("列表drug_list -->{}",objectList);
+            List<Object> objectMapList = (List<Object>)objectList;
+            logger.info("列表objectMapList -->{}",objectMapList);
+            objectMapList.forEach(t->{
+                Object drugObject = t;
+                logger.info("药品drugObject -->{}",drugObject);
+                Map<String,String> drugMap = (Map<String,String>)drugObject;
+                logger.info("映射的Map信息 药品drugMap -->{}",drugMap);
+//                drugMap.forEach(Map.Entry<String,String> );
+                for(Map.Entry<String, String> entry : drugMap.entrySet()){
+                    logger.info("药品明细 entry -->{}",entry);
+                }
+
+            });
+        }*/
+//        Map<String,List<Map<String,String>>> resultObject  = JsonUtils.fromJson(result, new TypeReference<Groups.T>() {
+//        });
+/*        Map<String,List<Map<String,String>>> resultMapObejct = JsonUtils.fromJson(JsonUtils.toJsonString(result), new TypeReference< Map<String,List<Map<String,String>>>>() {
+        });
+        logger.info("结果信息 resultMapObejct:{}",resultMapObejct);
+        if(resultMapObejct.get("code").equals("0")){
+            List<Map<String,String>> drugList = (List<Map<String,String>>)resultMapObejct.get("drug_list");
+            logger.info("结果信息 resultMapObejct:{}",resultMapObejct);
+        }*/
+        return orderDrugsList;
+
+//        this.remotePharmacyService.listDrugs("100001", "赖氨", 0, 10);
+    }
+}

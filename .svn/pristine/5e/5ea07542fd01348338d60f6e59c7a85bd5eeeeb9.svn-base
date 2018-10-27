@@ -1,0 +1,19 @@
+package com.yier.platform.dao;
+
+import com.yier.platform.common.model.UserAddress;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserAddressMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(UserAddress record);
+
+    int insertSelective(UserAddress record);
+
+    UserAddress selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(UserAddress record);
+
+    int updateByPrimaryKey(UserAddress record);
+}
