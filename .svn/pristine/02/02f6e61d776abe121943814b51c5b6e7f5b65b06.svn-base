@@ -1,0 +1,749 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yier.platform.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.yier.platform.common.model.User">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="type" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="true_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="user_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="id_card_no" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="avatar_url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="pass_salt" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="birthday" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="wxid" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="email" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="phone_number" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="sex" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="field" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="profile" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="check_url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="imtoken" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="chat" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+    t.id, t.type, t.true_name, t.user_name, t.id_card_no, t.avatar_url, t.pass_salt, t.password, t.birthday,
+    t.wxid, t.email, t.phone_number, t.sex, t.field, t.profile, t.check_url, t.imtoken, t.chat, t.status,
+    t.gmt_create, t.gmt_modified, t.remarks
+  </sql>
+
+    <resultMap id="WebResultMap" type="com.yier.platform.common.model.User">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="type" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <arg column="true_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="user_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="user_job" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="user_role" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="user_account_number" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="id_card_no" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="avatar_url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="pass_salt" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="birthday" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="wxid" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="email" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="phone_number" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="sex" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="field" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="profile" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="check_url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="imtoken" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="chat" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="status" javaType="java.lang.String" jdbcType="CHAR"/>
+            <arg column="gmt_create" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="gmt_modified" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+            <arg column="remarks" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="province_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="city_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        </constructor>
+    </resultMap>
+    <sql id="Web_Column_List">
+    t.id, t.type, t.true_name, t.user_name, t.user_job, t.user_account_number, t.id_card_no, t.avatar_url, t.pass_salt, t.password, t.birthday,
+    t.wxid, t.email, t.phone_number, t.province_id, t.city_id, t.area_id, t.sex, t.field, t.profile, t.check_url, t.imtoken, t.chat, t.status,
+    t.gmt_create, t.gmt_modified, t.remarks
+  </sql>
+
+
+    <!-- 根据条件查询列表 -->
+    <select id="listUser" parameterType="com.yier.platform.common.requestParam.UserRequest" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="chat != null">
+                and t.chat = #{chat}
+            </if>
+            <if test="type != null">
+                and t.type = #{type}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.gmt_modified desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="listUserCount" parameterType="com.yier.platform.common.requestParam.UserRequest" resultType="Integer">
+        select count(t.id) from t_user t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="chat != null">
+                and t.chat = #{chat}
+            </if>
+            <if test="type != null">
+                and t.type = #{type}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据条件查询列表 -->
+    <select id="getUserList" parameterType="com.yier.platform.common.requestParam.UserRequest" resultMap="WebResultMap">
+        select
+        <include refid="Web_Column_List"/>, tt.name user_role
+        from t_user t
+        LEFT JOIN (
+        SELECT
+        tur.user_id,
+        GROUP_CONCAT( tr.NAME ) NAME
+        FROM
+        t_user_role tur
+        LEFT JOIN t_role tr ON tur.role_id = tr.id
+        GROUP BY
+        tur.user_id
+        ) tt ON t.id = tt.user_id
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="chat != null">
+                and t.chat = #{chat}
+            </if>
+            <if test="type != null">
+                and t.type = #{type}
+            </if>
+            <if test="phoneNumber != null and phoneNumber != ''">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null and status != ''">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.gmt_modified desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+    <!-- 根据条件查询列表 总和 -->
+    <select id="getUserListCount" parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="Integer">
+        select count(t.id) from t_user t
+        LEFT JOIN (
+        SELECT
+        tur.user_id,
+        GROUP_CONCAT( tr.NAME ) NAME
+        FROM
+        t_user_role tur
+        LEFT JOIN t_role tr ON tur.role_id = tr.id
+        GROUP BY
+        tur.user_id
+        ) tt ON t.id = tt.user_id
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="chat != null">
+                and t.chat = #{chat}
+            </if>
+            <if test="type != null">
+                and t.type = #{type}
+            </if>
+            <if test="phoneNumber != null and phoneNumber != ''">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="status != null and status != ''">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 查询出医生手机号列表 -->
+    <select id="selectMobilePhoneNumberListForDoctor" parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="com.yier.platform.common.model.UserPo">
+        SELECT t.id id, t.true_name trueName, t.id_card_no idCardNo, t.phone_number phoneNumber, t.status status,
+        t.gmt_create gmtCreate, t.gmt_modified gmtModified, 1 clientType FROM t_doctor t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="trueName != null">
+                and t.true_name = #{trueName}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="idCardNo != null">
+                and t.id_card_no = #{idCardNo}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.gmt_modified desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+
+
+    <!-- 查询出医生所有手机号列表 总和 -->
+    <select id="selectMobilePhoneNumberListCountForDoctor"
+            parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="Integer">
+        SELECT count(1) FROM t_doctor t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="trueName != null">
+                and t.true_name = #{trueName}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="idCardNo != null">
+                and t.id_card_no = #{idCardNo}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询出药师所有手机号列表 -->
+    <select id="selectMobilePhoneNumberListForPharmacist"
+            parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="com.yier.platform.common.model.UserPo">
+        SELECT t.id id, t.true_name trueName, t.id_card_no idCardNo, t.phone_number phoneNumber, t.status status,
+        t.gmt_create gmtCreate, t.gmt_modified gmtModified, 2 clientType FROM t_pharmacist t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="trueName != null">
+                and t.true_name = #{trueName}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="idCardNo != null">
+                and t.id_card_no = #{idCardNo}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.gmt_modified desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+
+
+    <!-- 查询出药师所有手机号列表 总和 -->
+    <select id="selectMobilePhoneNumberListCountForPharmacist"
+            parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="Integer">
+        SELECT count(1) FROM t_pharmacist t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="trueName != null">
+                and t.true_name = #{trueName}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="idCardNo != null">
+                and t.id_card_no = #{idCardNo}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询出患者所有手机号列表 -->
+    <select id="selectMobilePhoneNumberListForPatient" parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="com.yier.platform.common.model.UserPo">
+        SELECT t.id id, t.true_name trueName, t.id_card_no idCardNo, t.phone_number phoneNumber,t.status status,
+        t.gmt_create gmtCreate, t.gmt_modified gmtModified, 3 clientType FROM t_patient t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="trueName != null">
+                and t.true_name = #{trueName}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="idCardNo != null">
+                and t.id_card_no = #{idCardNo}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort!=null and order!=null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t.gmt_modified desc
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="start!=null and size!=null">
+                limit #{start},#{size}
+            </when>
+            <when test="start==null and size!=null">
+                limit #{size}
+            </when>
+        </choose>
+    </select>
+
+
+    <!-- 查询出患者所有手机号列表 总和 -->
+    <select id="selectMobilePhoneNumberListCountForPatient"
+            parameterType="com.yier.platform.common.requestParam.UserRequest"
+            resultType="Integer">
+        SELECT count(1) FROM t_patient t
+        <where>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
+                and (t.`true_name` like concat('%',#{searchKey},'%')
+                or t.`user_name` like concat('%',#{searchKey},'%')
+                )
+            </if>
+            <if test="trueName != null">
+                and t.true_name = #{trueName}
+            </if>
+            <if test="phoneNumber != null">
+                and t.phone_number = #{phoneNumber}
+            </if>
+            <if test="idCardNo != null">
+                and t.id_card_no = #{idCardNo}
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user t
+        where t.id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yier.platform.common.model.User">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_user (type, true_name, user_name, user_account_number,
+        id_card_no, avatar_url, pass_salt,
+        password, birthday, wxid,
+        email, phone_number, province_id,
+        city_id, area_id, sex,
+        field, profile, check_url,
+        imtoken, chat, status, gmt_create,
+        gmt_modified, remarks)
+        values (#{type,jdbcType=BIGINT}, #{trueName,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR},
+        #{userJob,jdbcType=VARCHAR},
+        #{userAccountNumber,jdbcType=VARCHAR}, #{idCardNo,jdbcType=VARCHAR}, #{avatarUrl,jdbcType=VARCHAR},
+        #{passSalt,jdbcType=VARCHAR},
+        #{password,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP}, #{wxid,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{provinceId,jdbcType=VARCHAR},
+        #{cityId,jdbcType=VARCHAR}, #{areaId,jdbcType=VARCHAR}, #{sex,jdbcType=CHAR},
+        #{field,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR}, #{checkUrl,jdbcType=VARCHAR},
+        #{imtoken,jdbcType=VARCHAR}, #{chat,jdbcType=CHAR}, #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP},
+        #{gmtModified,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yier.platform.common.model.User">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null">
+                type,
+            </if>
+            <if test="trueName != null">
+                true_name,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="userJob != null">
+                user_job,
+            </if>
+            <if test="userAccountNumber != null">
+                user_account_number,
+            </if>
+            <if test="idCardNo != null">
+                id_card_no,
+            </if>
+            <if test="avatarUrl != null">
+                avatar_url,
+            </if>
+            <if test="passSalt != null">
+                pass_salt,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="birthday != null">
+                birthday,
+            </if>
+            <if test="wxid != null">
+                wxid,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="phoneNumber != null">
+                phone_number,
+            </if>
+            <if test="provinceId != null">
+                province_id,
+            </if>
+            <if test="cityId != null">
+                city_id,
+            </if>
+            <if test="areaId != null">
+                area_id,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="field != null">
+                field,
+            </if>
+            <if test="profile != null">
+                profile,
+            </if>
+            <if test="checkUrl != null">
+                check_url,
+            </if>
+            <if test="imtoken != null">
+                imtoken,
+            </if>
+            <if test="chat != null">
+                chat,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type != null">
+                #{type,jdbcType=BIGINT},
+            </if>
+            <if test="trueName != null">
+                #{trueName,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userJob != null">
+                #{userJob,jdbcType=VARCHAR},
+            </if>
+            <if test="userAccountNumber != null">
+                #{userAccountNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="idCardNo != null">
+                #{idCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="avatarUrl != null">
+                #{avatarUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="passSalt != null">
+                #{passSalt,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                #{birthday,jdbcType=TIMESTAMP},
+            </if>
+            <if test="wxid != null">
+                #{wxid,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="phoneNumber != null">
+                #{phoneNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceId != null">
+                #{provinceId,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="areaId != null">
+                #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=CHAR},
+            </if>
+            <if test="field != null">
+                #{field,jdbcType=VARCHAR},
+            </if>
+            <if test="profile != null">
+                #{profile,jdbcType=VARCHAR},
+            </if>
+            <if test="checkUrl != null">
+                #{checkUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="imtoken != null">
+                #{imtoken,jdbcType=VARCHAR},
+            </if>
+            <if test="chat != null">
+                #{chat,jdbcType=CHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                #{remarks,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yier.platform.common.model.User">
+        update t_user
+        <set>
+            <if test="type != null">
+                type = #{type,jdbcType=BIGINT},
+            </if>
+            <if test="trueName != null">
+                true_name = #{trueName,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userJob != null">
+                user_job = #{userJob,jdbcType=VARCHAR},
+            </if>
+            <if test="userAccountNumber != null">
+                user_account_number = #{userAccountNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="idCardNo != null">
+                id_card_no = #{idCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="avatarUrl != null">
+                avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="passSalt != null">
+                pass_salt = #{passSalt,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday,jdbcType=TIMESTAMP},
+            </if>
+            <if test="wxid != null">
+                wxid = #{wxid,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="phoneNumber != null">
+                phone_number = #{phoneNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="provinceId != null">
+                province_id = #{provinceId,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="areaId != null">
+                area_id = #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=CHAR},
+            </if>
+            <if test="field != null">
+                field = #{field,jdbcType=VARCHAR},
+            </if>
+            <if test="profile != null">
+                profile = #{profile,jdbcType=VARCHAR},
+            </if>
+            <if test="checkUrl != null">
+                check_url = #{checkUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="imtoken != null">
+                imtoken = #{imtoken,jdbcType=VARCHAR},
+            </if>
+            <if test="chat != null">
+                chat = #{chat,jdbcType=CHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yier.platform.common.model.User">
+    update t_user
+    set type = #{type,jdbcType=BIGINT},
+      true_name = #{trueName,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      user_job = #{userJob,jdbcType=VARCHAR},
+      user_account_number = #{userAccountNumber,jdbcType=VARCHAR},
+      id_card_no = #{idCardNo,jdbcType=VARCHAR},
+      avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+      pass_salt = #{passSalt,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      wxid = #{wxid,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      province_id = #{provinceId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=CHAR},
+      field = #{field,jdbcType=VARCHAR},
+      profile = #{profile,jdbcType=VARCHAR},
+      check_url = #{checkUrl,jdbcType=VARCHAR},
+      imtoken = #{imtoken,jdbcType=VARCHAR},
+      chat = #{chat,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

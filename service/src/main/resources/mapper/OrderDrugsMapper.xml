@@ -75,7 +75,7 @@
         and t.order_no = #{orderNo}
       </if>
       <if test="prescriptionId != null">
-        and t.prescriptionId = #{prescriptionId}
+        and t.prescription_id = #{prescriptionId}
       </if>
       <if test="drugCode != null">
         and t.drug_code = #{drugCode}
@@ -119,7 +119,7 @@
         and t.order_no = #{orderNo}
       </if>
       <if test="prescriptionId != null">
-        and t.prescriptionId = #{prescriptionId}
+        and t.prescription_id = #{prescriptionId}
       </if>
       <if test="drugCode != null">
         and t.drug_code = #{drugCode}
@@ -136,28 +136,28 @@
     </where>
   </select>
   <delete id="deleteByRequestKey" parameterType="com.yier.platform.common.requestParam.OrderDrugsRequest">
-    delete from t_order_drugs t
+    delete from t_order_drugs
     <where>
       <if test="orderDrugsId != null">
-        and t.id = #{orderDrugsId}
+        and id = #{orderDrugsId}
       </if>
       <if test="orderNo != null">
-        and t.order_no = #{orderNo}
+        and order_no = #{orderNo}
       </if>
       <if test="prescriptionId != null">
-        and t.prescriptionId = #{prescriptionId}
+        and prescription_id = #{prescriptionId}
       </if>
       <if test="drugCode != null">
-        and t.drug_code = #{drugCode}
+        and drug_code = #{drugCode}
       </if>
       <if test="!@org.springframework.util.CollectionUtils@isEmpty(prescriptionIdList)">
-        AND t.prescription_id IN
+        AND prescription_id IN
         <foreach collection="prescriptionIdList" close=")" open="(" separator="," item="prescriptionId">
           #{prescriptionId}
         </foreach>
       </if>
       <if test="status != null">
-        and t.status = #{status}
+        and status = #{status}
       </if>
     </where>
   </delete>

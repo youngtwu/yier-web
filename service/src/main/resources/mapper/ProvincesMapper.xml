@@ -154,8 +154,8 @@
     </update>
 
     <delete id="deleteProvinceByProvinceId" parameterType="java.lang.String">
-      delete from t_provinces t
-      where t.province_id = #{provinceId,jdbcType=VARCHAR}
+      delete from t_provinces
+      where province_id = #{provinceId,jdbcType=VARCHAR}
     </delete>
 
 

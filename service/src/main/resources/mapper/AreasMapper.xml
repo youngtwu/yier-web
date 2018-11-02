@@ -163,11 +163,11 @@
     </update>
 
     <delete id="deleteAreaByAreaId" parameterType="java.lang.String">
-        delete from t_areas t where t.area_id = #{areaId,jdbcType=VARCHAR}
+        delete from t_areas  where area_id = #{areaId,jdbcType=VARCHAR}
     </delete>
 
     <delete id="deleteAreaByCityId" parameterType="java.lang.String">
-        delete from t_areas t where t.city_id = #{cityId,jdbcType=VARCHAR}
+        delete from t_areas where city_id = #{cityId,jdbcType=VARCHAR}
     </delete>
 
 

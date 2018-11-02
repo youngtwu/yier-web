@@ -1,0 +1,176 @@
+package com.yier.platform.service.amqp;
+
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
+import com.yier.platform.common.costant.ConstantAll;
+import com.yier.platform.common.model.MedicalDate;
+import com.yier.platform.common.po.OrderDelayQueue;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.service.RedisService;
+import com.yier.platform.service.medical.DrugSendOrderService;
+import com.yier.platform.service.medical.MedicalDateService;
+import com.yier.platform.service.medical.MedicalPrescriptionService;
+import org.apache.commons.lang3.tuple.MutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class RabbitService {
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private MedicalDateService medicalDateService;
+    @Autowired
+    private MedicalPrescriptionService medicalPrescriptionService;
+    @Autowired
+    private DrugSendOrderService drugSendOrderService;
+
+    private static final Logger logger = LoggerFactory.getLogger(RabbitService.class);
+
+    public void sendDelayMessage(OrderDelayQueue orderDelayQueue, int ttl) {
+        byte[] byteMessage = null;
+//        logger.info("[1]发送请求参数信息:{}",JsonUtils.toJsonString(orderDelayQueue));
+        try {
+            byteMessage = objectMapper.writeValueAsBytes(orderDelayQueue);
+        } catch (Exception err) {
+            logger.error("无法序列化处方信息");
+            return;
+        }
+        Message sendMessage = MessageBuilder.withBody(byteMessage).setContentType("application/json").build();
+        logger.info("[2]发送请求参数信息-->sendMessage:{}",sendMessage);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ORDER_DELAY_EXCHANGE, RabbitMQConfig.ORDER_DELAY_ROUTING_KEY, sendMessage, new MessagePostProcessor() {
+            @Override
+            public Message postProcessMessage(Message message) throws AmqpException {
+                message.getMessageProperties().setExpiration(ttl + "");
+//                logger.info("[3]发送请求参数信息-->message:{}  ",message);
+                return message;
+            }
+        });
+        logger.info("[0]处理业务延时发送完毕,入队列");
+    }
+
+    @RabbitListener(queues = {RabbitMQConfig.ORDER_QUEUE_NAME})
+    public void orderDelayQueue(Message message, Channel channel) {
+        OrderDelayQueue orderDelayQueue = null;
+        try {
+            orderDelayQueue = objectMapper.readValue(message.getBody(), OrderDelayQueue.class);
+            switch (orderDelayQueue.getCaseInfo()){
+                case ConstantAll.CASE_INFO_ORDER_MEDICAL_PAYMENT_TIME:
+                    logger.info("[待支付]患者下单过期 延迟处理逻辑");
+                    MutableTriple<Long, MedicalDate, String> resultMedicalOrderTimeOut = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, MedicalDate, String>>() {
+                    });
+                    if(resultMedicalOrderTimeOut!=null){
+                        medicalDateService.patientPastDue(new Date(), orderDelayQueue.getRedisKey(), resultMedicalOrderTimeOut, true);
+                        logger.info("[待支付]患者过期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_MEDICAL_PRES_CHECK_A:
+                    logger.info("[药师审方环节A]药师抢单阶段 延迟处理逻辑");
+                    MutableTriple<Long, Date, Long> resultCheckA = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, Date, Long>>() {
+                    });
+                    if(resultCheckA!=null){
+                        this.medicalPrescriptionService.doWithCheckA(true,orderDelayQueue.getRedisKey(),resultCheckA);
+                        logger.info("[药师审方环节A]药师抢单阶段时间到期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_MEDICAL_PRES_CHECK_B:
+                    logger.info("[药师审方环节B]药师抢单阶段 延迟处理逻辑");
+                    MutableTriple<Long, Date, Long> resultCheckB = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, Date, Long>>() {
+                    });
+                    if(resultCheckB!=null){
+                        this.medicalPrescriptionService.doWithCheckB(true,orderDelayQueue.getRedisKey(),resultCheckB);
+                        logger.info("[药师审方环节B]药师抢单阶段时间到期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_MEDICAL_PRES_CHECK_C:
+                    logger.info("[药师审方环节C]药师抢单阶段 延迟处理逻辑");
+                    MutableTriple<Long, Date, Long> resultCheckC = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, Date, Long>>() {
+                    });
+                    if(resultCheckC!=null){
+                        this.medicalPrescriptionService.doWithCheckC(true,orderDelayQueue.getRedisKey(),resultCheckC);
+                        logger.info("[药师审方环节C]药师抢单阶段时间到期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_MEDICAL_PRES_CHECK_D:
+                    logger.info("[药师审方环节D]药师抢单阶段 延迟处理逻辑");
+                    MutableTriple<Long, Date, Long> resultCheckD = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, Date, Long>>() {
+                    });
+                    if(resultCheckD!=null){
+                        this.medicalPrescriptionService.doWithCheckD(true,orderDelayQueue.getRedisKey(),resultCheckD);
+                        logger.info("[药师审方环节A]药师抢单阶段时间到期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_MEDICAL_PRES_CHECK_E:
+                    logger.info("[药师审方环节E]药师抢单阶段 延迟处理逻辑");
+                    MutableTriple<Long, Date, Long> resultCheckE = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, Date, Long>>() {
+                    });
+                    if(resultCheckE!=null){
+                        this.medicalPrescriptionService.doWithCheckE(true,orderDelayQueue.getRedisKey(),resultCheckE);
+                        logger.info("[药师审方环节E]药师抢单阶段时间到期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_ORDER_TAKE_SEND_PAYMENT:
+                    logger.info("[待支付]患者看到的处方支付过期 延迟处理逻辑");
+                    MutableTriple<Long, Date,List<Long>> resultPaymentTimeOutTaskSend = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<Long, Date,List<Long>>>() {
+                    });
+                    if(resultPaymentTimeOutTaskSend!=null){
+                        this.medicalPrescriptionService.considerDeleteTimeOutTakeSendOrder_One_One(resultPaymentTimeOutTaskSend,new Date());
+                        logger.info("[待支付]患者看到的处方支付过期[已经完成逻辑处理]");
+                    }
+                    break;
+                case ConstantAll.CASE_INFO_ORDER_SEND_CHECK_A:
+                    logger.info("[药师接单]药师接单提醒时间到期 延迟处理逻辑");
+                    MutableTriple<String, Date,List<String>> resultPharmacistCheckA = JsonUtils.fromJson(redisService.getValueRedisByKey(orderDelayQueue.getRedisKey()), new TypeReference<MutableTriple<String, Date,List<String>>>() {
+                    });
+                    if(resultPharmacistCheckA!=null){
+                        drugSendOrderService.pharmacistSendOrderCheckA(resultPharmacistCheckA);
+                        logger.info("[药师接单]药师接单提醒时间到期[已经完成逻辑处理]");
+                    }
+
+                    break;
+
+                default:
+                    logger.info("没有找到对应的业务处理");
+                    break;
+            }
+
+//            logger.info("[===]接受延期之后的对象内容-->orderDelayQueue:{}",JsonUtils.toJsonString(orderDelayQueue));
+        } catch (Exception err) {
+            logger.error("反序列处方信息异常。异常信息：{}", err.getMessage());
+            return;
+        }
+
+
+/*        Prescription lastPrescription = prescriptionService.getLastPrescriptionById(prescription.getOrganizationId(), prescription.getPrescriptionId());
+
+        if (lastPrescription.getStatus() == PrescriptionChainConfig.STATUS_WAIT_PAY) {
+            if (0 == pharmacyService.unlockStock(prescription.getOrganizationId(), prescription.getDrugList())) {
+                logger.error("解锁药品库存时出现异常。处方编号：{}-{}",prescription.getPrescriptionId(), prescription.getStatus());
+            }
+        }*/
+        try {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            logger.info("[===]延时处理完毕");
+        } catch (Exception err) {
+            logger.error("确认延时消息异常：{} 异常信息：{}", orderDelayQueue, err.getMessage());
+        }
+    }
+}

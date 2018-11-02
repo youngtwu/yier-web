@@ -25,38 +25,54 @@
     <select id="listDepartmentCatalogForDoctor" parameterType="com.yier.platform.common.requestParam.HospitalRequest"
             resultMap="BaseResultMap">
         select DISTINCT t.* from t_department_catalog t LEFT JOIN t_doctor dt ON t.id = dt.catalog_id
-        /*and dt.`status` = '0'*/
         <choose>
             <when test="status == 'ALL'">
             </when>
-            <otherwise>
+            <when test="status == null">
                 and dt.`status` = '0'
+            </when>
+            <otherwise>
             </otherwise>
         </choose>
         LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',dt.id)
         <where>
-            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            dt.id IS NOT NULL
+            <choose>
+                <when test="chat == 'ALL'">
+                </when>
+                <when test="chat == null">
+                    and (dt.chat='0' or cs.chat='0')
+                </when>
+                <otherwise>
+                    and (dt.chat=#{chat} or cs.chat=#{chat})
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="medical == 'ALL'">
+                </when>
+                <when test="medical == null">
+                    and dt.medical='0'
+                </when>
+                <otherwise>
+                    and dt.medical=#{medical}
+                </otherwise>
+            </choose>
             <if test="hospitalId != null">
                 and t.hospital_id = #{hospitalId}
             </if>
             <if test="useType != null">
                 and t.use_type = #{useType}
             </if>
-            <!-- <if test="status != null">
-              and t.`status` = #{status}
-            </if>-->
-            <if test="status != null">
-                <choose>
-                    <when test="status == 'ALL'">
-                    </when>
-                    <otherwise>
-                        and t.`status` = #{status}
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="status == null">
-                and t.`status` = '0'
-            </if>
+            <choose>
+                <when test="status == 'ALL'">
+                </when>
+                <when test="status == null">
+                    and t.`status` = '0'
+                </when>
+                <otherwise>
+                    and t.`status` = #{status}
+                </otherwise>
+            </choose>
             <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
                 and (t.`name` like concat('%',#{searchKey},'%')
                 )
@@ -83,36 +99,54 @@
     <select id="listDepartmentCatalogForDoctorCount"
             parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultType="Integer">
         select count(DISTINCT t.id) from t_department_catalog t LEFT JOIN t_doctor dt ON t.id = dt.catalog_id
-        /*and dt.`status` = '0'*/
         <choose>
             <when test="status == 'ALL'">
             </when>
-            <otherwise>
+            <when test="status == null">
                 and dt.`status` = '0'
+            </when>
+            <otherwise>
             </otherwise>
         </choose>
         LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'doctor',dt.id)
         <where>
-            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            dt.id IS NOT NULL
+            <choose>
+                <when test="chat == 'ALL'">
+                </when>
+                <when test="chat == null">
+                    and (dt.chat='0' or cs.chat='0')
+                </when>
+                <otherwise>
+                    and (dt.chat=#{chat} or cs.chat=#{chat})
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="medical == 'ALL'">
+                </when>
+                <when test="medical == null">
+                    and dt.medical='0'
+                </when>
+                <otherwise>
+                    and dt.medical=#{medical}
+                </otherwise>
+            </choose>
             <if test="hospitalId != null">
                 and t.hospital_id = #{hospitalId}
             </if>
             <if test="useType != null">
                 and t.use_type = #{useType}
             </if>
-            <!-- <if test="status != null">
-               and t.`status` = #{status}
-             </if>-->
             <choose>
                 <when test="status == 'ALL'">
+                </when>
+                <when test="status == null">
+                    and t.`status` = '0'
                 </when>
                 <otherwise>
                     and t.`status` = #{status}
                 </otherwise>
             </choose>
-            <if test="status == null">
-                and t.`status` = '0'
-            </if>
             <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
                 and (t.`name` like concat('%',#{searchKey},'%')
                 )
@@ -125,35 +159,44 @@
     <select id="listDepartmentCatalogForPharmacist"
             parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultMap="BaseResultMap">
         select DISTINCT t.* from t_department_catalog t LEFT JOIN t_pharmacist dt ON t.id = dt.catalog_id
-        /*and dt.`status` = '0'*/
         <choose>
             <when test="status == 'ALL'">
             </when>
-            <otherwise>
+            <when test="status == null">
                 and dt.`status` = '0'
+            </when>
+            <otherwise>
             </otherwise>
         </choose>
         LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',dt.id)
         <where>
-            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            dt.id IS NOT NULL
+            <choose>
+                <when test="chat == 'ALL'">
+                </when>
+                <when test="chat == null">
+                    and (dt.chat='0' or cs.chat='0')
+                </when>
+                <otherwise>
+                    and (dt.chat=#{chat} or cs.chat=#{chat})
+                </otherwise>
+            </choose>
             <if test="hospitalId != null">
                 and t.hospital_id = #{hospitalId}
             </if>
             <if test="useType != null">
                 and t.use_type = #{useType}
             </if>
-            <!-- <if test="status != null">
-              and t.`status` = #{status}
-            </if>-->
-            <if test="status != null">
-                <choose>
-                    <when test="status == 'ALL'">
-                    </when>
-                    <otherwise>
-                        and t.`status` = #{status}
-                    </otherwise>
-                </choose>
-            </if>
+            <choose>
+                <when test="status == 'ALL'">
+                </when>
+                <when test="status == null">
+                    and t.`status` = '0'
+                </when>
+                <otherwise>
+                    and t.`status` = #{status}
+                </otherwise>
+            </choose>
             <if test="status == null">
                 and t.`status` = '0'
             </if>
@@ -183,38 +226,44 @@
     <select id="listDepartmentCatalogForPharmacistCount"
             parameterType="com.yier.platform.common.requestParam.HospitalRequest" resultType="Integer">
         select count(DISTINCT t.id) from t_department_catalog t LEFT JOIN t_pharmacist dt ON t.id = dt.catalog_id
-        /*and dt.`status` = '0'*/
         <choose>
             <when test="status == 'ALL'">
             </when>
-            <otherwise>
+            <when test="status == null">
                 and dt.`status` = '0'
+            </when>
+            <otherwise>
             </otherwise>
         </choose>
         LEFT JOIN t_chat_state cs ON cs.chat_space = concat('patient',#{patientId},'pharmacist',dt.id)
         <where>
-            dt.id IS NOT NULL and (dt.chat='0' or cs.chat='0')
+            dt.id IS NOT NULL
+            <choose>
+                <when test="chat == 'ALL'">
+                </when>
+                <when test="chat == null">
+                    and (dt.chat='0' or cs.chat='0')
+                </when>
+                <otherwise>
+                    and (dt.chat=#{chat} or cs.chat=#{chat})
+                </otherwise>
+            </choose>
             <if test="hospitalId != null">
                 and t.hospital_id = #{hospitalId}
             </if>
             <if test="useType != null">
                 and t.use_type = #{useType}
             </if>
-            <!-- <if test="status != null">
-              and t.`status` = #{status}
-            </if>-->
-            <if test="status != null">
-                <choose>
-                    <when test="status == 'ALL'">
-                    </when>
-                    <otherwise>
-                        and t.`status` = #{status}
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="status == null">
-                and t.`status` = '0'
-            </if>
+            <choose>
+                <when test="status == 'ALL'">
+                </when>
+                <when test="status == null">
+                    and t.`status` = '0'
+                </when>
+                <otherwise>
+                    and t.`status` = #{status}
+                </otherwise>
+            </choose>
             <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
                 and (t.`name` like concat('%',#{searchKey},'%')
                 )
@@ -234,21 +283,16 @@
             <if test="useType != null">
                 and t.use_type = #{useType}
             </if>
-            <!-- <if test="status != null">
-              and t.`status` = #{status}
-            </if>-->
-            <if test="status != null">
-                <choose>
-                    <when test="status == 'ALL'">
-                    </when>
-                    <otherwise>
-                        and t.`status` = #{status}
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="status == null">
-                and t.status = '0'
-            </if>
+            <choose>
+                <when test="status == 'ALL'">
+                </when>
+                <when test="status == null">
+                    and t.`status` = '0'
+                </when>
+                <otherwise>
+                    and t.`status` = #{status}
+                </otherwise>
+            </choose>
             <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
                 and (t.`name` like concat('%',#{searchKey},'%')
                 )
@@ -282,21 +326,16 @@
             <if test="useType != null">
                 and t.use_type = #{useType}
             </if>
-            <!-- <if test="status != null">
-              and t.`status` = #{status}
-            </if>-->
-            <if test="status != null">
-                <choose>
-                    <when test="status == 'ALL'">
-                    </when>
-                    <otherwise>
-                        and t.`status` = #{status}
-                    </otherwise>
-                </choose>
-            </if>
-            <if test="status == null">
-                and t.status = '0'
-            </if>
+            <choose>
+                <when test="status == 'ALL'">
+                </when>
+                <when test="status == null">
+                    and t.`status` = '0'
+                </when>
+                <otherwise>
+                    and t.`status` = #{status}
+                </otherwise>
+            </choose>
             <if test="@org.apache.commons.lang3.StringUtils@isNotBlank( searchKey )">
                 and (t.`name` like concat('%',#{searchKey},'%')
                 )

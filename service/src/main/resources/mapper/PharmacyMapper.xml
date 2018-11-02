@@ -16,6 +16,9 @@
       <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_time" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_from" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_to" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="visit" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
       <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
@@ -41,6 +44,9 @@
       <arg column="area_id" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="contact" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_time" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_from" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="work_to" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="visit" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="lng" javaType="java.lang.Double" jdbcType="DECIMAL" />
       <arg column="lat" javaType="java.lang.Double" jdbcType="DECIMAL" />
@@ -54,15 +60,15 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, pharmacy_code_no, name, hospital_id, hospital_code_no, hospital_name, hospital_address, 
-    web_site, province_id, city_id, area_id, address, contact, visit, lng, lat, other, 
-    status, gmt_create, gmt_modified, remarks
+    web_site, province_id, city_id, area_id, address, contact, work_time, work_from, 
+    work_to, visit, lng, lat, other, status, gmt_create, gmt_modified, remarks
   </sql>
   <sql id="Blob_Column_List">
     profile
   </sql>
   <sql id="Base_Po_Column_List">
     t.id, t.pharmacy_code_no pharmacyCodeNo, t.name, t.hospital_id hospitalId, t.hospital_code_no hospitalCodeNo, t.hospital_name hospitalName, t.hospital_address hospitalAddress,
-    t.web_site webSite, t.province_id provinceId, t.city_id cityId, t.area_id areaId, t.address, t.contact, t.visit, t.lng, t.lat, t.other,
+    t.web_site webSite, t.province_id provinceId, t.city_id cityId, t.area_id areaId, t.address, t.contact, t.work_time workTime, t.work_from workFrom, t.work_to workTo, t.visit, t.lng, t.lat, t.other,
     t.status, t.gmt_create gmtCreate, t.gmt_modified gmtModified, t.remarks,t.profile,t.distance
   </sql>
 
@@ -270,6 +276,15 @@
 
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
@@ -290,6 +305,7 @@
       hospital_code_no, hospital_name, hospital_address, 
       web_site, province_id, city_id, 
       area_id, address, contact, 
+      work_time, work_from, work_to, 
       visit, lng, lat, other, 
       status, gmt_create, gmt_modified, 
       remarks, profile)
@@ -297,6 +313,7 @@
       #{hospitalCodeNo,jdbcType=VARCHAR}, #{hospitalName,jdbcType=VARCHAR}, #{hospitalAddress,jdbcType=VARCHAR}, 
       #{webSite,jdbcType=VARCHAR}, #{provinceId,jdbcType=VARCHAR}, #{cityId,jdbcType=VARCHAR}, 
       #{areaId,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{contact,jdbcType=VARCHAR}, 
+      #{workTime,jdbcType=VARCHAR}, #{workFrom,jdbcType=VARCHAR}, #{workTo,jdbcType=VARCHAR}, 
       #{visit,jdbcType=INTEGER}, #{lng,jdbcType=DECIMAL}, #{lat,jdbcType=DECIMAL}, #{other,jdbcType=VARCHAR}, 
       #{status,jdbcType=CHAR}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP}, 
       #{remarks,jdbcType=VARCHAR}, #{profile,jdbcType=LONGVARCHAR})
@@ -342,6 +359,15 @@
       </if>
       <if test="contact != null">
         contact,
+      </if>
+      <if test="workTime != null">
+        work_time,
+      </if>
+      <if test="workFrom != null">
+        work_from,
+      </if>
+      <if test="workTo != null">
+        work_to,
       </if>
       <if test="visit != null">
         visit,
@@ -407,6 +433,15 @@
       </if>
       <if test="contact != null">
         #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="workTime != null">
+        #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="workFrom != null">
+        #{workFrom,jdbcType=VARCHAR},
+      </if>
+      <if test="workTo != null">
+        #{workTo,jdbcType=VARCHAR},
       </if>
       <if test="visit != null">
         #{visit,jdbcType=INTEGER},
@@ -476,6 +511,15 @@
       <if test="contact != null">
         contact = #{contact,jdbcType=VARCHAR},
       </if>
+      <if test="workTime != null">
+        work_time = #{workTime,jdbcType=VARCHAR},
+      </if>
+      <if test="workFrom != null">
+        work_from = #{workFrom,jdbcType=VARCHAR},
+      </if>
+      <if test="workTo != null">
+        work_to = #{workTo,jdbcType=VARCHAR},
+      </if>
       <if test="visit != null">
         visit = #{visit,jdbcType=INTEGER},
       </if>
@@ -520,6 +564,9 @@
       area_id = #{areaId,jdbcType=VARCHAR},
       address = #{address,jdbcType=VARCHAR},
       contact = #{contact,jdbcType=VARCHAR},
+      work_time = #{workTime,jdbcType=VARCHAR},
+      work_from = #{workFrom,jdbcType=VARCHAR},
+      work_to = #{workTo,jdbcType=VARCHAR},
       visit = #{visit,jdbcType=INTEGER},
       lng = #{lng,jdbcType=DECIMAL},
       lat = #{lat,jdbcType=DECIMAL},
@@ -545,6 +592,9 @@
       area_id = #{areaId,jdbcType=VARCHAR},
       address = #{address,jdbcType=VARCHAR},
       contact = #{contact,jdbcType=VARCHAR},
+      work_time = #{workTime,jdbcType=VARCHAR},
+      work_from = #{workFrom,jdbcType=VARCHAR},
+      work_to = #{workTo,jdbcType=VARCHAR},
       visit = #{visit,jdbcType=INTEGER},
       lng = #{lng,jdbcType=DECIMAL},
       lat = #{lat,jdbcType=DECIMAL},

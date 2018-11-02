@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>com.yier</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>platform</artifactId>
+    <packaging>jar</packaging>
+    <name>platform</name>
+    <description>Api platform for Spring Boot</description>
+
+
+    <dependencies>
+        <!-- 服务子模块 -->
+        <dependency>
+            <groupId>com.yier</groupId>
+            <artifactId>service</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 在生产环境中，需要实时或定期监控服务的可用性。对应用系统的自省和监控的集成功能，可以对应用系统进行配置查看、相关功能统计等 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- eureka注册中心 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <!-- 声明式、模板化的HTTP客户端 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!-- open feign patch 请求方面 -->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-httpclient</artifactId>
+        </dependency>
+        <!--  观谷内部药品范围接口项目 -->
+        <dependency>
+            <groupId>cc.ccae</groupId>
+            <artifactId>yry-service-drug-query-sdk</artifactId>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+        </dependency>
+        <!--
+        这里有个冲突问题
+        Caused by: org.springframework.beans.factory.BeanNotOfRequiredTypeException: Bean named 'connectionManager' is expected to be of type 'com.github.tobato.fastdfs.conn.ConnectionManager' but was actually of type 'org.apache.http.impl.conn.PoolingHttpClientConnectionManager'
+        -->
+        <!--<dependency>-->
+            <!--<groupId>com.github.tobato</groupId>-->
+            <!--<artifactId>fastdfs-client</artifactId>-->
+            <!--<version>1.26.2</version>-->
+        <!--</dependency>-->
+    </dependencies>
+
+
+    <!--  业务模块（依赖其他模块） 的pom文件中添加,fat jar生成 -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -2,8 +2,8 @@
 # 开发环境
 environment: dev #dev (test)是测试环境，prod (product)是正式环境
 # 版本前缀标志，目前用于redis库前缀 版本后缀标志
-prefix: test
-suffix: suffix
+prefix: testUint
+suffix: suffixUint
 # ----------------------------------------------------------------------------------------------------------------------
 # FastDFS配置
 # ----------------------------------------------------------------------------------------------------------------------
@@ -76,6 +76,13 @@ common:
 
         appKeyForNurse: xxx
         appMasterSecretForNurse: xxxx
+      rabbitConfig: #延时方面的配置
+        registerDelayQueue: dev.service.com.yier.platform.service.medical.delay.queue
+        orderDelayExchange: dev.service.com.yier.platform.service.medical.delay.exchange
+
+        orderQueueName: dev.service.com.yier.platform.service.medical.queue
+        orderExchangeName: dev.service.com.yier.platform.service.medical.exchange
+
 
 spring:
   datasource:
@@ -124,26 +131,23 @@ spring:
           slow-sql-millis: 2000
 
 
-  redis:
-    # redis数据库（默认为0）
-    database: 0
-    # Redis服务器地址
-    host: 192.168.0.215
-    # Redis服务器连接端口
-    password: vvcs
-    # Redis服务器连接密码（默认为空）
-    port: 6379
-    # 连接池最大连接数（使用负值表示没有限制）
-#        pool.max-active: 8
-    # 连接池最大阻塞等待时间（使用负值表示没有限制）
-#        pool.max-wait: -1
-    # 连接池中的最大空闲连接
-#        pool.max-idle: 8
-    # 连接池中的最小空闲连接
-#        pool.min-idle: 0
-    # 连接超时时间（毫秒）
-#        timeout: 2000
 
+
+  #哨兵模式
+  redis:
+    password: vvcs
+    sentinel:
+      nodes: 192.168.0.170:8890, 192.168.0.178:8890, 192.168.0.178:8890
+      master: master-7890
+
+  rabbitmq:
+    host: 192.168.0.170
+    port: 5672
+    username: admin
+    password: admin12345
+    listener:
+      simple:
+        acknowledge-mode: manual
 
 eureka:
   client:

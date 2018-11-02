@@ -1,0 +1,69 @@
+package com.yier.platform.service.amqp;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+public class RabbitMQConfig {
+    private static final Logger log = LoggerFactory.getLogger(RabbitMQConfig.class);
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory){
+        connectionFactory.setPublisherConfirms(true);
+        connectionFactory.setPublisherReturns(true);
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMandatory(true);
+
+        return rabbitTemplate;
+    }
+
+    private static final String REGISTER_DELAY_QUEUE = "com.yier.platform.service.medical.delay.queue";
+    public static final String ORDER_DELAY_EXCHANGE = "com.yier.platform.service.medical.delay.exchange";
+    public static final String ORDER_DELAY_ROUTING_KEY = "medical_routing";
+
+    public static final String ORDER_QUEUE_NAME = "com.yier.platform.service.medical.queue";
+    public static final String ORDER_EXCHANGE_NAME = "com.yier.platform.service.medical.exchange";
+    public static final String ROUTING_KEY = "medical_routing_all";
+
+    @Bean
+    public Queue delayProcessQueue() {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x-dead-letter-exchange", ORDER_EXCHANGE_NAME);
+        params.put("x-dead-letter-routing-key", ROUTING_KEY);
+        return new Queue(REGISTER_DELAY_QUEUE, true, false, false, params);
+    }
+
+    @Bean
+    public DirectExchange delayExchange() {
+        return new DirectExchange(ORDER_DELAY_EXCHANGE);
+    }
+
+    @Bean
+    public Binding dlxBinding() {
+        return BindingBuilder.bind(delayProcessQueue()).to(delayExchange()).with(ORDER_DELAY_ROUTING_KEY);
+    }
+
+
+    @Bean
+    public Queue registerBookQueue() {
+        return new Queue(ORDER_QUEUE_NAME, true);
+    }
+
+    @Bean
+    public TopicExchange registerBookTopicExchange() {
+        return new TopicExchange(ORDER_EXCHANGE_NAME);
+    }
+
+    @Bean
+    public Binding registerBookBinding() {
+        return BindingBuilder.bind(registerBookQueue()).to(registerBookTopicExchange()).with(ROUTING_KEY);
+    }
+}

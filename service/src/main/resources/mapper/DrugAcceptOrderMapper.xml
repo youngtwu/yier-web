@@ -183,6 +183,15 @@
       <if test="status != null">
         and t.status = #{status}
       </if>
+      <if test="planTimeDue != null">
+        <![CDATA[	and t.plan_time <= #{planTimeDue} ]]>
+      </if>
+      <if test="!@org.springframework.util.CollectionUtils@isEmpty(statusList)">
+        AND t.accept_status IN
+        <foreach collection="statusList" close=")" open="(" separator="," item="status">
+          #{status}
+        </foreach>
+      </if>
     </where>
     <choose>
       <when test="sort!=null and order!=null">
@@ -230,6 +239,15 @@
       <if test="status != null">
         and t.status = #{status}
       </if>
+      <if test="planTimeDue != null">
+        <![CDATA[	and t.plan_time <= #{planTimeDue} ]]>
+      </if>
+      <if test="!@org.springframework.util.CollectionUtils@isEmpty(statusList)">
+        AND t.accept_status IN
+        <foreach collection="statusList" close=")" open="(" separator="," item="status">
+          #{status}
+        </foreach>
+      </if>
     </where>
   </select>
 
@@ -262,6 +280,15 @@
       </if>
       <if test="status != null">
         and t.status = #{status}
+      </if>
+      <if test="planTimeDue != null">
+        <![CDATA[	and t.plan_time <= #{planTimeDue} ]]>
+      </if>
+      <if test="!@org.springframework.util.CollectionUtils@isEmpty(statusList)">
+        AND t.accept_status IN
+        <foreach collection="statusList" close=")" open="(" separator="," item="status">
+          #{status}
+        </foreach>
       </if>
     </where>
     <choose>
@@ -309,6 +336,15 @@
       </if>
       <if test="status != null">
         and t.status = #{status}
+      </if>
+      <if test="planTimeDue != null">
+        <![CDATA[	and t.plan_time <= #{planTimeDue} ]]>
+      </if>
+      <if test="!@org.springframework.util.CollectionUtils@isEmpty(statusList)">
+        AND t.accept_status IN
+        <foreach collection="statusList" close=")" open="(" separator="," item="status">
+          #{status}
+        </foreach>
       </if>
     </where>
   </select>

@@ -168,11 +168,11 @@
     </update>
 
     <delete id="deleteCityByCityId" parameterType="java.lang.String">
-        delete from t_cities t where t.cityId = #{cityId,jdbcType=VARCHAR}
+        delete from t_cities where cityId = #{cityId,jdbcType=VARCHAR}
     </delete>
 
     <delete id="deleteCityByProvinceId" parameterType="java.lang.String">
-        delete from t_cities t where t.province_id = #{provinceId,jdbcType=VARCHAR}
+        delete from t_cities where province_id = #{provinceId,jdbcType=VARCHAR}
     </delete>
 
 

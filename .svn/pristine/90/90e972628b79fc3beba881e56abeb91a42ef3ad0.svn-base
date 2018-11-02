@@ -1,0 +1,82 @@
+package com.yier.platform.service.amqp;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
+import com.yier.platform.common.po.OrderDelayQueue;
+import com.yier.platform.common.util.JsonUtils;
+import com.yier.platform.service.PharmacyService;
+import com.yier.platform.service.feign.Prescription;
+import com.yier.platform.service.feign.PrescriptionChainConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.InvalidParameterException;
+
+@Service
+public class RabbitService {
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final Logger logger = LoggerFactory.getLogger(RabbitService.class);
+
+    public void sendDelayMessage(OrderDelayQueue orderDelayQueue, int ttl) {
+        byte[] byteMessage = null;
+//        logger.info("[1]发送请求参数信息:{}",JsonUtils.toJsonString(orderDelayQueue));
+        try {
+            byteMessage = objectMapper.writeValueAsBytes(orderDelayQueue);
+        } catch (Exception err) {
+            logger.error("无法序列化处方信息");
+            return;
+        }
+        Message sendMessage = MessageBuilder.withBody(byteMessage).setContentType("application/json").build();
+        logger.info("[2]发送请求参数信息-->sendMessage:{}",sendMessage);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ORDER_DELAY_EXCHANGE, RabbitMQConfig.ORDER_DELAY_ROUTING_KEY, sendMessage, new MessagePostProcessor() {
+            @Override
+            public Message postProcessMessage(Message message) throws AmqpException {
+                message.getMessageProperties().setExpiration(ttl + "");
+//                logger.info("[3]发送请求参数信息-->message:{}  ",message);
+                return message;
+            }
+        });
+        logger.info("[0]处理业务延时发送完毕,入队列");
+    }
+
+    @RabbitListener(queues = {RabbitMQConfig.ORDER_QUEUE_NAME})
+    public void orderDelayQueue(Message message, Channel channel) {
+        OrderDelayQueue orderDelayQueue = null;
+        try {
+            orderDelayQueue = objectMapper.readValue(message.getBody(), OrderDelayQueue.class);
+//            logger.info("[===]接受延期之后的对象内容-->orderDelayQueue:{}",JsonUtils.toJsonString(orderDelayQueue));
+        } catch (Exception err) {
+            logger.error("反序列处方信息异常。异常信息：{}", err.getMessage());
+            return;
+        }
+
+
+/*        Prescription lastPrescription = prescriptionService.getLastPrescriptionById(prescription.getOrganizationId(), prescription.getPrescriptionId());
+
+        if (lastPrescription.getStatus() == PrescriptionChainConfig.STATUS_WAIT_PAY) {
+            if (0 == pharmacyService.unlockStock(prescription.getOrganizationId(), prescription.getDrugList())) {
+                logger.error("解锁药品库存时出现异常。处方编号：{}-{}",prescription.getPrescriptionId(), prescription.getStatus());
+            }
+        }*/
+        try {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            logger.info("[===]延时处理完毕");
+        } catch (Exception err) {
+            logger.error("确认延时消息异常：{} 异常信息：{}", orderDelayQueue, err.getMessage());
+        }
+    }
+}
